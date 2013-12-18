@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker build -t "klaemo/couchdb:1.5.0" .
