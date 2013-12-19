@@ -2,17 +2,21 @@
 
 adduser --disabled-login --disabled-password --uid 5984 --no-create-home --gecos "" couchdb
 
-chown -Rv couchdb /usr/local/var/lib/couchdb \
+chown -R couchdb /usr/local/var/lib/couchdb \
   /usr/local/var/log/couchdb \
   /usr/local/var/run/couchdb \
   /usr/local/etc/couchdb
+
 chmod 0770 /usr/local/var/lib/couchdb \
   /usr/local/var/log/couchdb \
   /usr/local/var/run/couchdb
+
 chmod 664 /usr/local/etc/couchdb/*.ini
 chmod 775 /usr/local/etc/couchdb/*.d
 
 rm /etc/logrotate.d/couchdb /etc/init.d/couchdb 2&>1
 
 ln -s /usr/local/etc/logrotate.d/couchdb /etc/logrotate.d/couchdb
-ln -s /usr/local/etc/init.d/couchdb  /etc/init.d/couchdb
+# ln -s /usr/local/etc/init.d/couchdb /etc/init.d/couchdb
+
+# update-rc.d couchdb defaults
