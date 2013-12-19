@@ -1,4 +1,4 @@
-FROM ubuntu:12:04
+FROM ubuntu:12.04
 
 MAINTAINER Clemens Stolle clemens.stolle@gmail.com
 
