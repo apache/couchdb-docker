@@ -4,14 +4,14 @@ MAINTAINER Clemens Stolle clemens.stolle@gmail.com
 
 # Get the source
 RUN cd /opt && \
-wget http://apache.openmirror.de/couchdb/source/1.5.0/apache-couchdb-1.5.0.tar.gz && \
-tar xzf /opt/apache-couchdb-1.5.0.tar.gz
+ wget http://apache.openmirror.de/couchdb/source/1.5.0/apache-couchdb-1.5.0.tar.gz && \
+ tar xzf /opt/apache-couchdb-1.5.0.tar.gz
 
 RUN cd /opt/apache-couchdb-1.5.0 && ./configure && make && make install
 
 RUN apt-get remove -y build-essential wget libmozjs185-dev libicu-dev libcurl4-gnutls-dev && \
-apt-get autoremove -y && apt-get clean -y && \
-rm -rf /opt/apache-couchdb-*
+ apt-get autoremove -y && apt-get clean -y && \
+ rm -rf /opt/apache-couchdb-*
 
 ADD ./opt /opt
 
