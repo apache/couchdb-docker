@@ -13,19 +13,19 @@ RUN apt-get remove -y build-essential wget libmozjs185-dev libicu-dev libcurl4-g
 apt-get autoremove -y && apt-get clean -y && \
 rm -rf /opt/apache-couchdb-*
 
+ADD ./opt /opt
+
 # Configuration
-ADD couchdb-config /opt/
-ADD local.ini /usr/local/etc/couchdb/
-RUN chmod +x /opt/couchdb-config && ./opt/couchdb-config
+RUN mv /opt/local.ini /usr/local/etc/couchdb/
+RUN /opt/couchdb-config
 RUN sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini
 
-ADD supervisord.conf /etc/supervisord.conf
+RUN mv /opt/supervisord.conf /etc/supervisord.conf
 
 # Use volume dir for database files and config
 VOLUME ["/usr/local/var/lib/couchdb", "/usr/local/etc/couchdb"]
 
 # USER couchdb
-CMD ["/usr/local/bin/supervisord"]
-# CMD ["couchdb", "-r 5", "-p /usr/local/var/run/couchdb/couchdb.pid"]
+CMD ["/opt/start_couch.sh"]
 
 EXPOSE 5984
