@@ -15,4 +15,4 @@ chmod 0770 /usr/local/var/lib/couchdb \
 chmod 664 /usr/local/etc/couchdb/*.ini
 chmod 775 /usr/local/etc/couchdb/*.d
 
-/usr/local/bin/supervisord
+/usr/local/bin/supervisord -c /etc/supervisord.conf

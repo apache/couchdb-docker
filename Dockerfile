@@ -26,6 +26,6 @@ RUN mv /opt/supervisord.conf /etc/supervisord.conf
 VOLUME ["/usr/local/var/lib/couchdb", "/usr/local/etc/couchdb"]
 
 # USER couchdb
-CMD ["/opt/start_couch.sh"]
+CMD ["/opt/start_couch"]
 
 EXPOSE 5984
