@@ -3,12 +3,12 @@
 # we need to set the permissions here because docker currently
 # mounts volumes as root
 
-chown -R couchdb /usr/local/var/lib/couchdb \
+chown -R couchdb: /usr/local/var/lib/couchdb \
   /usr/local/var/log/couchdb \
   /usr/local/var/run/couchdb \
   /usr/local/etc/couchdb
 
-chmod 0770 /usr/local/var/lib/couchdb \
+chmod -R 0770 /usr/local/var/lib/couchdb \
   /usr/local/var/log/couchdb \
   /usr/local/var/run/couchdb
 
