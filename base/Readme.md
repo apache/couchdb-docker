@@ -1,1 +1,1 @@
-Installs couchdb dependencies and supervisord
+Installs couchdb dependencies

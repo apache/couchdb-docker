@@ -16,4 +16,4 @@ chmod -R 0770 /usr/local/var/lib/couchdb \
 chmod 664 /usr/local/etc/couchdb/*.ini
 chmod 775 /usr/local/etc/couchdb/*.d
 
-/usr/local/bin/supervisord -c /etc/supervisord.conf
+su - couchdb -c 'mon couchdb'

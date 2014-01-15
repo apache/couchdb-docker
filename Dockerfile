@@ -10,8 +10,11 @@ RUN cd /opt && \
 # build couchdb
 RUN cd /opt/apache-couchdb-* && ./configure && make && make install
 
+# install github.com/visionmedia/mon v1.2.3
+RUN (mkdir /tmp/mon && cd /tmp/mon && curl -L# https://github.com/visionmedia/mon/archive/1.2.3.tar.gz | tar zx --strip 1 && make install)
+
 # cleanup
-RUN apt-get remove -y build-essential wget && \
+RUN apt-get remove -y build-essential wget curl && \
  apt-get autoremove -y && apt-get clean -y && \
  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /opt/apache-couchdb-*
 
@@ -22,9 +25,7 @@ RUN mv /opt/local.ini /usr/local/etc/couchdb/
 RUN sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini
 RUN /opt/couchdb-config
 
-RUN mv /opt/supervisord.conf /etc/supervisord.conf
-
-# Use volume dir for database files and config
+# Use volume dirs for database files and config
 VOLUME ["/usr/local/var/lib/couchdb", "/usr/local/etc/couchdb"]
 
 # USER couchdb

@@ -23,7 +23,7 @@ Available in the docker index as [klaemo/couchdb](https://index.docker.io/u/klae
 * exposes database and config files as [volumes](http://docs.docker.io/en/latest/use/working_with_volumes/)
   * easy to upgrade/fork
   * fast
-* keeps couchdb running with `supervisord` (crashed couch gets restarted automatically)
+* keeps couchdb running with `mon` (crashed couch gets restarted automatically)
 
 ## TODO
 
