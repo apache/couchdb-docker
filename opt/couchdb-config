@@ -1,6 +1,7 @@
 #!/bin/bash
 
-adduser --disabled-login --disabled-password --uid 5984 --home /usr/local/var/lib/couchdb --gecos "" couchdb
+# adduser --disabled-login --disabled-password --no-create-home --gecos "" couchdb
+adduser --disabled-login --disabled-password --home /usr/local/var/lib/couchdb --gecos "" couchdb
 
 chown -R couchdb /usr/local/var/lib/couchdb \
   /usr/local/var/log/couchdb \
