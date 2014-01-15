@@ -1,16 +1,18 @@
 #!/bin/bash
 
-# adduser --disabled-login --disabled-password --no-create-home --gecos "" couchdb
-adduser --disabled-login --disabled-password --home /usr/local/var/lib/couchdb --gecos "" couchdb
+adduser --system --disabled-password \
+  --home /usr/local/var/lib/couchdb --no-create-home \
+  --shell=/bin/bash --group --gecos "" couchdb
 
-chown -R couchdb /usr/local/var/lib/couchdb \
+chown -R couchdb:couchdb /usr/local/var/lib/couchdb \
   /usr/local/var/log/couchdb \
   /usr/local/var/run/couchdb \
   /usr/local/etc/couchdb
 
 chmod 0770 /usr/local/var/lib/couchdb \
   /usr/local/var/log/couchdb \
-  /usr/local/var/run/couchdb
+  /usr/local/var/run/couchdb \
+  /usr/local/etc/couchdb
 
 chmod 664 /usr/local/etc/couchdb/*.ini
 chmod 775 /usr/local/etc/couchdb/*.d
