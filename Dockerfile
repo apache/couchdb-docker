@@ -7,11 +7,13 @@ RUN cd /opt && \
  wget http://apache.openmirror.de/couchdb/source/1.5.0/apache-couchdb-1.5.0.tar.gz && \
  tar xzf /opt/apache-couchdb-1.5.0.tar.gz
 
-RUN cd /opt/apache-couchdb-1.5.0 && ./configure && make && make install
+# build couchdb
+RUN cd /opt/apache-couchdb-* && ./configure && make && make install
 
-RUN apt-get remove -y build-essential wget libmozjs185-dev libicu-dev libcurl4-gnutls-dev && \
+# cleanup
+RUN apt-get remove -y build-essential wget && \
  apt-get autoremove -y && apt-get clean -y && \
- rm -rf /opt/apache-couchdb-*
+ rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /opt/apache-couchdb-*
 
 ADD ./opt /opt
 
