@@ -20,14 +20,8 @@ Available in the docker index as [klaemo/couchdb](https://index.docker.io/u/klae
 ## Features
 
 * exposes couchdb on port `5984` of the container
-* exposes database and config files as [volumes](http://docs.docker.io/en/latest/use/working_with_volumes/)
-  * easy to upgrade/fork
-  * fast
-* keeps couchdb running with `mon` (crashed couch gets restarted automatically)
-
-## TODO
-
-* don't run couch es root once docker fixes permissions for volumes
+* runs everything as user `couchdb` (security ftw!)
+* keeps couchdb running with `mon` (reliability ftw!)
 
 ## Build
 
@@ -38,3 +32,5 @@ It will be added to the container.
 cd /path/to/klaemo/docker-couchdb
 [sudo] docker build -t "$NAME" .
 ```
+
+or use it as a base image for your own config
