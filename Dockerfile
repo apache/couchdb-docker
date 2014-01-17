@@ -25,9 +25,6 @@ RUN mv /opt/local.ini /usr/local/etc/couchdb/
 RUN sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini
 RUN /opt/couchdb-config
 
-# Use volume dirs for database files and logs
-VOLUME ["/usr/local/var/lib/couchdb", "/usr/local/var/log/couchdb"]
-
 # USER couchdb
 CMD ["/opt/start_couch"]
 

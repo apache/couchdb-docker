@@ -20,9 +20,6 @@ Available in the docker index as [klaemo/couchdb](https://index.docker.io/u/klae
 ## Features
 
 * exposes couchdb on port `5984` of the container
-* exposes database and log files as [volumes](http://docs.docker.io/en/latest/use/working_with_volumes/)
-  * easy to upgrade/fork
-  * ability to access the data from other containers for backups, log handling etc
 * runs everything as user `couchdb` (security ftw!)
 * keeps couchdb running with `mon` (reliability ftw!)
 
