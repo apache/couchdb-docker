@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# we need to set the permissions here because docker currently
-# mounts volumes as root
+# we need to set the permissions here because docker mounts volumes as root
 
 chown -R couchdb:couchdb /usr/local/var/lib/couchdb \
   /usr/local/var/log/couchdb \
@@ -16,4 +15,5 @@ chmod -R 0770 /usr/local/var/lib/couchdb \
 chmod 664 /usr/local/etc/couchdb/*.ini
 chmod 775 /usr/local/etc/couchdb/*.d
 
-su - couchdb -c 'mon couchdb'
+# works with recent ubuntu base image
+sudo -i -u couchdb mon couchdb
