@@ -4,8 +4,8 @@ MAINTAINER Clemens Stolle clemens.stolle@gmail.com
 
 # Get the source
 RUN cd /opt && \
- wget http://apache.openmirror.de/couchdb/source/1.5.0/apache-couchdb-1.5.0.tar.gz && \
- tar xzf /opt/apache-couchdb-1.5.0.tar.gz
+ wget http://apache.openmirror.de/couchdb/source/1.5.1/apache-couchdb-1.5.1.tar.gz && \
+ tar xzf /opt/apache-couchdb-1.5.1.tar.gz
 
 # build couchdb
 RUN cd /opt/apache-couchdb-* && ./configure && make && make install
