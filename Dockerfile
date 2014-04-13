@@ -1,6 +1,6 @@
 FROM klaemo/couchdb-base
 
-MAINTAINER Clemens Stolle clemens.stolle@gmail.com
+MAINTAINER Clemens Stolle klaemo@fastmail.fm
 
 # Get the source
 RUN cd /opt && \
