@@ -25,7 +25,7 @@ RUN sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/cou
 RUN /opt/couchdb-config
 
 # Define mountable directories.
-VOLUME ["/user/local/var/log/couchdb", "/usr/local/var/lib/couchdb", "/usr/local/etc/couchdb"]
+VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb", "/usr/local/etc/couchdb"]
 
 ENTRYPOINT ["/opt/start_couch"]
 EXPOSE 5984
