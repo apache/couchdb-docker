@@ -6,11 +6,13 @@ Put the couch in a docker container and ship it anywhere.
 
 If you're looking for a CouchDB with SSL support you can check out [klaemo/couchdb-ssl](https://index.docker.io/u/klaemo/couchdb-ssl/)
 
+Version: `CouchDB 1.5.1`
+
 ## Run
 
 Available in the docker index as [klaemo/couchdb](https://index.docker.io/u/klaemo/couchdb/)
 
-```shell
+```bash
 [sudo] docker pull klaemo/couchdb
 
 # expose it to the world on port 5984
@@ -33,7 +35,6 @@ You might want to provide your own version of the following files:
 * `local.ini` for CouchDB
 
 Example Dockerfile:
-
 ```
 FROM klaemo/couchdb
 
