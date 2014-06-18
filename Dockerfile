@@ -14,9 +14,9 @@ RUN cd /opt/apache-couchdb-* && ./configure && make && make install
 RUN (mkdir /tmp/mon && cd /tmp/mon && curl -L# https://github.com/visionmedia/mon/archive/1.2.3.tar.gz | tar zx --strip 1 && make install)
 
 # cleanup
-RUN apt-get remove -y build-essential wget curl && \
- apt-get autoremove -y && apt-get clean -y && \
- rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /opt/apache-couchdb-*
+# RUN apt-get remove -y build-essential wget curl && \
+#  apt-get autoremove -y && apt-get clean -y && \
+#  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /opt/apache-couchdb-*
 
 ADD ./opt /opt
 
