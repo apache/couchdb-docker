@@ -42,7 +42,7 @@ RUN curl -o /usr/local/bin/gosu -SkL 'https://github.com/tianon/gosu/releases/do
   && chmod +x /usr/local/bin/gosu
 
 # cleanup (libicu48 gets autoremoved, but we actually need it)
-RUN apt-get purge -y erlang-dev build-essential libmozjs185-cloudant-dev libnspr4-dev libcurl4-openssl-dev libicu-dev lsb-release wget \
+RUN apt-get purge -y erlang-dev binutils cpp cpp-4.7 build-essential libmozjs185-cloudant-dev libnspr4-dev libcurl4-openssl-dev libicu-dev lsb-release wget \
   && apt-get autoremove -y \
   && apt-get update && apt-get install -y libicu48 --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
