@@ -13,10 +13,10 @@ Version: `CouchDB 1.6.0`
 Available in the docker index as [klaemo/couchdb](https://index.docker.io/u/klaemo/couchdb/)
 
 ```bash
-[sudo] docker pull klaemo/couchdb
+[sudo] docker pull klaemo/couchdb:latest
 
 # expose it to the world on port 5984
-[sudo] docker run -d -p 5984:5984 -name couchdb klaemo/couchdb
+[sudo] docker run -d -p 5984:5984 --name couchdb klaemo/couchdb
 
 curl http://localhost:5984
 ```
@@ -26,6 +26,7 @@ curl http://localhost:5984
 * built on top of the solid and small `debian:wheezy` base image
 * exposes CouchDB on port `5984` of the container
 * runs everything as user `couchdb` (security ftw!)
+* docker volumes for data, logs and config
 
 The previous version of this image used to come with a process manager to keep
 CouchDB running. As of Docker 1.2 you can use the `--restart` flag to accomplish this.
