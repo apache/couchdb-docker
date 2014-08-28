@@ -25,9 +25,9 @@ RUN apt-get update -y && apt-get install -y lsb-release wget \
   && rm -rf /var/lib/apt/lists/*
 
 # download and verify the source
-RUN curl -L http://apache.openmirror.de/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
-  && curl -L http://www.apache.org/dist/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
-  && curl -L http://www.apache.org/dist/couchdb/KEYS -o KEYS \
+RUN curl -sSL http://apache.openmirror.de/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
+  && curl -sSL http://www.apache.org/dist/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
+  && curl -sSL http://www.apache.org/dist/couchdb/KEYS -o KEYS \
   && gpg --import KEYS \
   && gpg --verify couchdb.tar.gz.asc \
   && mkdir -p /usr/src/couchdb \
