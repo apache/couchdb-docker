@@ -4,7 +4,7 @@ MAINTAINER Clemens Stolle klaemo@fastmail.fm
 
 # Install instructions from https://cwiki.apache.org/confluence/display/COUCHDB/Debian
 
-ENV COUCHDB_VERSION 1.6.0
+ENV COUCHDB_VERSION 1.6.1
 
 RUN useradd -d /var/lib/couchdb couchdb
 
