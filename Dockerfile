@@ -22,32 +22,24 @@ RUN apt-get update -y && apt-get install -y lsb-release wget \
   libmozjs185-cloudant libmozjs185-cloudant-dev \
   libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev curl libicu-dev \
   --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/*
-
-# download and verify the source
-RUN curl -sSL http://apache.openmirror.de/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -sSL http://apache.openmirror.de/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
   && curl -sSL http://www.apache.org/dist/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
   && curl -sSL http://www.apache.org/dist/couchdb/KEYS -o KEYS \
-  && gpg --import KEYS \
-  && gpg --verify couchdb.tar.gz.asc \
+  && gpg --import KEYS && gpg --verify couchdb.tar.gz.asc \
   && mkdir -p /usr/src/couchdb \
-  && tar -xzf couchdb.tar.gz -C /usr/src/couchdb --strip-components=1
-
-# build couchdb
-RUN cd /usr/src/couchdb \
+  && tar -xzf couchdb.tar.gz -C /usr/src/couchdb --strip-components=1 \
+  && cd /usr/src/couchdb \
   && ./configure --with-js-lib=/usr/lib --with-js-include=/usr/include/mozjs \
-  && make && make install
-
-RUN curl -o /usr/local/bin/gosu -SkL 'https://github.com/tianon/gosu/releases/download/1.1/gosu' \
-  && chmod +x /usr/local/bin/gosu
-
-# cleanup (libicu48 gets autoremoved, but we actually need it)
-RUN apt-get purge -y erlang-dev binutils cpp cpp-4.7 build-essential libmozjs185-cloudant-dev libnspr4-dev libcurl4-openssl-dev libicu-dev lsb-release wget \
+  && make && make install \
+  && curl -o /usr/local/bin/gosu -SkL 'https://github.com/tianon/gosu/releases/download/1.1/gosu' \
+  && chmod +x /usr/local/bin/gosu \
+  && apt-get purge -y erlang-dev binutils cpp cpp-4.7 build-essential libmozjs185-cloudant-dev libnspr4-dev libcurl4-openssl-dev libicu-dev lsb-release wget \
   && apt-get autoremove -y \
   && apt-get update && apt-get install -y libicu48 --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* \
   && rm -r /usr/src/couchdb \
-  && rm couchdb.tar.gz* KEYS
+  && rm /couchdb.tar.gz* /KEYS
 
 # permissions
 RUN chown -R couchdb:couchdb \
