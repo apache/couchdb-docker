@@ -26,7 +26,7 @@ curl http://localhost:5984
 * built on top of the solid and small `debian:wheezy` base image
 * exposes CouchDB on port `5984` of the container
 * runs everything as user `couchdb` (security ftw!)
-* docker volumes for data, logs and config
+* docker volumes for data and logs
 
 The previous version of this image used to come with a process manager to keep
 CouchDB running. As of Docker 1.2 you can use the `--restart` flag to accomplish this.
@@ -43,7 +43,7 @@ Example Dockerfile:
 ```
 FROM klaemo/couchdb
 
-ADD local.ini /usr/local/etc/couchdb/
+COPY local.ini /usr/local/etc/couchdb/
 ```
 
 and then build and run

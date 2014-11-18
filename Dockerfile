@@ -55,7 +55,7 @@ RUN sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/cou
 ADD ./docker-entrypoint.sh /entrypoint.sh
 
 # Define mountable directories.
-VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb", "/usr/local/etc/couchdb"]
+VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb"]
 
 EXPOSE 5984
 WORKDIR /var/lib/couchdb
