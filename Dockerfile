@@ -6,7 +6,7 @@ MAINTAINER Clemens Stolle klaemo@fastmail.fm
 
 ENV COUCHDB_VERSION 1.6.1
 
-RUN useradd -d /var/lib/couchdb couchdb
+RUN groupadd -r couchdb && useradd -d /var/lib/couchdb -g couchdb couchdb
 
 # download dependencies
 RUN apt-get update -y && apt-get install -y lsb-release wget \
