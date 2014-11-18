@@ -6,23 +6,13 @@ MAINTAINER Clemens Stolle klaemo@fastmail.fm
 
 ENV COUCHDB_VERSION 1.6.1
 
-RUN groupadd -r couchdb && useradd -d /var/lib/couchdb -g couchdb couchdb
+RUN groupadd -r couchdb && useradd -d /usr/local/var/lib/couchdb -g couchdb couchdb
 
-# download dependencies
-RUN apt-get update -y && apt-get install -y lsb-release wget \
-  && echo "deb http://binaries.erlang-solutions.com/debian `lsb_release -cs` contrib" \
-  | tee /etc/apt/sources.list.d/erlang-solutions.list \
-  && wget -O - http://binaries.erlang-solutions.com/debian/erlang_solutions.asc \
-  | apt-key add - \
-  && echo "deb http://packages.cloudant.com/debian `lsb_release -cs` main" \
-  | tee /etc/apt/sources.list.d/cloudant.list \
-  && wget http://packages.cloudant.com/KEYS -O - | apt-key add - \
-  && apt-get update -y \
-  && apt-get install -y erlang-nox erlang-dev build-essential \
-  libmozjs185-cloudant libmozjs185-cloudant-dev \
-  libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev curl libicu-dev \
-  --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/* \
+# download dependencies, compile and install couchdb
+RUN apt-get update -y \
+  && apt-get install -y --no-install-recommends erlang-nox erlang-dev build-essential \
+  libmozjs185-dev libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev libicu-dev \
+  curl \
   && curl -sSL http://apache.openmirror.de/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
   && curl -sSL http://www.apache.org/dist/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
   && curl -sSL http://www.apache.org/dist/couchdb/KEYS -o KEYS \
@@ -34,12 +24,10 @@ RUN apt-get update -y && apt-get install -y lsb-release wget \
   && make && make install \
   && curl -o /usr/local/bin/gosu -SkL 'https://github.com/tianon/gosu/releases/download/1.1/gosu' \
   && chmod +x /usr/local/bin/gosu \
-  && apt-get purge -y erlang-dev binutils cpp cpp-4.7 build-essential libmozjs185-cloudant-dev libnspr4-dev libcurl4-openssl-dev libicu-dev lsb-release wget \
+  && apt-get purge -y erlang-dev binutils cpp cpp-4.7 build-essential libmozjs185-dev libnspr4-dev libcurl4-openssl-dev libicu-dev \
   && apt-get autoremove -y \
   && apt-get update && apt-get install -y libicu48 --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/* \
-  && rm -r /usr/src/couchdb \
-  && rm /couchdb.tar.gz* /KEYS
+  && rm -rf /var/lib/apt/lists/* /usr/src/couchdb /couchdb.tar.gz* /KEYS
 
 # permissions
 RUN chown -R couchdb:couchdb \
@@ -52,13 +40,13 @@ RUN chown -R couchdb:couchdb \
 # Expose to the outside
 RUN sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini
 
-ADD ./docker-entrypoint.sh /entrypoint.sh
+COPY ./docker-entrypoint.sh /entrypoint.sh
 
 # Define mountable directories.
 VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb"]
 
 EXPOSE 5984
-WORKDIR /var/lib/couchdb
+WORKDIR /usr/local/var/lib/couchdb
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["couchdb"]
