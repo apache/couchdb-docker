@@ -28,8 +28,8 @@ RUN apt-get update -y \
   && rm -rf /var/lib/apt/lists/* /usr/src/couchdb /couchdb.tar.gz* /KEYS
 
 # grab gosu for easy step-down from root
-RUN gpg --keyserver pgp.mit.edu --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4
-RUN curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.2/gosu-$(dpkg --print-architecture)" \
+RUN gpg --keyserver pgp.mit.edu --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+  && curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.2/gosu-$(dpkg --print-architecture)" \
   && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/1.2/gosu-$(dpkg --print-architecture).asc" \
   && gpg --verify /usr/local/bin/gosu.asc \
   && rm /usr/local/bin/gosu.asc \
@@ -37,11 +37,12 @@ RUN curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/dow
 
 # permissions
 RUN chown -R couchdb:couchdb \
-  /usr/local/lib/couchdb /usr/local/etc/couchdb \
-  /usr/local/var/lib/couchdb /usr/local/var/log/couchdb /usr/local/var/run/couchdb \
+    /usr/local/lib/couchdb /usr/local/etc/couchdb \
+    /usr/local/var/lib/couchdb /usr/local/var/log/couchdb /usr/local/var/run/couchdb \
   && chmod -R g+rw \
-  /usr/local/lib/couchdb /usr/local/etc/couchdb \
-  /usr/local/var/lib/couchdb /usr/local/var/log/couchdb /usr/local/var/run/couchdb 
+    /usr/local/lib/couchdb /usr/local/etc/couchdb \
+    /usr/local/var/lib/couchdb /usr/local/var/log/couchdb /usr/local/var/run/couchdb \
+  && mkdir -p /var/lib/couchdb
 
 # Expose to the outside
 RUN sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini
@@ -52,7 +53,7 @@ COPY ./docker-entrypoint.sh /entrypoint.sh
 VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb"]
 
 EXPOSE 5984
-WORKDIR /usr/local/var/lib/couchdb
+WORKDIR /var/lib/couchdb
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["couchdb"]
