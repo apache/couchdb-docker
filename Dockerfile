@@ -10,12 +10,12 @@ RUN groupadd -r couchdb && useradd -d /usr/local/var/lib/couchdb -g couchdb couc
 
 # download dependencies, compile and install couchdb
 RUN apt-get update -y \
-  && apt-get install -y --no-install-recommends erlang-nox erlang-dev build-essential \
-  libmozjs185-dev libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev libicu-dev \
-  curl \
+  && apt-get install -y --no-install-recommends \
+    erlang-nox erlang-dev build-essential ca-certificates curl \
+    libmozjs185-dev libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev libicu-dev \
   && curl -sSL http://apache.openmirror.de/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
-  && curl -sSL http://www.apache.org/dist/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
-  && curl -sSL http://www.apache.org/dist/couchdb/KEYS -o KEYS \
+  && curl -sSL https://www.apache.org/dist/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
+  && curl -sSL https://www.apache.org/dist/couchdb/KEYS -o KEYS \
   && gpg --import KEYS && gpg --verify couchdb.tar.gz.asc \
   && mkdir -p /usr/src/couchdb \
   && tar -xzf couchdb.tar.gz -C /usr/src/couchdb --strip-components=1 \
