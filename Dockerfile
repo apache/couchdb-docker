@@ -22,7 +22,7 @@ RUN apt-get update -y \
   && cd /usr/src/couchdb \
   && ./configure --with-js-lib=/usr/lib --with-js-include=/usr/include/mozjs \
   && make && make install \
-  && apt-get purge -y erlang-dev binutils cpp cpp-4.7 build-essential libmozjs185-dev libnspr4-dev libcurl4-openssl-dev libicu-dev \
+  && apt-get purge -y erlang-dev perl binutils cpp make build-essential libmozjs185-dev libnspr4-dev libcurl4-openssl-dev libicu-dev \
   && apt-get autoremove -y \
   && apt-get update && apt-get install -y libicu48 --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* /usr/src/couchdb /couchdb.tar.gz* /KEYS
