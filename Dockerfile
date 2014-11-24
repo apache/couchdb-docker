@@ -12,7 +12,7 @@ RUN groupadd -r couchdb && useradd -d /var/lib/couchdb -g couchdb couchdb
 RUN apt-get update -y \
   && apt-get install -y --no-install-recommends \
     erlang-nox erlang-dev build-essential ca-certificates curl \
-    libmozjs185-dev libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev libicu-dev \
+    libmozjs185-dev libmozjs185-1.0 libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev libicu-dev \
   && curl -sSL http://apache.openmirror.de/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
   && curl -sSL https://www.apache.org/dist/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
   && curl -sSL https://www.apache.org/dist/couchdb/KEYS -o KEYS \
