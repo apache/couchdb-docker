@@ -30,6 +30,7 @@ RUN curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
   && apt-get update -y && apt-get install -y nodejs
 
 RUN cd /usr/src/couchdb \
+  && npm install -g npm \
   && npm install -g grunt-cli \
   && ./configure && make
 
