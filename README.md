@@ -6,9 +6,10 @@ Put the couch in a docker container and ship it anywhere.
 
 If you're looking for a CouchDB with SSL support you can check out [klaemo/couchdb-ssl](https://index.docker.io/u/klaemo/couchdb-ssl/)
 
-Version: `CouchDB 1.6.1`
+- Version (stable): `CouchDB 1.6.1`
+- Version (dev): `CouchDB 2.0 developer preview`
 
-## Run
+## Run (stable)
 
 Available in the docker index as [klaemo/couchdb](https://index.docker.io/u/klaemo/couchdb/)
 
@@ -31,6 +32,25 @@ curl http://localhost:5984
 The previous version of this image used to come with a process manager to keep
 CouchDB running. As of Docker 1.2 you can use the `--restart` flag to accomplish this.
 
+## Run (dev)
+
+Available on the docker registry as [klaemo/couchdb:2.0-dev](https://index.docker.io/u/klaemo/couchdb/)
+
+```bash
+# expose the cluster to the world
+[sudo] docker run -d -p 15984:15984 -p 25984:25984 -p 35984:35984 --name couchdb klaemo/couchdb:2.0-dev
+
+curl http://localhost:15984
+curl http://localhost:25984
+curl http://localhost:35984
+```
+
+...or you can pass arguments to the binary
+
+```bash
+docker run klaemo/couchdb:2.0-dev --admin=foo:bar
+```
+
 ## Build your own
 
 You can use `klaemo/couchdb` as the base image for your own couchdb instance.
@@ -52,3 +72,11 @@ and then build and run
 [sudo] docker build -t you/awesome-couchdb .
 [sudo] docker run -d -p 5984:5984 -v ~/couchdb:/usr/local/var/lib/couchdb you/awesome-couchdb
 ```
+
+## Contributing
+
+Please use Github issues for any questions, bugs, feature requests. :)
+
+## Contributors
+
+- [@joeybaker](https://github.com/joeybaker)
