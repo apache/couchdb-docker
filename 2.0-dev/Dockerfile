@@ -7,14 +7,19 @@ ENV COUCHDB_VERSION developer-preview-2.0
 RUN groupadd -r couchdb && useradd -d /usr/src/couchdb -g couchdb couchdb
 
 # download dependencies
-RUN echo 'deb http://http.debian.net/debian wheezy-backports main' > /etc/apt/sources.list.d/backports.list \
-  && apt-get update -y \
+RUN apt-get update -y \
   && apt-get install -y --no-install-recommends build-essential libmozjs185-dev \
     libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev libicu-dev \
     openssl curl ca-certificates git pkg-config \
-    apt-transport-https python \
-  && apt-get install -y -t wheezy-backports erlang-base-hipe erlang-dev \
-    erlang-manpages erlang-dialyzer erlang-eunit erlang-nox
+    apt-transport-https python wget
+
+RUN wget http://packages.erlang-solutions.com/site/esl/esl-erlang/FLAVOUR_3_general/esl-erlang_17.0-1~debian~wheezy_amd64.deb
+RUN apt-get install -y --no-install-recommends libwxgtk2.8 default-jdk
+RUN apt-get install -y --no-install-recommends procps
+RUN wget http://ftp.us.debian.org/debian/pool/main/o/openssl/libssl0.9.8_0.9.8o-4squeeze14_amd64.deb
+RUN dpkg -i libssl0.9.8_0.9.8o-4squeeze14_amd64.deb
+
+RUN dpkg -i esl-erlang_17.0-1~debian~wheezy_amd64.deb
 
 RUN git clone https://github.com/rebar/rebar /usr/src/rebar \
  && (cd /usr/src/rebar ; make && mv rebar /usr/local/bin/)
