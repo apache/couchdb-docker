@@ -35,7 +35,11 @@ RUN cd /usr/src/couchdb \
   && ./configure && make
 
 # permissions
+RUN rm -rf /usr/src/couchdb/dev/run
+COPY ./run.py /usr/src/couchdb/dev/run
+RUN chmod +x /usr/src/couchdb/dev/run
 RUN chown -R couchdb:couchdb /usr/src/couchdb
+
 USER couchdb
 
 # Expose to the outside
