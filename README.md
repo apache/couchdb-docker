@@ -22,6 +22,17 @@ Available in the docker index as [klaemo/couchdb](https://index.docker.io/u/klae
 curl http://localhost:5984
 ```
 
+## Run (stable with mounted Volume)
+
+```bash
+[sudo] docker pull klaemo/couchdb:latest
+
+# expose it to the world on port 5984 and use your current directory as the CouchDB Database directory
+[sudo] docker run -d -p 5984:5984 -v $(pwd):/usr/local/var/lib/couchdb --name couchdb klaemo/couchdb
+
+curl http://localhost:5984
+```
+
 ## Features
 
 * built on top of the solid and small `debian:wheezy` base image
