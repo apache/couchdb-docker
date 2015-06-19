@@ -50,6 +50,7 @@ RUN chown -R couchdb:couchdb \
 RUN sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini
 
 COPY ./docker-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Define mountable directories.
 VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb"]
