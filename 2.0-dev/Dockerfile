@@ -25,13 +25,13 @@ RUN apt-get update -y \
     openssl curl ca-certificates git pkg-config \
     apt-transport-https python wget
 
-RUN wget http://packages.erlang-solutions.com/site/esl/esl-erlang/FLAVOUR_3_general/esl-erlang_17.0-1~debian~wheezy_amd64.deb
+RUN wget http://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_18.0-1~debian~wheezy_amd64.deb
 RUN apt-get install -y --no-install-recommends libwxgtk2.8 default-jdk
 RUN apt-get install -y --no-install-recommends procps
 RUN wget http://ftp.us.debian.org/debian/pool/main/o/openssl/libssl0.9.8_0.9.8o-4squeeze14_amd64.deb
 RUN dpkg -i libssl0.9.8_0.9.8o-4squeeze14_amd64.deb
 
-RUN dpkg -i esl-erlang_17.0-1~debian~wheezy_amd64.deb
+RUN dpkg -i esl-erlang_18.0-1~debian~wheezy_amd64.deb
 
 RUN git clone https://github.com/rebar/rebar /usr/src/rebar \
  && (cd /usr/src/rebar ; make && mv rebar /usr/local/bin/)
@@ -49,7 +49,7 @@ RUN curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
 RUN cd /usr/src/couchdb \
   && npm install -g npm \
   && npm install -g grunt-cli \
-  && ./configure && make
+  && ./configure --disable-docs && make
 
 # permissions
 RUN rm -rf /usr/src/couchdb/dev/run
