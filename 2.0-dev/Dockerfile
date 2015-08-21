@@ -29,8 +29,6 @@ RUN apt-get update -y \
 RUN wget http://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_18.0-1~debian~jessie_amd64.deb
 RUN apt-get install -y --no-install-recommends libwxgtk3.0 default-jdk
 RUN apt-get install -y --no-install-recommends procps
-RUN wget http://ftp.us.debian.org/debian/pool/main/o/openssl/libssl0.9.8_0.9.8o-4squeeze14_amd64.deb
-RUN dpkg -i libssl0.9.8_0.9.8o-4squeeze14_amd64.deb
 
 RUN dpkg -i esl-erlang_18.0-1~debian~jessie_amd64.deb
 
