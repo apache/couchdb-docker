@@ -36,26 +36,21 @@ RUN dpkg -i esl-erlang_18.0-1~debian~wheezy_amd64.deb
 RUN git clone https://github.com/rebar/rebar /usr/src/rebar \
  && (cd /usr/src/rebar ; make && mv rebar /usr/local/bin/)
 
- RUN cd /usr/src \
-   && git clone https://git-wip-us.apache.org/repos/asf/couchdb.git \
-   && cd couchdb \
-   && git checkout developer-preview-2.0
+RUN cd /usr/src \
+  && git clone https://git-wip-us.apache.org/repos/asf/couchdb.git \
+  && cd couchdb \
+  && git checkout master
 
 RUN curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
   && echo 'deb https://deb.nodesource.com/node wheezy main' > /etc/apt/sources.list.d/nodesource.list \
   && echo 'deb-src https://deb.nodesource.com/node wheezy main' >> /etc/apt/sources.list.d/nodesource.list \
-  && apt-get update -y && apt-get install -y nodejs
+  && apt-get update -y && apt-get install -y nodejs \
+  && npm install -g npm && npm install -g grunt-cli
 
-RUN cd /usr/src/couchdb \
-  && npm install -g npm \
-  && npm install -g grunt-cli \
-  && ./configure --disable-docs && make
+RUN cd /usr/src/couchdb && ./configure --disable-docs && make
 
 # permissions
-RUN rm -rf /usr/src/couchdb/dev/run
-COPY ./run.py /usr/src/couchdb/dev/run
-RUN chmod +x /usr/src/couchdb/dev/run
-RUN chown -R couchdb:couchdb /usr/src/couchdb
+RUN chmod +x /usr/src/couchdb/dev/run && chown -R couchdb:couchdb /usr/src/couchdb
 
 USER couchdb
 

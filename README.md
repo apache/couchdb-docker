@@ -49,11 +49,23 @@ Available on the docker registry as [klaemo/couchdb:2.0-dev](https://index.docke
 
 ```bash
 # expose the cluster to the world
-[sudo] docker run -i -t -p 15984:15984 -p 25984:25984 -p 35984:35984 --name couchdb klaemo/couchdb:2.0-dev
+[sudo] docker run -p 15984:15984 -p 25984:25984 -p 35984:35984 klaemo/couchdb:2.0-dev
 
-curl http://localhost:15984
-curl http://localhost:25984
-curl http://localhost:35984
+[ * ] Setup environment ... ok
+[ * ] Ensure CouchDB is built ... ok
+[ * ] Prepare configuration files ... ok
+[ * ] Start node node1 ... ok
+[ * ] Start node node2 ... ok
+[ * ] Start node node3 ... ok
+[ * ] Check node at http://127.0.0.1:15984/ ... failed: [Errno socket error] [Errno 111] Connection refused
+[ * ] Check node at http://127.0.0.1:25984/ ... ok
+[ * ] Check node at http://127.0.0.1:35984/ ... ok
+[ * ] Check node at http://127.0.0.1:15984/ ... ok
+[ * ] Running cluster setup ... ok
+[ * ] Developers cluster is set up at http://127.0.0.1:15984.
+Admin username: root
+Password: 37l7YDQJ
+Time to hack! ...
 ```
 
 ...or you can pass arguments to the binary
