@@ -49,7 +49,7 @@ Available on the docker registry as [klaemo/couchdb:2.0-dev](https://index.docke
 
 ```bash
 # expose the cluster to the world
-[sudo] docker run -p 15984:15984 -p 25984:25984 -p 35984:35984 klaemo/couchdb:2.0-dev
+[sudo] docker run -p 5984:5984 klaemo/couchdb:2.0-dev
 
 [ * ] Setup environment ... ok
 [ * ] Ensure CouchDB is built ... ok
@@ -73,6 +73,8 @@ Time to hack! ...
 ```bash
 docker run -i -t klaemo/couchdb:2.0-dev --admin=foo:bar
 ```
+
+**Note:** The cluster will be exposed on port `5984`, because it internally uses haproxy.
 
 ## Build your own
 

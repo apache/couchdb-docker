@@ -46,6 +46,8 @@ RUN curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
   && apt-get update -y && apt-get install -y nodejs \
   && npm install -g npm && npm install -g grunt-cli
 
+RUN apt-get -y install haproxy
+
 RUN cd /usr/src/couchdb && ./configure && make
 
 # permissions
@@ -56,7 +58,7 @@ USER couchdb
 # Expose to the outside
 RUN sed -i'' 's/bind_address = 127.0.0.1/bind_address = 0.0.0.0/' /usr/src/couchdb/rel/overlay/etc/default.ini
 
-EXPOSE 15984 25984 35984
+EXPOSE 5984
 WORKDIR /usr/src/couchdb
 
 ENTRYPOINT ["/usr/src/couchdb/dev/run"]
