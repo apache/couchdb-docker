@@ -65,7 +65,7 @@ COPY ./docker-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Define mountable directories.
-VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb"]
+VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb", "/usr/local/etc/couchdb"]
 
 EXPOSE 5984
 WORKDIR /var/lib/couchdb
