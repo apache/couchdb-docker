@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-FROM debian:wheezy
+FROM debian:8.2
 
 MAINTAINER Clemens Stolle klaemo@fastmail.fm
 
@@ -25,8 +25,7 @@ RUN apt-get update -y \
   && apt-get install -y --no-install-recommends \
     build-essential ca-certificates curl \
     libmozjs185-dev libmozjs185-1.0 libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev libicu-dev \
-  && curl -sSL https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb -o esl.deb && dpkg -i esl.deb && apt-get update \
-  && apt-get install -y --no-install-recommends erlang-nox=1:17.5.3 erlang-dev=1:17.5.3 \
+    erlang-nox erlang-dev \
   && curl -sSL http://apache.openmirror.de/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
   && curl -sSL https://www.apache.org/dist/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
   && curl -sSL https://www.apache.org/dist/couchdb/KEYS -o KEYS \
@@ -38,7 +37,7 @@ RUN apt-get update -y \
   && make && make install \
   && apt-get purge -y perl binutils cpp make build-essential libnspr4-dev libcurl4-openssl-dev libicu-dev \
   && apt-get autoremove -y \
-  && apt-get update && apt-get install -y libicu48 --no-install-recommends \
+  && apt-get update && apt-get install -y libicu52 --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* /usr/src/couchdb /couchdb.tar.gz* /KEYS /esl.deb
 
 # grab gosu for easy step-down from root

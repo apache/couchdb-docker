@@ -6,7 +6,7 @@ Put the couch in a docker container and ship it anywhere.
 
 If you're looking for a CouchDB with SSL support you can check out [klaemo/couchdb-ssl](https://index.docker.io/u/klaemo/couchdb-ssl/)
 
-- Version (stable): `CouchDB 1.6.1`, `Erlang 17.5.3`
+- Version (stable): `CouchDB 1.6.1`, `Erlang 17.3`
 - Version (dev): `CouchDB 2.0 developer preview`, `Erlang 18.0`
 
 ## Run (stable)
