@@ -98,9 +98,10 @@ and then build and run
 [sudo] docker run -d -p 5984:5984 -v ~/couchdb:/usr/local/var/lib/couchdb you/awesome-couchdb
 ```
 
-## Contributing
+## Feedback, Issues, Contributing
 
-Please use Github issues for any questions, bugs, feature requests. :)
+**Please use Github issues for any questions, bugs, feature requests. :)**
+I don't get notified about comments on Docker Hub, so I might respond really late...or not at all.
 
 ## Contributors
 
