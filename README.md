@@ -9,9 +9,16 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 - Version (stable): `CouchDB 1.6.1`, `Erlang 17.3`
 - Version (dev): `CouchDB 2.0 developer preview`, `Erlang 18.0`
 
+## Features
+
+* built on top of the solid and small `debian:jessie` base image
+* exposes CouchDB on port `5984` of the container
+* runs everything as user `couchdb` (security ftw!)
+* docker volumes for data, logs and config
+
 ## Run (stable)
 
-Available in the docker index as [klaemo/couchdb](https://index.docker.io/u/klaemo/couchdb/)
+Available as a trusted build on Docker Hub as [klaemo/couchdb](https://hub.docker.com/r/klaemo/couchdb/)
 
 ```bash
 [sudo] docker pull klaemo/couchdb:latest
@@ -32,16 +39,6 @@ curl http://localhost:5984
 
 curl http://localhost:5984
 ```
-
-## Features
-
-* built on top of the solid and small `debian:wheezy` base image
-* exposes CouchDB on port `5984` of the container
-* runs everything as user `couchdb` (security ftw!)
-* docker volumes for data and logs
-
-The previous version of this image used to come with a process manager to keep
-CouchDB running. As of Docker 1.2 you can use the `--restart` flag to accomplish this.
 
 ## Run (dev)
 
@@ -81,12 +78,12 @@ docker run -i -t klaemo/couchdb:2.0-dev --admin=foo:bar
 You can use `klaemo/couchdb` as the base image for your own couchdb instance.
 You might want to provide your own version of the following files:
 
-* `local.ini` for CouchDB
+* `local.ini` for your custom CouchDB config
 
 Example Dockerfile:
 
 ```
-FROM klaemo/couchdb
+FROM klaemo/couchdb:latest
 
 COPY local.ini /usr/local/etc/couchdb/
 ```
