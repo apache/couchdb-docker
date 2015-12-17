@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-FROM debian:8.2
+FROM debian:jessie
 
-MAINTAINER Clemens Stolle klaemo@fastmail.fm
+MAINTAINER Clemens Stolle klaemo@apache.org
 
 # Install instructions from https://cwiki.apache.org/confluence/display/COUCHDB/Debian
 
@@ -21,24 +21,32 @@ ENV COUCHDB_VERSION 1.6.1
 RUN groupadd -r couchdb && useradd -d /var/lib/couchdb -g couchdb couchdb
 
 # download dependencies, compile and install couchdb
-RUN apt-get update -y \
-  && apt-get install -y --no-install-recommends \
-    build-essential ca-certificates curl \
-    libmozjs185-dev libmozjs185-1.0 libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev libicu-dev \
-    erlang-nox erlang-dev \
-  && curl -sSL http://apache.openmirror.de/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
-  && curl -sSL https://www.apache.org/dist/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
-  && curl -sSL https://www.apache.org/dist/couchdb/KEYS -o KEYS \
-  && gpg --import KEYS && gpg --verify couchdb.tar.gz.asc \
-  && mkdir -p /usr/src/couchdb \
-  && tar -xzf couchdb.tar.gz -C /usr/src/couchdb --strip-components=1 \
-  && cd /usr/src/couchdb \
-  && ./configure --with-js-lib=/usr/lib --with-js-include=/usr/include/mozjs \
-  && make && make install \
-  && apt-get purge -y perl binutils cpp make build-essential libnspr4-dev libcurl4-openssl-dev libicu-dev \
-  && apt-get autoremove -y \
-  && apt-get update && apt-get install -y libicu52 --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/* /usr/src/couchdb /couchdb.tar.gz* /KEYS /esl.deb
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    curl \
+    erlang-dev \
+    erlang-nox \
+    libcurl4-openssl-dev \
+    libicu-dev \
+    libmozjs185-1.0 \
+    libmozjs185-dev \
+    libnspr4 \
+    libnspr4-0d \
+    libnspr4-dev \
+ && curl -sSL http://apache.openmirror.de/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
+ && curl -sSL https://www.apache.org/dist/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
+ && curl -sSL https://www.apache.org/dist/couchdb/KEYS -o KEYS \
+ && gpg --import KEYS && gpg --verify couchdb.tar.gz.asc \
+ && mkdir -p /usr/src/couchdb \
+ && tar -xzf couchdb.tar.gz -C /usr/src/couchdb --strip-components=1 \
+ && cd /usr/src/couchdb \
+ && ./configure --with-js-lib=/usr/lib --with-js-include=/usr/include/mozjs \
+ && make && make install \
+ && apt-get purge -y perl binutils cpp make build-essential libnspr4-dev libcurl4-openssl-dev libicu-dev \
+ && apt-get autoremove -y \
+ && apt-get update && apt-get install -y libicu52 --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/* /usr/src/couchdb /couchdb.tar.gz* /KEYS
 
 # grab gosu for easy step-down from root
 RUN gpg --keyserver pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
@@ -60,8 +68,7 @@ RUN chown -R couchdb:couchdb \
 # Expose to the outside
 RUN sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini
 
-COPY ./docker-entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY ./docker-entrypoint.sh /
 
 # Define mountable directories.
 VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb", "/usr/local/etc/couchdb"]
@@ -69,5 +76,5 @@ VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb", "/usr/local/
 EXPOSE 5984
 WORKDIR /var/lib/couchdb
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["couchdb"]
