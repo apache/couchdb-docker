@@ -12,43 +12,74 @@
 
 FROM debian:jessie
 
-MAINTAINER Clemens Stolle klaemo@fastmail.fm
+MAINTAINER Clemens Stolle klaemo@apache.org
 
-ENV COUCHDB_VERSION developer-preview-2.0
+ENV COUCHDB_VERSION master
 
 RUN groupadd -r couchdb && useradd -d /usr/src/couchdb -g couchdb couchdb
 
 # download dependencies
-RUN apt-get update -y \
-  && apt-get install -y --no-install-recommends build-essential libmozjs185-dev \
-    libnspr4 libnspr4-0d libnspr4-dev libcurl4-openssl-dev libicu-dev \
-    openssl curl ca-certificates git pkg-config \
-    apt-transport-https python wget \
-    python-sphinx texlive-base texinfo texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra #needed to build the doc
-
-RUN wget http://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_18.0-1~debian~jessie_amd64.deb
-RUN apt-get install -y --no-install-recommends libwxgtk3.0 default-jdk
-RUN apt-get install -y --no-install-recommends procps
-
-RUN dpkg -i esl-erlang_18.0-1~debian~jessie_amd64.deb
-
-RUN git clone https://github.com/rebar/rebar /usr/src/rebar \
- && (cd /usr/src/rebar ; make && mv rebar /usr/local/bin/)
-
-RUN cd /usr/src \
-  && git clone https://git-wip-us.apache.org/repos/asf/couchdb.git \
-  && cd couchdb \
-  && git checkout master
-
-RUN curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
-  && echo 'deb https://deb.nodesource.com/node jessie main' > /etc/apt/sources.list.d/nodesource.list \
-  && echo 'deb-src https://deb.nodesource.com/node jessie main' >> /etc/apt/sources.list.d/nodesource.list \
-  && apt-get update -y && apt-get install -y nodejs \
-  && npm install -g npm && npm install -g grunt-cli
-
-RUN apt-get -y install haproxy
-
-RUN cd /usr/src/couchdb && ./configure && make
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    apt-transport-https \
+    build-essential \
+    ca-certificates \
+    curl \
+    default-jdk \
+    erlang-base-hipe \
+    erlang-dev \
+    erlang-eunit \
+    erlang-nox \
+    git \
+    haproxy \
+    libcurl4-openssl-dev \
+    libicu-dev \
+    libmozjs185-dev \
+    libnspr4 \
+    libnspr4-0d \
+    libnspr4-dev \
+    libwxgtk3.0 \
+    openssl \
+    pkg-config \
+    procps \
+    python \
+    python-sphinx \
+    texinfo \
+    texlive-base \
+    texlive-fonts-extra \
+    texlive-fonts-recommended \
+    texlive-latex-extra \
+    wget \
+ && git clone https://github.com/rebar/rebar /usr/src/rebar \
+ && (cd /usr/src/rebar ; make && mv rebar /usr/local/bin/) \
+ && cd /usr/src && git clone https://git-wip-us.apache.org/repos/asf/couchdb.git \
+ && cd couchdb && git checkout $COUCHDB_VERSION \
+ && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
+ && echo 'deb https://deb.nodesource.com/node jessie main' > /etc/apt/sources.list.d/nodesource.list \
+ && echo 'deb-src https://deb.nodesource.com/node jessie main' >> /etc/apt/sources.list.d/nodesource.list \
+ && apt-get update -y && apt-get install -y nodejs \
+ && npm -g install npm@latest && npm install -g grunt-cli \
+ && cd /usr/src/couchdb && ./configure && make \
+ && apt-get purge -y \
+    binutils \
+    build-essential \
+    cpp \
+    default-jdk \
+    git \
+    libcurl4-openssl-dev \
+    libnspr4-dev \
+    libwxgtk3.0 \
+    make \
+    nodejs \
+    perl \
+    pkg-config \
+    texinfo \
+    texlive-base \
+    texlive-fonts-extra \
+    texlive-fonts-recommended \
+    texlive-latex-extra \
+    wget \
+ && apt-get autoremove -y && apt-get clean \
+ && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules /usr/src/couchdb/src/fauxton/node_modules
 
 # permissions
 RUN chmod +x /usr/src/couchdb/dev/run && chown -R couchdb:couchdb /usr/src/couchdb
@@ -62,3 +93,4 @@ EXPOSE 5984
 WORKDIR /usr/src/couchdb
 
 ENTRYPOINT ["/usr/src/couchdb/dev/run"]
+CMD ["--with-haproxy"]
