@@ -19,7 +19,7 @@ ENV COUCHDB_VERSION master
 RUN groupadd -r couchdb && useradd -d /usr/src/couchdb -g couchdb couchdb
 
 # download dependencies
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
+RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
     apt-transport-https \
     build-essential \
     ca-certificates \
@@ -52,7 +52,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
  && echo 'deb https://deb.nodesource.com/node_4.x jessie main' > /etc/apt/sources.list.d/nodesource.list \
  && echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
- && apt-get update -y && apt-get install -y nodejs \
+ && apt-get update -y -qq && apt-get install -y nodejs \
  && npm install -g grunt-cli \
  && cd /usr/src && git clone https://git-wip-us.apache.org/repos/asf/couchdb.git \
  && cd couchdb && git checkout $COUCHDB_VERSION \
