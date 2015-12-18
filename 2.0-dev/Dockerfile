@@ -24,7 +24,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
     curl \
-    erlang-base-hipe \
+    erlang-base \
     erlang-dev \
     erlang-eunit \
     erlang-nox \

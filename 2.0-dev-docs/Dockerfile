@@ -25,7 +25,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     default-jdk \
-    erlang-base-hipe \
+    erlang-base \
     erlang-dev \
     erlang-eunit \
     erlang-nox \
