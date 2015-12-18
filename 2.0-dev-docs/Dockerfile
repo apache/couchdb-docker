@@ -25,22 +25,16 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     default-jdk \
-    erlang-base \
     erlang-dev \
-    erlang-eunit \
     erlang-nox \
     git \
     haproxy \
     libcurl4-openssl-dev \
     libicu-dev \
     libmozjs185-dev \
-    libnspr4 \
-    libnspr4-0d \
-    libnspr4-dev \
     libwxgtk3.0 \
     openssl \
     pkg-config \
-    procps \
     python \
     python-sphinx \
     texinfo \
@@ -48,7 +42,6 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
     texlive-fonts-extra \
     texlive-fonts-recommended \
     texlive-latex-extra \
-    wget \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
  && echo 'deb https://deb.nodesource.com/node_4.x jessie main' > /etc/apt/sources.list.d/nodesource.list \
  && echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
@@ -65,7 +58,6 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
     git \
     libcurl4-openssl-dev \
     libicu-dev \
-    libnspr4-dev \
     libwxgtk3.0 \
     make \
     nodejs \
@@ -76,7 +68,6 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
     texlive-fonts-extra \
     texlive-fonts-recommended \
     texlive-latex-extra \
-    wget \
  && apt-get autoremove -y \
  && apt-get install -y libicu52 --no-install-recommends \
  && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules src/fauxton/node_modules src/**/.git .git

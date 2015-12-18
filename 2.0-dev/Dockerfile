@@ -24,22 +24,15 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
     curl \
-    erlang-base \
     erlang-dev \
-    erlang-eunit \
     erlang-nox \
     git \
     haproxy \
     libcurl4-openssl-dev \
     libicu-dev \
     libmozjs185-dev \
-    libnspr4 \
-    libnspr4-0d \
-    libnspr4-dev \
     openssl \
-    procps \
     python \
-    wget \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
  && echo 'deb https://deb.nodesource.com/node_4.x jessie main' > /etc/apt/sources.list.d/nodesource.list \
  && echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
@@ -54,13 +47,10 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
     cpp \
     erlang-dev \
     git \
-    libcurl4-openssl-dev \
     libicu-dev \
-    libnspr4-dev \
     make \
     nodejs \
     perl \
-    wget \
  && apt-get autoremove -y && apt-get clean \
  && apt-get install -y libicu52 --no-install-recommends \
  && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules src/fauxton/node_modules src/**/.git .git
