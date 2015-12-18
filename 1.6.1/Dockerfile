@@ -43,9 +43,17 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
  && cd /usr/src/couchdb \
  && ./configure --with-js-lib=/usr/lib --with-js-include=/usr/include/mozjs \
  && make && make install \
- && apt-get purge -y perl binutils cpp make build-essential libnspr4-dev libcurl4-openssl-dev libicu-dev \
+ && apt-get purge -y \
+    binutils \
+    build-essential \
+    cpp \
+    libcurl4-openssl-dev \
+    libicu-dev \
+    libnspr4-dev \
+    make \
+    perl \
  && apt-get autoremove -y \
- && apt-get update && apt-get install -y libicu52 --no-install-recommends \
+ && apt-get install -y libicu52 --no-install-recommends \
  && rm -rf /var/lib/apt/lists/* /usr/src/couchdb /couchdb.tar.gz* /KEYS
 
 # grab gosu for easy step-down from root
