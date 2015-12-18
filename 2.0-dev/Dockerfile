@@ -69,10 +69,6 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
 RUN chmod +x /usr/src/couchdb/dev/run && chown -R couchdb:couchdb /usr/src/couchdb
 
 USER couchdb
-
-# Expose to the outside
-RUN sed -i'' 's/bind_address = 127.0.0.1/bind_address = 0.0.0.0/' /usr/src/couchdb/rel/overlay/etc/default.ini
-
 EXPOSE 5984
 WORKDIR /usr/src/couchdb
 
