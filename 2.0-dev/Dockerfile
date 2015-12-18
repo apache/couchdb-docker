@@ -59,7 +59,7 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
 RUN chmod +x /usr/src/couchdb/dev/run && chown -R couchdb:couchdb /usr/src/couchdb
 
 USER couchdb
-EXPOSE 5984
+EXPOSE 5984 15984 25984 35984 15986 25986 35986
 WORKDIR /usr/src/couchdb
 
 ENTRYPOINT ["/usr/src/couchdb/dev/run"]
