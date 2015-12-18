@@ -9,6 +9,12 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 - Version (stable): `CouchDB 1.6.1`, `Erlang 17.3`
 - Version (dev): `CouchDB 2.0 master`, `Erlang 17.3`
 
+## Available tags
+
+- `1`, `1.6`, `1.6.1`, `latest`: CouchDB 1.6.1
+- `2.0-dev`: CouchDB 2.0 master (development version)
+- `2.0-dev-docs`: CouchDB 2.0 master (development version) with documentation
+
 ## Features
 
 * built on top of the solid and small `debian:jessie` base image

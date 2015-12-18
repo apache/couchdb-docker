@@ -24,6 +24,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
     curl \
+    default-jdk \
     erlang-base-hipe \
     erlang-dev \
     erlang-eunit \
@@ -36,32 +37,47 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     libnspr4 \
     libnspr4-0d \
     libnspr4-dev \
+    libwxgtk3.0 \
     openssl \
+    pkg-config \
     procps \
     python \
+    python-sphinx \
+    texinfo \
+    texlive-base \
+    texlive-fonts-extra \
+    texlive-fonts-recommended \
+    texlive-latex-extra \
     wget \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
  && echo 'deb https://deb.nodesource.com/node_4.x jessie main' > /etc/apt/sources.list.d/nodesource.list \
  && echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
  && apt-get update -y && apt-get install -y nodejs \
  && npm install -g grunt-cli \
- && cd /usr/src && git clone --depth 1 https://git-wip-us.apache.org/repos/asf/couchdb.git \
+ && cd /usr/src && git clone https://git-wip-us.apache.org/repos/asf/couchdb.git \
  && cd couchdb && git checkout $COUCHDB_VERSION \
- && cd /usr/src/couchdb && ./configure --disable-docs && make \
+ && cd /usr/src/couchdb && ./configure && make \
  && apt-get purge -y \
     binutils \
     build-essential \
     cpp \
-    erlang-dev \
+    default-jdk \
     git \
     libcurl4-openssl-dev \
     libicu-dev \
     libnspr4-dev \
+    libwxgtk3.0 \
     make \
     nodejs \
     perl \
+    pkg-config \
+    texinfo \
+    texlive-base \
+    texlive-fonts-extra \
+    texlive-fonts-recommended \
+    texlive-latex-extra \
     wget \
- && apt-get autoremove -y && apt-get clean \
+ && apt-get autoremove -y \
  && apt-get install -y libicu52 --no-install-recommends \
  && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules src/fauxton/node_modules src/**/.git .git
 
