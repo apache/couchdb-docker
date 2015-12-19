@@ -52,7 +52,7 @@ Available on the docker registry as [klaemo/couchdb:2.0-dev](https://index.docke
 
 ```bash
 # expose the cluster to the world
-[sudo] docker run -p 5984:5984 klaemo/couchdb:2.0-dev
+[sudo] docker run -it -p 5984:5984 klaemo/couchdb:2.0-dev
 
 [ * ] Setup environment ... ok
 [ * ] Ensure CouchDB is built ... ok
@@ -70,14 +70,16 @@ Admin username: root
 Password: 37l7YDQJ
 Time to hack! ...
 ```
+**Note:** By default the cluster will be exposed on port `5984`, because it uses haproxy
+(passes `--with-haproxy` to `dev/run`) internally.
 
-...or you can pass arguments to the binary
+...but you can pass arguments to the binary
 
 ```bash
-docker run -i -t klaemo/couchdb:2.0-dev --admin=foo:bar
+docker run -it klaemo/couchdb:2.0-dev --admin=foo:bar
 ```
-
-**Note:** The cluster will be exposed on port `5984`, because it internally uses haproxy.
+**Note:** This will overwrite the default `--with-haproxy` flag. So, you have to specify it
+explicitly if you wish to use haproxy.
 
 ## Build your own
 
