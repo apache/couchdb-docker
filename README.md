@@ -78,8 +78,21 @@ Time to hack! ...
 ```bash
 docker run -it klaemo/couchdb:2.0-dev --admin=foo:bar
 ```
-**Note:** This will overwrite the default `--with-haproxy` flag. So, you have to specify it
-explicitly if you wish to use haproxy.
+**Note:** This will overwrite the default `--with-haproxy` flag. The cluster **won't** be exposed on
+port `5984` anymore. The individual nodes listen on `15984`, `25984`, ...`x5984`. If you wish to expose
+the cluster on `5984`, pass `--with-haproxy` explicitly.
+
+Examples:
+```bash
+# display the available options of the couchdb startup script
+docker run --rm klaemo/couchdb:2.0-dev --help
+
+# Enable admin party 🎉 and expose the cluster on port 5984
+docker run -it -p 5984:5984 klaemo/couchdb:2.0-dev --with-admin-party-please --with-haproxy
+
+# Start two nodes (without proxy) exposed on port 15984 and 25984
+docker run -it -p 15984:15984 -p 25984:25984 klaemo/couchdb:2.0-dev -n 2
+```
 
 ## Build your own
 
