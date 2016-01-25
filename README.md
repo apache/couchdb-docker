@@ -35,16 +35,15 @@ Available as a trusted build on Docker Hub as [klaemo/couchdb](https://hub.docke
 curl http://localhost:5984
 ```
 
-## Run (stable with mounted Volume)
+...or with mounted volume for the data
 
 ```bash
-[sudo] docker pull klaemo/couchdb:latest
-
 # expose it to the world on port 5984 and use your current directory as the CouchDB Database directory
 [sudo] docker run -d -p 5984:5984 -v $(pwd):/usr/local/var/lib/couchdb --name couchdb klaemo/couchdb
-
-curl http://localhost:5984
 ```
+
+If you want to provide your own config, you can either mount a directory at `/usr/local/etc/couchdb`
+or extend the image and `COPY` your `config.ini` (see [Build you own](#build-your-own)).
 
 ## Run (dev)
 
