@@ -56,25 +56,22 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
  && apt-get install -y libicu52 --no-install-recommends \
  && rm -rf /var/lib/apt/lists/* /usr/src/couchdb /couchdb.tar.gz* /KEYS
 
-# grab gosu for easy step-down from root
+# grab gosu for easy step-down from root, set correct permissions, expose couchdb to the outside
+# and disable logging to disk
 RUN gpg --keyserver pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
   && curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.2/gosu-$(dpkg --print-architecture)" \
   && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/1.2/gosu-$(dpkg --print-architecture).asc" \
   && gpg --verify /usr/local/bin/gosu.asc \
   && rm /usr/local/bin/gosu.asc \
-  && chmod +x /usr/local/bin/gosu
-
-# permissions
-RUN chown -R couchdb:couchdb \
+  && chmod +x /usr/local/bin/gosu \
+  && chown -R couchdb:couchdb \
     /usr/local/lib/couchdb /usr/local/etc/couchdb \
     /usr/local/var/lib/couchdb /usr/local/var/log/couchdb /usr/local/var/run/couchdb \
   && chmod -R g+rw \
     /usr/local/lib/couchdb /usr/local/etc/couchdb \
     /usr/local/var/lib/couchdb /usr/local/var/log/couchdb /usr/local/var/run/couchdb \
-  && mkdir -p /var/lib/couchdb
-
-# Expose to the outside
-RUN sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini
+  && mkdir -p /var/lib/couchdb \
+  && sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini
 
 COPY ./docker-entrypoint.sh /
 
