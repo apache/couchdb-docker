@@ -20,7 +20,7 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 * built on top of the solid and small `debian:jessie` base image
 * exposes CouchDB on port `5984` of the container
 * runs everything as user `couchdb` (security ftw!)
-* docker volumes for data, logs and config
+* docker volume for data
 
 ## Run (stable)
 

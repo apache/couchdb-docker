@@ -71,12 +71,13 @@ RUN gpg --keyserver pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4
     /usr/local/lib/couchdb /usr/local/etc/couchdb \
     /usr/local/var/lib/couchdb /usr/local/var/log/couchdb /usr/local/var/run/couchdb \
   && mkdir -p /var/lib/couchdb \
-  && sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini
+  && sed -e 's/^bind_address = .*$/bind_address = 0.0.0.0/' -i /usr/local/etc/couchdb/default.ini \
+  && sed -e 's/\/usr\/local\/var\/log\/couchdb\/couch.log$/\/dev\/null/' -i /usr/local/etc/couchdb/default.ini
 
 COPY ./docker-entrypoint.sh /
 
 # Define mountable directories.
-VOLUME ["/usr/local/var/log/couchdb", "/usr/local/var/lib/couchdb", "/usr/local/etc/couchdb"]
+VOLUME ["/usr/local/var/lib/couchdb"]
 
 EXPOSE 5984
 WORKDIR /var/lib/couchdb
