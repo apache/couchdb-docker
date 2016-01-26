@@ -45,6 +45,15 @@ curl http://localhost:5984
 If you want to provide your own config, you can either mount a directory at `/usr/local/etc/couchdb`
 or extend the image and `COPY` your `config.ini` (see [Build you own](#build-your-own)).
 
+### with couchperuser plugin
+
+This build includes the `couchperuser` plugin.
+`couchperuser` is a CouchDB plugin daemon that creates per-user databases [github.com/etrepum/couchperuser](https://github.com/etrepum/couchperuser).
+
+```
+[sudo] docker run -d -p 5984:5984 --name couchdb klaemo/couchdb:1.6.1-couchperuser
+```
+
 ## Run (dev)
 
 Available on the docker registry as [klaemo/couchdb:2.0-dev](https://index.docker.io/u/klaemo/couchdb/)
