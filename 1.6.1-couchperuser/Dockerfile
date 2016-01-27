@@ -14,10 +14,9 @@ FROM klaemo/couchdb:1.6.1
 
 MAINTAINER Clemens Stolle klaemo@apache.org
 
-RUN apt-get update && apt-get install -y rebar build-essential \
+RUN apt-get update && apt-get install -y rebar make \
  && mkdir -p /usr/local/lib/couchdb/plugins/couchperuser \
  && cd /usr/local/lib/couchdb/plugins/couchperuser \
  && curl -L https://github.com/etrepum/couchperuser/archive/1.1.0.tar.gz | tar -xz --strip-components=1 \
  && make \
- && apt-get purge -y rebar build-essential \
- && apt-get autoremove -y
+ && apt-get purge -y --auto-remove rebar make
