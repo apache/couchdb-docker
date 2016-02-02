@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-FROM klaemo/couchdb:1.6.1
+FROM couchdb:1.6.1
 
 MAINTAINER Clemens Stolle klaemo@apache.org
 
