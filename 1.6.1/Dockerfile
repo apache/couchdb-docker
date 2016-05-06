@@ -94,6 +94,7 @@ RUN buildDeps=' \
   && sed -e 's!/usr/local/var/log/couchdb/couch.log$!/dev/null!' -i /usr/local/etc/couchdb/default.ini
 
 COPY ./docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
 
 # Define mountable directories.
 VOLUME ["/usr/local/var/lib/couchdb"]
