@@ -1,4 +1,4 @@
-YADC
+YADC [![Build Status](https://travis-ci.org/klaemo/docker-couchdb.svg?branch=master)](https://travis-ci.org/klaemo/docker-couchdb)
 ===
 
 Yet Another Dockerized CouchDB.
