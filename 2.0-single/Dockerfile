@@ -14,13 +14,13 @@ FROM debian:jessie
 
 MAINTAINER Clemens Stolle klaemo@apache.org
 
-ENV COUCHDB_VERSION master
-
-
-RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
+# Pin to an arbitrary commit for a deterministic build
+# Once CouchDB has an actual 2.0 tag, we can use that
+ENV COUCHDB_VERSION 1b38ccd
 
 # Download dependencies
-RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
+RUN apt-get update -y -qq \
+ && apt-get install -y --no-install-recommends \
     apt-transport-https \
     build-essential \
     ca-certificates \
@@ -38,23 +38,19 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
  && echo 'deb https://deb.nodesource.com/node_4.x jessie main' > /etc/apt/sources.list.d/nodesource.list \
  && echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
- && apt-get update -y -qq && apt-get install -y nodejs \
+ && apt-get update -y -qq \
+ && apt-get install -y nodejs \
  && npm install -g grunt-cli \
-# Acquire and configure CouchDB source code
+ # Acquire CouchDB source code
  && cd /usr/src \
  && git clone --depth 1 https://git-wip-us.apache.org/repos/asf/couchdb.git \
  && cd couchdb \
  && git checkout $COUCHDB_VERSION \
- && ./configure \
-    --disable-docs \
-    --databasedir /var/lib/couchdb \
-    --viewindexdir /var/lib/couchdb \
-# Build the release and install into /opt
+ # Build the release and install into /opt
+ && ./configure --disable-docs \
  && make build \
  && mv /usr/src/couchdb/rel/couchdb /opt/ \
- && mkdir -p /var/lib/couchdb \
- && chown -R couchdb:couchdb /opt/couchdb /var/lib/couchdb \
-# Cleanup build detritus
+ # Cleanup build detritus
  && apt-get purge -y \
     binutils \
     build-essential \
@@ -69,16 +65,21 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
  && apt-get install -y libicu52 --no-install-recommends \
  && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules /usr/src/couchdb
 
-# Now override some of the configuration
+# Add configuration
 COPY local.ini /opt/couchdb/etc/
 COPY vm.args /opt/couchdb/etc/
-RUN chown couchdb:couchdb /opt/couchdb/etc/*
 
-VOLUME ["/var/lib/couchdb"]
+# Add CouchDB user account
+RUN groupadd -r couchdb \
+ && useradd -d /opt/couchdb -g couchdb couchdb
+
+# Setup directory permissions
+RUN mkdir -p /opt/couchdb/data \
+ && chown -R couchdb:couchdb /opt/couchdb/
+
 USER couchdb
-EXPOSE 5984
-EXPOSE 4369
-EXPOSE 9100
 WORKDIR /opt/couchdb
+EXPOSE 5984 4369 9100
+VOLUME ["/opt/couchdb/data"]
 
 ENTRYPOINT ["/opt/couchdb/bin/couchdb"]
