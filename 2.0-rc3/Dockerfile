@@ -28,9 +28,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     openssl \
   && rm -rf /var/lib/apt/lists/*
 
-# Pin to an arbitrary commit for a deterministic build
-# Once CouchDB has an actual 2.0 tag, we can use that
-ENV COUCHDB_VERSION 2.0.0-RC2
+ENV COUCHDB_VERSION 2.0.0-RC3
 
 # Download dev dependencies
 RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
