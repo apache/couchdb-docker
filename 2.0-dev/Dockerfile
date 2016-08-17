@@ -14,7 +14,7 @@ FROM debian:jessie
 
 MAINTAINER Clemens Stolle klaemo@apache.org
 
-ENV COUCHDB_VERSION 2.0.0-RC2
+ENV COUCHDB_VERSION 2.0.0-RC4
 
 RUN groupadd -r couchdb && useradd -d /usr/src/couchdb -g couchdb couchdb
 

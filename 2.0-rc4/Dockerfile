@@ -28,7 +28,21 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     openssl \
   && rm -rf /var/lib/apt/lists/*
 
-ENV COUCHDB_VERSION 2.0.0-RC3
+# grab gosu for easy step-down from root and tini for signal handling
+RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+  && curl -o /usr/local/bin/gosu -fSL "https://github.com/tianon/gosu/releases/download/1.7/gosu-$(dpkg --print-architecture)" \
+  && curl -o /usr/local/bin/gosu.asc -fSL "https://github.com/tianon/gosu/releases/download/1.7/gosu-$(dpkg --print-architecture).asc" \
+  && gpg --verify /usr/local/bin/gosu.asc \
+  && rm /usr/local/bin/gosu.asc \
+  && chmod +x /usr/local/bin/gosu \
+  && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 6380DC428747F6C393FEACA59A84159D7001A4E5 \
+  && curl -o /usr/local/bin/tini -fSL "https://github.com/krallin/tini/releases/download/v0.9.0/tini" \
+  && curl -o /usr/local/bin/tini.asc -fSL "https://github.com/krallin/tini/releases/download/v0.9.0/tini.asc" \
+  && gpg --verify /usr/local/bin/tini.asc \
+  && rm /usr/local/bin/tini.asc \
+  && chmod +x /usr/local/bin/tini
+
+ENV COUCHDB_VERSION 2.0.0-RC4
 
 # Download dev dependencies
 RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
@@ -72,13 +86,16 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
 COPY local.ini /opt/couchdb/etc/
 COPY vm.args /opt/couchdb/etc/
 
-# Setup directory permissions
-RUN mkdir -p /opt/couchdb/data \
+COPY ./docker-entrypoint.sh /
+
+# Setup directories and permissions
+RUN chmod +x /docker-entrypoint.sh \
+ && mkdir /opt/couchdb/data /opt/couchdb/etc/local.d /opt/couchdb/etc/default.d \
  && chown -R couchdb:couchdb /opt/couchdb/
 
-USER couchdb
 WORKDIR /opt/couchdb
 EXPOSE 5984 4369 9100
 VOLUME ["/opt/couchdb/data"]
 
-ENTRYPOINT ["/opt/couchdb/bin/couchdb"]
+ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
+CMD ["/opt/couchdb/bin/couchdb"]
