@@ -38,8 +38,8 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
  && echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
  && apt-get update -y -qq && apt-get install -y nodejs \
  && npm install -g grunt-cli \
- && cd /usr/src && git clone --depth 1 https://git-wip-us.apache.org/repos/asf/couchdb.git \
- && cd couchdb && git checkout $COUCHDB_VERSION \
+ && cd /usr/src && git clone https://git-wip-us.apache.org/repos/asf/couchdb.git \
+ && cd couchdb && git checkout tags/$COUCHDB_VERSION \
  && cd /usr/src/couchdb && ./configure --disable-docs && make \
  && apt-get purge -y \
     binutils \
