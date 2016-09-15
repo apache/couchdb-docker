@@ -14,33 +14,54 @@ FROM debian:jessie
 
 MAINTAINER Clemens Stolle klaemo@apache.org
 
-ENV COUCHDB_VERSION 2.0.0-RC4
+# Add CouchDB user account
+RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
 
-RUN groupadd -r couchdb && useradd -d /usr/src/couchdb -g couchdb couchdb
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    erlang-nox \
+    erlang-reltool \
+    libicu52 \
+    libmozjs185-1.0 \
+    haproxy \
+    python \
+    openssl \
+  && rm -rf /var/lib/apt/lists/*
 
-# download dependencies
+# grab gosu for easy step-down from root and tini for signal handling
+RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 6380DC428747F6C393FEACA59A84159D7001A4E5 \
+  && curl -o /usr/local/bin/tini -fSL "https://github.com/krallin/tini/releases/download/v0.9.0/tini" \
+  && curl -o /usr/local/bin/tini.asc -fSL "https://github.com/krallin/tini/releases/download/v0.9.0/tini.asc" \
+  && gpg --verify /usr/local/bin/tini.asc \
+  && rm /usr/local/bin/tini.asc \
+  && chmod +x /usr/local/bin/tini
+
+ENV COUCHDB_VERSION 2.0.0
+
+# Download dev dependencies
 RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
     apt-transport-https \
     build-essential \
-    ca-certificates \
-    curl \
     erlang-dev \
-    erlang-nox \
-    git \
-    haproxy \
     libcurl4-openssl-dev \
     libicu-dev \
     libmozjs185-dev \
-    openssl \
-    python \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
  && echo 'deb https://deb.nodesource.com/node_4.x jessie main' > /etc/apt/sources.list.d/nodesource.list \
  && echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
- && apt-get update -y -qq && apt-get install -y nodejs \
+ && apt-get update -y -qq \
+ && apt-get install -y nodejs \
  && npm install -g grunt-cli \
- && cd /usr/src && git clone https://git-wip-us.apache.org/repos/asf/couchdb.git \
- && cd couchdb && git checkout tags/$COUCHDB_VERSION \
- && cd /usr/src/couchdb && ./configure --disable-docs && make \
+ # Acquire CouchDB source code
+ && cd /usr/src && mkdir couchdb \
+ && curl -fSL https://dist.apache.org/repos/dist/dev/couchdb/source/2.0.0/rc.1/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
+ && tar -xzf couchdb.tar.gz -C couchdb --strip-components=1 \
+ && cd couchdb \
+ # Build the release and install
+ && ./configure --disable-docs \
+ && make release \
+ # Cleanup build detritus
  && apt-get purge -y \
     binutils \
     build-essential \
@@ -53,14 +74,12 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
     perl \
  && apt-get autoremove -y && apt-get clean \
  && apt-get install -y libicu52 --no-install-recommends \
- && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules src/fauxton/node_modules src/**/.git .git
+ && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules
 
-# permissions
+# Setup directories and permissions
 RUN chmod +x /usr/src/couchdb/dev/run && chown -R couchdb:couchdb /usr/src/couchdb
 
-USER couchdb
-EXPOSE 5984 15984 25984 35984 15986 25986 35986
 WORKDIR /usr/src/couchdb
+EXPOSE 5984 4369 9100 15984 25984 35984 15986 25986 35986
 
-ENTRYPOINT ["/usr/src/couchdb/dev/run"]
-CMD ["--with-haproxy"]
+CMD ["tini", "--", "/usr/src/couchdb/dev/run", "--with-haproxy"]
