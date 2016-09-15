@@ -13,10 +13,9 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 
 - `1`, `1.6`, `1.6.1`, `latest`: CouchDB 1.6.1
 - `1-couchperuser`, `1.6-couchperuser`, `1.6.1-couchperuser`: CouchDB 1.6.1 with couchperuser plugin
-- `2.0-dev`: CouchDB 2.0 RC4 (development version) with preconfigured dev cluster
-- `2.0-rc4`: CouchDB 2.0 RC4 (development version) single node
+- `2.0-dev`: CouchDB 2.0 RC.1 (release vote) with preconfigured dev cluster
+- `latest`, 2.0.0-rc1-vote`: CouchDB 2.0 RC.1 (release vote) single node
 - `2.0-dev-docs`: CouchDB 2.0 master (development version) with preconfigured dev cluster and documentation
-- `2.0-single`: CouchDB 2.0 master (development version)
 
 ## Features
 
@@ -27,13 +26,13 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 
 ## Run (stable)
 
-Available as a trusted build on Docker Hub as [klaemo/couchdb](https://hub.docker.com/r/klaemo/couchdb/)
+Available as an official image on Docker Hub as [couchdb](https://hub.docker.com/_/couchdb/)
 
 ```bash
 [sudo] docker pull klaemo/couchdb:latest
 
 # expose it to the world on port 5984
-[sudo] docker run -d -p 5984:5984 --name couchdb klaemo/couchdb
+[sudo] docker run -d -p 5984:5984 --name couchdb couchdb
 
 curl http://localhost:5984
 ```
@@ -42,7 +41,7 @@ curl http://localhost:5984
 
 ```bash
 # expose it to the world on port 5984 and use your current directory as the CouchDB Database directory
-[sudo] docker run -d -p 5984:5984 -v $(pwd):/usr/local/var/lib/couchdb --name couchdb klaemo/couchdb
+[sudo] docker run -d -p 5984:5984 -v $(pwd):/usr/local/var/lib/couchdb --name couchdb couchdb
 ```
 
 If you want to provide your own config, you can either mount a directory at `/usr/local/etc/couchdb`
@@ -54,12 +53,12 @@ This build includes the `couchperuser` plugin.
 `couchperuser` is a CouchDB plugin daemon that creates per-user databases [github.com/etrepum/couchperuser](https://github.com/etrepum/couchperuser).
 
 ```
-[sudo] docker run -d -p 5984:5984 --name couchdb klaemo/couchdb:1.6.1-couchperuser
+[sudo] docker run -d -p 5984:5984 --name couchdb couchdb:1.6.1-couchperuser
 ```
 
 ## Run (dev)
 
-Available on the docker registry as [klaemo/couchdb:2.0-single](https://index.docker.io/u/klaemo/couchdb/).
+Available on the docker registry as [klaemo/couchdb:latest](https://index.docker.io/u/klaemo/couchdb/).
 This is a developer preview of the upcoming CouchDB 2.0 release. A data volume
 is exposed on `/opt/couchdb/data`, and the node's port is exposed on `5984`.
 
