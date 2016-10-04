@@ -44,6 +44,7 @@ The node will also start in [admin party mode](http://guide.couchdb.org/draft/se
 [...]
 ```
 
+Note that you can also use the NODENAME environment variable to set the name of the CouchDB node inside the container.
 Once running, you can visit the new admin interface at `http://dockerhost:5984/_utils/`
 
 ## Run (1.6.1)
