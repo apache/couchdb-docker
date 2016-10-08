@@ -20,6 +20,7 @@ RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
+    haproxy \
     erlang-nox \
     erlang-reltool \
     libicu52 \
