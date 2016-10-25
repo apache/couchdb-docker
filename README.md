@@ -11,7 +11,7 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 
 ## Available tags
 
-- `1`, `1.6`, `1.6.1`, `latest`: CouchDB 1.6.1
+- `1`, `1.6`, `1.6.1`: CouchDB 1.6.1
 - `1-couchperuser`, `1.6-couchperuser`, `1.6.1-couchperuser`: CouchDB 1.6.1 with couchperuser plugin
 - `2.0-dev`: CouchDB 2.0 RC.1 (release vote) with preconfigured dev cluster
 - `latest`, `2.0.0`: CouchDB 2.0 single node
