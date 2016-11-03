@@ -36,7 +36,7 @@ The node will also start in [admin party mode](http://guide.couchdb.org/draft/se
 
 ```bash
 # expose it to the world on port 5984 and use your current directory as the CouchDB Database directory
-[sudo] docker run -p 5984:5984 -v $(pwd):/opt/couchdb/data klaemo/couchdb:2.0-single
+[sudo] docker run -p 5984:5984 -v $(pwd):/opt/couchdb/data klaemo/couchdb
 18:54:48.780 [info] Application lager started on node nonode@nohost
 18:54:48.780 [info] Application couch_log_lager started on node nonode@nohost
 18:54:48.780 [info] Application couch_mrview started on node nonode@nohost
