@@ -51,7 +51,7 @@ Once running, you can visit the new admin interface at `http://dockerhost:5984/_
 Available as an official image on Docker Hub as [couchdb](https://hub.docker.com/_/couchdb/)
 
 ```bash
-[sudo] docker pull klaemo/couchdb:latest
+[sudo] docker pull couchdb:latest
 
 # expose it to the world on port 5984
 [sudo] docker run -d -p 5984:5984 --name couchdb couchdb
