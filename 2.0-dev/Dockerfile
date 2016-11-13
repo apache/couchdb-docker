@@ -83,4 +83,5 @@ RUN chmod +x /usr/src/couchdb/dev/run && chown -R couchdb:couchdb /usr/src/couch
 WORKDIR /usr/src/couchdb
 EXPOSE 5984 4369 9100 15984 25984 35984 15986 25986 35986
 
-CMD ["tini", "--", "/usr/src/couchdb/dev/run", "--with-haproxy"]
+ENTRYPOINT ["tini", "--", "/usr/src/couchdb/dev/run"]
+CMD ["--with-haproxy"]
