@@ -70,6 +70,11 @@ curl http://localhost:5984
 If you want to provide your own config, you can either mount a directory at `/usr/local/etc/couchdb`
 or extend the image and `COPY` your `config.ini` (see [Build you own](#build-your-own)).
 
+If you need (or want) to run couchdb in `net=host` mode, you can customize the port and bind address using environment variables:
+
+ - `COUCHDB_HTTP_BIND_ADDRESS` (default: `0.0.0.0`)
+ - `COUCHDB_HTTP_PORT` (default: `5984`)
+
 ### with couchperuser plugin
 
 This build includes the `couchperuser` plugin.

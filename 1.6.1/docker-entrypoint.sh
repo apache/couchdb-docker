@@ -36,6 +36,9 @@ if [ "$1" = 'couchdb' ]; then
 		chown couchdb:couchdb /usr/local/etc/couchdb/local.d/docker.ini
 	fi
 
+	printf "[httpd]\nport = %s\nbind_address = %s\n" ${COUCHDB_HTTP_PORT:=5984} ${COUCHDB_HTTP_BIND_ADDRESS:=0.0.0.0} > /usr/local/etc/couchdb/local.d/bind_address.ini
+	chown couchdb:couchdb /usr/local/etc/couchdb/local.d/bind_address.ini
+
 	# if we don't find an [admins] section followed by a non-comment, display a warning
 	if ! grep -Pzoqr '\[admins\]\n[^;]\w+' /usr/local/etc/couchdb; then
 		# The - option suppresses leading tabs but *not* spaces. :)
