@@ -83,14 +83,14 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
  && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules /usr/src/couchdb*
 
 # Add configuration
-COPY local.ini /opt/couchdb/etc/
+COPY local.ini /opt/couchdb/etc/local.d/
 COPY vm.args /opt/couchdb/etc/
 
 COPY ./docker-entrypoint.sh /
 
 # Setup directories and permissions
 RUN chmod +x /docker-entrypoint.sh \
- && mkdir /opt/couchdb/data /opt/couchdb/etc/local.d /opt/couchdb/etc/default.d \
+ && mkdir /opt/couchdb/data /opt/couchdb/etc/default.d \
  && chown -R couchdb:couchdb /opt/couchdb/
 
 WORKDIR /opt/couchdb
