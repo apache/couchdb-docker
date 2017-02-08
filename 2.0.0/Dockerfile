@@ -20,9 +20,9 @@ RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
-    haproxy \
     erlang-nox \
     erlang-reltool \
+    haproxy \
     libicu52 \
     libmozjs185-1.0 \
     openssl \
@@ -36,22 +36,42 @@ RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364
   && rm /usr/local/bin/gosu.asc \
   && chmod +x /usr/local/bin/gosu \
   && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 6380DC428747F6C393FEACA59A84159D7001A4E5 \
-  && curl -o /usr/local/bin/tini -fSL "https://github.com/krallin/tini/releases/download/v0.9.0/tini" \
-  && curl -o /usr/local/bin/tini.asc -fSL "https://github.com/krallin/tini/releases/download/v0.9.0/tini.asc" \
+  && curl -o /usr/local/bin/tini -fSL "https://github.com/krallin/tini/releases/download/v0.14.0/tini" \
+  && curl -o /usr/local/bin/tini.asc -fSL "https://github.com/krallin/tini/releases/download/v0.14.0/tini.asc" \
   && gpg --verify /usr/local/bin/tini.asc \
   && rm /usr/local/bin/tini.asc \
   && chmod +x /usr/local/bin/tini
 
+# https://www.apache.org/dist/couchdb/KEYS
+ENV GPG_KEYS \
+  15DD4F3B8AACA54740EB78C7B7B7C53943ECCEE1 \
+  1CFBFA43C19B6DF4A0CA3934669C02FFDF3CEBA3 \
+  25BBBAC113C1BFD5AA594A4C9F96B92930380381 \
+  4BFCA2B99BADC6F9F105BEC9C5E32E2D6B065BFB \
+  5D680346FAA3E51B29DBCB681015F68F9DA248BC \
+  7BCCEB868313DDA925DF1805ECA5BCB7BB9656B0 \
+  C3F4DFAEAD621E1C94523AEEC376457E61D50B88 \
+  D2B17F9DA23C0A10991AF2E3D9EE01E47852AEE4 \
+  E0AF0A194D55C84E4A19A801CDB0C0F904F4EE9B
+RUN set -xe \
+  && for key in $GPG_KEYS; do \
+    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+  done
+
 ENV COUCHDB_VERSION 2.0.0
 
 # Download dev dependencies
-RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
+RUN buildDeps=' \
     apt-transport-https \
-    build-essential \
+    gcc \
+    g++ \
     erlang-dev \
     libcurl4-openssl-dev \
     libicu-dev \
     libmozjs185-dev \
+    make \
+  ' \
+ && apt-get update -y -qq && apt-get install -y --no-install-recommends $buildDeps \
  && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
  && echo 'deb https://deb.nodesource.com/node_4.x jessie main' > /etc/apt/sources.list.d/nodesource.list \
  && echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
@@ -60,7 +80,9 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
  && npm install -g grunt-cli \
  # Acquire CouchDB source code
  && cd /usr/src && mkdir couchdb \
- && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/2.0.0/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
+ && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
+ && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
+ && gpg --verify couchdb.tar.gz.asc \
  && tar -xzf couchdb.tar.gz -C couchdb --strip-components=1 \
  && cd couchdb \
  # Build the release and install into /opt
@@ -68,18 +90,7 @@ RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
  && make release \
  && mv /usr/src/couchdb/rel/couchdb /opt/ \
  # Cleanup build detritus
- && apt-get purge -y \
-    binutils \
-    build-essential \
-    cpp \
-    erlang-dev \
-    git \
-    libicu-dev \
-    make \
-    nodejs \
-    perl \
- && apt-get autoremove -y && apt-get clean \
- && apt-get install -y libicu52 --no-install-recommends \
+ && apt-get purge -y --auto-remove $buildDeps \
  && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules /usr/src/couchdb*
 
 # Add configuration
