@@ -13,9 +13,8 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 
 - `1`, `1.6`, `1.6.1`: CouchDB 1.6.1
 - `1-couchperuser`, `1.6-couchperuser`, `1.6.1-couchperuser`: CouchDB 1.6.1 with couchperuser plugin
-- `2.0-dev`: CouchDB 2.0 RC.1 (release vote) with preconfigured dev cluster
 - `latest`, `2.0.0`: CouchDB 2.0 single node
-- `2.0-dev-docs`: CouchDB 2.0 master (development version) with preconfigured dev cluster and documentation
+- `dev`: CouchDB 2.0 master (development version) with preconfigured dev cluster and documentation
 
 ## Features
 
@@ -27,7 +26,7 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 ## Run (2.0.0/latest)
 
 Available on the docker registry as [klaemo/couchdb:latest](https://index.docker.io/u/klaemo/couchdb/).
-This is a developer preview of the upcoming CouchDB 2.0 release. A data volume
+This is a build of the CouchDB 2.0 release. A data volume
 is exposed on `/opt/couchdb/data`, and the node's port is exposed on `5984`.
 
 Please note that CouchDB no longer autocreates system tables for you, so you will
@@ -86,14 +85,14 @@ This build includes the `couchperuser` plugin.
 
 ### In a developer cluster
 
-Available on the docker registry as [klaemo/couchdb:2.0-dev](https://index.docker.io/u/klaemo/couchdb/).
+Available on the docker registry as [klaemo/couchdb:dev](https://index.docker.io/u/klaemo/couchdb/).
 This build demonstrates the CouchDB clustering features by creating a local
 cluster of a default three nodes inside the container, with a proxy in front.
 This is great for testing clustering in your local environment.
 
 ```bash
 # expose the cluster to the world
-[sudo] docker run -it -p 5984:5984 klaemo/couchdb:2.0-dev
+[sudo] docker run -it -p 5984:5984 klaemo/couchdb:dev
 
 [ * ] Setup environment ... ok
 [ * ] Ensure CouchDB is built ... ok
@@ -117,7 +116,7 @@ Time to hack! ...
 ...but you can pass arguments to the binary
 
 ```bash
-docker run -it klaemo/couchdb:2.0-dev --admin=foo:bar
+docker run -it klaemo/couchdb:dev --admin=foo:bar
 ```
 **Note:** This will overwrite the default `--with-haproxy` flag. The cluster **won't** be exposed on
 port `5984` anymore. The individual nodes listen on `15984`, `25984`, ...`x5984`. If you wish to expose
@@ -126,13 +125,13 @@ the cluster on `5984`, pass `--with-haproxy` explicitly.
 Examples:
 ```bash
 # display the available options of the couchdb startup script
-docker run --rm klaemo/couchdb:2.0-dev --help
+docker run --rm klaemo/couchdb:dev --help
 
 # Enable admin party 🎉 and expose the cluster on port 5984
-docker run -it -p 5984:5984 klaemo/couchdb:2.0-dev --with-admin-party-please --with-haproxy
+docker run -it -p 5984:5984 klaemo/couchdb:dev --with-admin-party-please --with-haproxy
 
 # Start two nodes (without proxy) exposed on port 15984 and 25984
-docker run -it -p 15984:15984 -p 25984:25984 klaemo/couchdb:2.0-dev -n 2
+docker run -it -p 15984:15984 -p 25984:25984 klaemo/couchdb:dev -n 2
 ```
 
 ## Build your own
