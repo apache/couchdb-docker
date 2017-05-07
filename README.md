@@ -85,14 +85,14 @@ This build includes the `couchperuser` plugin.
 
 ### In a developer cluster
 
-Available on the docker registry as [klaemo/couchdb:dev](https://index.docker.io/u/klaemo/couchdb/).
+Available on the docker registry as [klaemo/couchdb:2.0-dev](https://index.docker.io/u/klaemo/couchdb/).
 This build demonstrates the CouchDB clustering features by creating a local
 cluster of a default three nodes inside the container, with a proxy in front.
 This is great for testing clustering in your local environment.
 
 ```bash
 # expose the cluster to the world
-[sudo] docker run -it -p 5984:5984 klaemo/couchdb:dev
+[sudo] docker run -it -p 5984:5984 klaemo/couchdb:2.0-dev
 
 [ * ] Setup environment ... ok
 [ * ] Ensure CouchDB is built ... ok
@@ -116,7 +116,7 @@ Time to hack! ...
 ...but you can pass arguments to the binary
 
 ```bash
-docker run -it klaemo/couchdb:dev --admin=foo:bar
+docker run -it klaemo/couchdb:2.0-dev --admin=foo:bar
 ```
 **Note:** This will overwrite the default `--with-haproxy` flag. The cluster **won't** be exposed on
 port `5984` anymore. The individual nodes listen on `15984`, `25984`, ...`x5984`. If you wish to expose
@@ -125,13 +125,13 @@ the cluster on `5984`, pass `--with-haproxy` explicitly.
 Examples:
 ```bash
 # display the available options of the couchdb startup script
-docker run --rm klaemo/couchdb:dev --help
+docker run --rm klaemo/couchdb:2.0-dev --help
 
 # Enable admin party 🎉 and expose the cluster on port 5984
-docker run -it -p 5984:5984 klaemo/couchdb:dev --with-admin-party-please --with-haproxy
+docker run -it -p 5984:5984 klaemo/couchdb:2.0-dev --with-admin-party-please --with-haproxy
 
 # Start two nodes (without proxy) exposed on port 15984 and 25984
-docker run -it -p 15984:15984 -p 25984:25984 klaemo/couchdb:dev -n 2
+docker run -it -p 15984:15984 -p 25984:25984 klaemo/couchdb:2.0-dev -n 2
 ```
 
 ## Build your own
