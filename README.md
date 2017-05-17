@@ -1,7 +1,5 @@
-YADC [![Build Status](https://travis-ci.org/klaemo/docker-couchdb.svg?branch=master)](https://travis-ci.org/klaemo/docker-couchdb)
-===
+# Semi-official Apache CouchDB Docker images [![Build Status](https://travis-ci.org/apache/couchdb-docker.svg?branch=master)](https://travis-ci.org/apache/couchdb-docker)
 
-Yet Another Dockerized CouchDB.
 Put the couch in a docker container and ship it anywhere.
 
 If you're looking for a CouchDB with SSL support you can check out [klaemo/couchdb-ssl](https://index.docker.io/u/klaemo/couchdb-ssl/)
@@ -160,9 +158,16 @@ For the `2.0-single` image, configuration is stored at `/opt/couchdb/etc/`.
 
 ## Feedback, Issues, Contributing
 
-**Please use Github issues for any questions, bugs, feature requests. :)**
-I don't get notified about comments on Docker Hub, so I might respond really late...or not at all.
+General feedback is welcome at our [user][1] or [developer][2] mailing lists.
+
+Apache CouchDB has a [CONTRIBUTING][3] file with details on how to get started
+with issue reporting or contributing to the upkeep of this project. In short,
+use GitHub Issues, do not report anything on Docker's website.
 
 ## Contributors
 
 - [@joeybaker](https://github.com/joeybaker)
+
+[1]: http://mail-archives.apache.org/mod_mbox/couchdb-user/
+[2]: http://mail-archives.apache.org/mod_mbox/couchdb-dev/
+[3]: https://github.com/apache/couchdb/blob/master/CONTRIBUTING.md
