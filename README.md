@@ -12,7 +12,6 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 - `1`, `1.6`, `1.6.1`: CouchDB 1.6.1
 - `1-couchperuser`, `1.6-couchperuser`, `1.6.1-couchperuser`: CouchDB 1.6.1 with couchperuser plugin
 - `latest`, `2.0.0`: CouchDB 2.0 single node
-- `dev`: CouchDB 2.0 master (development version) with preconfigured dev cluster and documentation
 
 ## Features
 
@@ -83,14 +82,17 @@ This build includes the `couchperuser` plugin.
 
 ### In a developer cluster
 
-Available on the docker registry as [klaemo/couchdb:dev](https://index.docker.io/u/klaemo/couchdb/).
 This build demonstrates the CouchDB clustering features by creating a local
 cluster of a default three nodes inside the container, with a proxy in front.
 This is great for testing clustering in your local environment.
 
+You will need to build Docker images from the `dev` directory in this
+repository; [Apache Software Foundation policy][4] prevents us from publishing
+non-release builds for wide distribution.
+
 ```bash
 # expose the cluster to the world
-[sudo] docker run -it -p 5984:5984 klaemo/couchdb:dev
+[sudo] docker run -it -p 5984:5984 <image-hash>
 
 [ * ] Setup environment ... ok
 [ * ] Ensure CouchDB is built ... ok
@@ -114,7 +116,7 @@ Time to hack! ...
 ...but you can pass arguments to the binary
 
 ```bash
-docker run -it klaemo/couchdb:dev --admin=foo:bar
+docker run -it <image-hash> --admin=foo:bar
 ```
 **Note:** This will overwrite the default `--with-haproxy` flag. The cluster **won't** be exposed on
 port `5984` anymore. The individual nodes listen on `15984`, `25984`, ...`x5984`. If you wish to expose
@@ -123,13 +125,13 @@ the cluster on `5984`, pass `--with-haproxy` explicitly.
 Examples:
 ```bash
 # display the available options of the couchdb startup script
-docker run --rm klaemo/couchdb:dev --help
+docker run --rm <image-hash> --help
 
 # Enable admin party 🎉 and expose the cluster on port 5984
-docker run -it -p 5984:5984 klaemo/couchdb:dev --with-admin-party-please --with-haproxy
+docker run -it -p 5984:5984 <image-hash> --with-admin-party-please --with-haproxy
 
 # Start two nodes (without proxy) exposed on port 15984 and 25984
-docker run -it -p 15984:15984 -p 25984:25984 klaemo/couchdb:dev -n 2
+docker run -it -p 15984:15984 -p 25984:25984 <image-hash> -n 2
 ```
 
 ## Build your own
@@ -171,3 +173,4 @@ use GitHub Issues, do not report anything on Docker's website.
 [1]: http://mail-archives.apache.org/mod_mbox/couchdb-user/
 [2]: http://mail-archives.apache.org/mod_mbox/couchdb-dev/
 [3]: https://github.com/apache/couchdb/blob/master/CONTRIBUTING.md
+[4]: http://www.apache.org/dev/release-distribution.html#unreleased
