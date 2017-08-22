@@ -74,12 +74,6 @@ RUN buildDeps=' \
     make \
   ' \
  && apt-get update -y -qq && apt-get install -y --no-install-recommends $buildDeps \
- && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
- && echo 'deb https://deb.nodesource.com/node_4.x jessie main' > /etc/apt/sources.list.d/nodesource.list \
- && echo 'deb-src https://deb.nodesource.com/node_4.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
- && apt-get update -y -qq \
- && apt-get install -y nodejs \
- && npm install -g grunt-cli \
  # Acquire CouchDB source code
  && cd /usr/src && mkdir couchdb \
  && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
@@ -93,7 +87,7 @@ RUN buildDeps=' \
  && mv /usr/src/couchdb/rel/couchdb /opt/ \
  # Cleanup build detritus
  && apt-get purge -y --auto-remove $buildDeps \
- && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules /usr/src/couchdb*
+ && rm -rf /var/lib/apt/lists/* /usr/src/couchdb*
 
 # Add configuration
 COPY local.ini /opt/couchdb/etc/local.d/
