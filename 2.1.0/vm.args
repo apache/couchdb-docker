@@ -12,7 +12,7 @@
 
 # Ensure that the Erlang VM listens on a known port
 -kernel inet_dist_listen_min 9100
--kernel inet_dist_listen_max 9100
+-kernel inet_dist_listen_max 9200
 
 # Tell kernel and SASL not to log anything
 -kernel error_logger silent
