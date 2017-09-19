@@ -101,7 +101,7 @@ RUN chmod +x /docker-entrypoint.sh \
  && chown -R couchdb:couchdb /opt/couchdb/
 
 WORKDIR /opt/couchdb
-EXPOSE 5984 5986 4369 9100
+EXPOSE 5984 5986 4369 9100-9200
 VOLUME ["/opt/couchdb/data"]
 
 ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
