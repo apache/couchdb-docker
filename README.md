@@ -5,13 +5,13 @@ Put the couch in a docker container and ship it anywhere.
 If you're looking for a CouchDB with SSL support you can check out [klaemo/couchdb-ssl](https://index.docker.io/u/klaemo/couchdb-ssl/)
 
 - Version (stable): `CouchDB 1.6.1`, `Erlang 17.3`
-- Version (stable): `CouchDB 2.0.0`, `Erlang 17.3`
+- Version (stable): `CouchDB 2.1.0`, `Erlang 17.3`
 
 ## Available tags
 
-- `1`, `1.6`, `1.6.1`: CouchDB 1.6.1
-- `1-couchperuser`, `1.6-couchperuser`, `1.6.1-couchperuser`: CouchDB 1.6.1 with couchperuser plugin
-- `latest`, `2.0.0`: CouchDB 2.0 single node
+- `1.6.1`: CouchDB 1.6.1
+- `1.6.1-couchperuser`: CouchDB 1.6.1 with couchperuser plugin
+- `latest`, `2.1.0`: CouchDB 2.1.0 single node (capable of running in a cluster)
 
 ## Features
 
@@ -20,10 +20,10 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 * runs everything as user `couchdb` (security ftw!)
 * docker volume for data
 
-## Run (2.0.0/latest)
+## Run (latest/2.1.0)
 
-Available on the docker registry as [klaemo/couchdb:latest](https://index.docker.io/u/klaemo/couchdb/).
-This is a build of the CouchDB 2.0 release. A data volume
+Available on the docker registry as [apache/couchdb:latest](https://hub.docker.com/r/apache/couchdb/).
+This is a build of the CouchDB 2.1 release. A data volume
 is exposed on `/opt/couchdb/data`, and the node's port is exposed on `5984`.
 
 Please note that CouchDB no longer autocreates system tables for you, so you will
@@ -32,7 +32,7 @@ The node will also start in [admin party mode](http://guide.couchdb.org/draft/se
 
 ```bash
 # expose it to the world on port 5984 and use your current directory as the CouchDB Database directory
-[sudo] docker run -p 5984:5984 -v $(pwd):/opt/couchdb/data klaemo/couchdb
+[sudo] docker run -p 5984:5984 -v $(pwd):/opt/couchdb/data apache/couchdb
 18:54:48.780 [info] Application lager started on node nonode@nohost
 18:54:48.780 [info] Application couch_log_lager started on node nonode@nohost
 18:54:48.780 [info] Application couch_mrview started on node nonode@nohost
@@ -45,13 +45,13 @@ Once running, you can visit the new admin interface at `http://dockerhost:5984/_
 
 ## Run (1.6.1)
 
-Available as an official image on Docker Hub as [couchdb](https://hub.docker.com/_/couchdb/)
+Available as an official image on Docker Hub as [apache/couchdb:1.6.1](https://hub.docker.com/r/apache/couchdb/)
 
 ```bash
-[sudo] docker pull couchdb:latest
+[sudo] docker pull apache/couchdb:1.6.1
 
 # expose it to the world on port 5984
-[sudo] docker run -d -p 5984:5984 --name couchdb couchdb
+[sudo] docker run -d -p 5984:5984 --name couchdb apache/couchdb:1.6.1
 
 curl http://localhost:5984
 ```
@@ -60,7 +60,7 @@ curl http://localhost:5984
 
 ```bash
 # expose it to the world on port 5984 and use your current directory as the CouchDB Database directory
-[sudo] docker run -d -p 5984:5984 -v $(pwd):/usr/local/var/lib/couchdb --name couchdb couchdb
+[sudo] docker run -d -p 5984:5984 -v $(pwd):/usr/local/var/lib/couchdb --name couchdb apache/couchdb:1.6.1
 ```
 
 If you want to provide your own config, you can either mount a directory at `/usr/local/etc/couchdb`
@@ -77,7 +77,7 @@ This build includes the `couchperuser` plugin.
 `couchperuser` is a CouchDB plugin daemon that creates per-user databases [github.com/etrepum/couchperuser](https://github.com/etrepum/couchperuser).
 
 ```
-[sudo] docker run -d -p 5984:5984 --name couchdb couchdb:1.6.1-couchperuser
+[sudo] docker run -d -p 5984:5984 --name couchdb apache/couchdb:1.6.1-couchperuser
 ```
 
 ### In a developer cluster
@@ -100,10 +100,9 @@ non-release builds for wide distribution.
 [ * ] Start node node1 ... ok
 [ * ] Start node node2 ... ok
 [ * ] Start node node3 ... ok
-[ * ] Check node at http://127.0.0.1:15984/ ... failed: [Errno socket error] [Errno 111] Connection refused
+[ * ] Check node at http://127.0.0.1:15984/ ... ok
 [ * ] Check node at http://127.0.0.1:25984/ ... ok
 [ * ] Check node at http://127.0.0.1:35984/ ... ok
-[ * ] Check node at http://127.0.0.1:15984/ ... ok
 [ * ] Running cluster setup ... ok
 [ * ] Developers cluster is set up at http://127.0.0.1:15984.
 Admin username: root
@@ -136,7 +135,7 @@ docker run -it -p 15984:15984 -p 25984:25984 <image-hash> -n 2
 
 ## Build your own
 
-You can use `klaemo/couchdb` as the base image for your own couchdb instance.
+You can use `apache/couchdb` as the base image for your own couchdb instance.
 You might want to provide your own version of the following files:
 
 * `local.ini` for your custom CouchDB config
@@ -144,7 +143,7 @@ You might want to provide your own version of the following files:
 Example Dockerfile:
 
 ```
-FROM klaemo/couchdb:latest
+FROM apache/couchdb:latest
 
 COPY local.ini /usr/local/etc/couchdb/local.d/
 ```
@@ -156,7 +155,7 @@ and then build and run
 [sudo] docker run -d -p 5984:5984 -v ~/couchdb:/usr/local/var/lib/couchdb you/awesome-couchdb
 ```
 
-For the `2.0-single` image, configuration is stored at `/opt/couchdb/etc/`.
+For the `2.1` image, configuration is stored at `/opt/couchdb/etc/`.
 
 ## Feedback, Issues, Contributing
 
@@ -168,6 +167,7 @@ use GitHub Issues, do not report anything on Docker's website.
 
 ## Contributors
 
+- [@klaemo](https://github.com/klaemo)
 - [@joeybaker](https://github.com/joeybaker)
 
 [1]: http://mail-archives.apache.org/mod_mbox/couchdb-user/
