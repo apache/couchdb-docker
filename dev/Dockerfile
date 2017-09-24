@@ -12,7 +12,7 @@
 
 FROM debian:jessie
 
-MAINTAINER Clemens Stolle klaemo@apache.org
+MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
 ENV COUCHDB_VERSION master
 
