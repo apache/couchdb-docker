@@ -13,6 +13,17 @@
 
 set -e
 
+# first arg is `-something` or `+something`
+if [ "${1#-}" != "$1" ] || [ "${1#+}" != "$1" ]; then
+	set -- /opt/couchdb/bin/couchdb "$@"
+fi
+
+# first arg is the bare word `couchdb`
+if [ "$1" = 'couchdb' ]; then
+	shift
+	set -- /opt/couchdb/bin/couchdb "$@"
+fi
+
 if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 	# we need to set the permissions here because docker mounts volumes as root
 	chown -R couchdb:couchdb /opt/couchdb
