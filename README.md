@@ -43,6 +43,8 @@ The node will also start in [admin party mode](http://guide.couchdb.org/draft/se
 Note that you can also use the NODENAME environment variable to set the name of the CouchDB node inside the container.
 Once running, you can visit the new admin interface at `http://dockerhost:5984/_utils/`
 
+Note also that port 5986 is not exposed, as this can present *significant* security risks. We recommend either connecting to the node directly to access this port, via `docker exec -it <instance> /bin/bash` and accessing port 5986, or use of `--expose 5986` when launching the container, but **ONLY** if you do not expose this port publicly.
+
 ## Run (1.6.1)
 
 Available as an official image on Docker Hub as [apache/couchdb:1.6.1](https://hub.docker.com/r/apache/couchdb/)

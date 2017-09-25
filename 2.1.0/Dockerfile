@@ -109,7 +109,7 @@ COPY ./docker-entrypoint.sh /
 RUN chown -R couchdb:couchdb /opt/couchdb/etc/local.d/ /opt/couchdb/etc/vm.args
 
 WORKDIR /opt/couchdb
-EXPOSE 5984 5986 4369 9100-9200
+EXPOSE 5984 4369 9100
 VOLUME ["/opt/couchdb/data"]
 
 ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
