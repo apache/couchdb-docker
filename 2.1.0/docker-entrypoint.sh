@@ -50,6 +50,36 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 		chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
 	fi
 
+    if [ "$NUM_SHARDS" ] || [ "$NUM_NODES" ] || [ "$NUM_READ_QUORUM" ]|| [ "$NUM_WRITE_QUORUM" ]; then
+        # Create cluster section
+        printf "[cluster]\n" > /opt/couchdb/etc/local.d/docker.ini
+        chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
+    fi
+
+	if [ "$NUM_SHARDS" ]; then
+		# Set the number of shards
+		printf "q = %s\n" "$NUM_SHARDS" >> /opt/couchdb/etc/local.d/docker.ini
+		chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
+	fi
+
+	if [ "$NUM_NODES" ]; then
+		# Set the number of nodes
+		printf "n = %s\n" "$NUM_NODES" >> /opt/couchdb/etc/local.d/docker.ini
+		chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
+	fi
+
+	if [ "$NUM_READ_QUORUM" ]; then
+		# Set the number of read quorum
+		printf "r = %s\n" "$NUM_READ_QUORUM" >> /opt/couchdb/etc/local.d/docker.ini
+		chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
+	fi
+
+	if [ "$NUM_WRITE_QUORUM" ]; then
+		# Set the number of write quorum
+		printf "w = %s\n" "$NUM_WRITE_QUORUM" >> /opt/couchdb/etc/local.d/docker.ini
+		chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
+	fi
+
 	# if we don't find an [admins] section followed by a non-comment, display a warning
 	if ! grep -Pzoqr '\[admins\]\n[^;]\w+' /opt/couchdb/etc/local.d/*.ini; then
 		# The - option suppresses leading tabs but *not* spaces. :)
