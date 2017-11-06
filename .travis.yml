@@ -4,11 +4,11 @@ services:
   - docker
 
 before_install:
-  - docker build -t couchdb:1.6.1 1.6.1
-  - docker build -t couchdb:1.6.1-couchperuser 1.6.1-couchperuser
-  - docker build -t couchdb:2.1.0 2.1.0
+  - docker build -t couchdb:1.7.0 1.7.0
+  - docker build -t couchdb:1.7.0-couchperuser 1.7.0-couchperuser
+  - docker build -t couchdb:2.1.1 2.1.1
 
 script:
-  - docker run -d -p 5984:5984 couchdb:1.6.1 && sleep 5 && curl http://localhost:5984
-  - docker run -d -p 5985:5984 couchdb:1.6.1-couchperuser && sleep 5 && curl http://localhost:5985
-  - docker run -d -p 5986:5984 couchdb:2.1.0 && sleep 5 && curl http://localhost:5986
+  - docker run -d -p 5984:5984 couchdb:1.7.0 && sleep 5 && curl http://localhost:5984
+  - docker run -d -p 5985:5984 couchdb:1.7.0-couchperuser && sleep 5 && curl http://localhost:5985
+  - docker run -d -p 5986:5984 couchdb:2.1.1 && sleep 5 && curl http://localhost:5986
