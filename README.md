@@ -4,13 +4,13 @@ Put the couch in a docker container and ship it anywhere.
 
 If you're looking for a CouchDB with SSL support you can check out [klaemo/couchdb-ssl](https://index.docker.io/u/klaemo/couchdb-ssl/)
 
-- Version (stable): `CouchDB 1.7.0`, `Erlang 17.3`
+- Version (stable): `CouchDB 1.7.1`, `Erlang 17.3`
 - Version (stable): `CouchDB 2.1.1`, `Erlang 17.3`
 
 ## Available tags
 
-- `1.7.0`: CouchDB 1.7.0
-- `1.7.0-couchperuser`: CouchDB 1.7.0 with couchperuser plugin
+- `1.7.1`: CouchDB 1.7.1
+- `1.7.1-couchperuser`: CouchDB 1.7.1 with couchperuser plugin
 - `latest`, `2.1.1`: CouchDB 2.1.1 single node (capable of running in a cluster)
 
 ## Features
@@ -45,15 +45,15 @@ Once running, you can visit the new admin interface at `http://dockerhost:5984/_
 
 Note also that port 5986 is not exposed, as this can present *significant* security risks. We recommend either connecting to the node directly to access this port, via `docker exec -it <instance> /bin/bash` and accessing port 5986, or use of `--expose 5986` when launching the container, but **ONLY** if you do not expose this port publicly.
 
-## Run (1.7.0)
+## Run (1.7.1)
 
-Available as an official image on Docker Hub as [apache/couchdb:1.7.0](https://hub.docker.com/r/apache/couchdb/)
+Available as an official image on Docker Hub as [apache/couchdb:1.7.1](https://hub.docker.com/r/apache/couchdb/)
 
 ```bash
-[sudo] docker pull apache/couchdb:1.7.0
+[sudo] docker pull apache/couchdb:1.7.1
 
 # expose it to the world on port 5984
-[sudo] docker run -d -p 5984:5984 --name couchdb apache/couchdb:1.7.0
+[sudo] docker run -d -p 5984:5984 --name couchdb apache/couchdb:1.7.1
 
 curl http://localhost:5984
 ```
@@ -62,7 +62,7 @@ curl http://localhost:5984
 
 ```bash
 # expose it to the world on port 5984 and use your current directory as the CouchDB Database directory
-[sudo] docker run -d -p 5984:5984 -v $(pwd):/usr/local/var/lib/couchdb --name couchdb apache/couchdb:1.7.0
+[sudo] docker run -d -p 5984:5984 -v $(pwd):/usr/local/var/lib/couchdb --name couchdb apache/couchdb:1.7.1
 ```
 
 If you want to provide your own config, you can either mount a directory at `/usr/local/etc/couchdb`
@@ -79,7 +79,7 @@ This build includes the `couchperuser` plugin.
 `couchperuser` is a CouchDB plugin daemon that creates per-user databases [github.com/etrepum/couchperuser](https://github.com/etrepum/couchperuser).
 
 ```
-[sudo] docker run -d -p 5984:5984 --name couchdb apache/couchdb:1.7.0-couchperuser
+[sudo] docker run -d -p 5984:5984 --name couchdb apache/couchdb:1.7.1-couchperuser
 ```
 
 ### In a developer cluster

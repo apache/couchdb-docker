@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-FROM couchdb:1.7.0
+FROM couchdb:1.7.1
 
 MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
