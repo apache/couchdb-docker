@@ -50,6 +50,9 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 		chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
 	fi
 
+	printf "[chttpd]\nport = %s\nbind_address = %s\n" ${COUCHDB_HTTP_PORT:=5984} ${COUCHDB_HTTP_BIND_ADDRESS:=0.0.0.0} > /opt/couchdb/etc/local.d/bind_address.ini
+	chown couchdb:couchdb /opt/couchdb/etc/local.d/bind_address.ini
+
 	# if we don't find an [admins] section followed by a non-comment, display a warning
 	if ! grep -Pzoqr '\[admins\]\n[^;]\w+' /opt/couchdb/etc/local.d/*.ini; then
 		# The - option suppresses leading tabs but *not* spaces. :)
