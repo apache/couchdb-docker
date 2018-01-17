@@ -112,7 +112,7 @@ RUN buildDeps=' \
  && chown -R couchdb:couchdb /opt/couchdb
 
 # Add configuration
-COPY local.ini /opt/couchdb/etc/default.d/
+COPY 10-docker-default.ini /opt/couchdb/etc/default.d/
 COPY vm.args /opt/couchdb/etc/
 
 COPY ./docker-entrypoint.sh /
