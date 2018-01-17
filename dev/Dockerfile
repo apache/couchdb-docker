@@ -78,13 +78,16 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     libmozjs185-dev \
     make \
     python \
-    python-sphinx \
-    python-sphinx-rtd-theme \
+    python-pip \
     texinfo \
     texlive-base \
     texlive-fonts-extra \
     texlive-fonts-recommended \
     texlive-latex-extra
+
+RUN pip install \
+    sphinx \
+    sphinx_rtd_theme
 
 # Node is special
 RUN set -ex; \
