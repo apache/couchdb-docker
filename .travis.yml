@@ -11,5 +11,6 @@ env:
   - RELEASE=dev-cluster
 
 script:
-  - docker build -t couchdb:$RELEASE $RELEASE
+  - make build VERSION=$RELEASE
+  - make build ARCH=ppc64le
   - docker run -d -p 5984:5984 couchdb:$RELEASE && sleep 10 && curl http://localhost:5984
