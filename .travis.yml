@@ -4,9 +4,10 @@ services:
   - docker
 
 before_install:
-  - docker build -t couchdb:1.7.1 1.7.1
-  - docker build -t couchdb:1.7.1-couchperuser 1.7.1-couchperuser
-  - docker build -t couchdb:2.1.1 2.1.1
+  - make build VERSION=1.7.1
+  - make build VERSION=1.7.1-couchperuser
+  - make build
+  - make build ARCH=ppc64le
 
 script:
   - docker run -d -p 5984:5984 couchdb:1.7.1 && sleep 5 && curl http://localhost:5984
