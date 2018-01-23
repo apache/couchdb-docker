@@ -32,11 +32,9 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
 ENV GOSU_VERSION 1.10
 ENV TINI_VERSION 0.16.1
 RUN set -ex; \
-	\
 	apt-get update; \
 	apt-get install -y --no-install-recommends wget; \
 	rm -rf /var/lib/apt/lists/*; \
-	\
 	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
 	\
 # install gosu

@@ -29,21 +29,27 @@ endif
 build:
 
 ifeq ($(ARCH),amd64)
+	cp ./* $(TEMP_DIR)
+	cat Dockerfile.crossbuild \
+                | sed "s|BASEIMAGE|$(BASEIMAGE)|g" \
+                | sed "/CROSS_BUILD_COPY/d" \
+                > $(TEMP_DIR)/Dockerfile.crossbuild
 	# We just build it using the usual process.
-	docker build -t couchdb:2.1.1 .
+	docker build -t couchdb:2.1.1 -f $(TEMP_DIR)/Dockerfile.crossbuild $(TEMP_DIR)
+	rm -rf $(TEMP_DIR)
 
 else
 	cp ./* $(TEMP_DIR)
-	cat Dockerfile.build \
-			| sed "s|BASEIMAGE|$(BASEIMAGE)|g" \
-			| sed "s|ARCH|$(QEMUARCH)|g" \
-                > $(TEMP_DIR)/Dockerfile.build
+	cat Dockerfile.crossbuild \
+ 	        | sed "s|BASEIMAGE|$(BASEIMAGE)|g" \
+                | sed "s|ARCH|$(QEMUARCH)|g" \
+                > $(TEMP_DIR)/Dockerfile.crossbuild
 	docker run --rm --privileged multiarch/qemu-user-static:register --reset
 	curl -sSL https://github.com/multiarch/qemu-user-static/releases/download/$(QEMUVERSION)/x86_64_qemu-$(QEMUARCH)-static.tar.gz | tar -xz -C $(TEMP_DIR)
 	# This gosu command is not necessary to run when we are building the image. Hence drop it.
-	sed -e "/gosu nobody true; /d" -e "s/CROSS_BUILD_//g" $(TEMP_DIR)/Dockerfile.build > $(TEMP_DIR)/Dockerfile.build.tmp
-	mv $(TEMP_DIR)/Dockerfile.build.tmp $(TEMP_DIR)/Dockerfile.build
-	docker build -t $(BUILD_IMAGE):2.1.1 -f $(TEMP_DIR)/Dockerfile.build $(TEMP_DIR)
+	sed -e "/gosu nobody true; /d" -e "s/CROSS_BUILD_//g" $(TEMP_DIR)/Dockerfile.crossbuild > $(TEMP_DIR)/Dockerfile.crossbuild.tmp
+	mv $(TEMP_DIR)/Dockerfile.crossbuild.tmp $(TEMP_DIR)/Dockerfile.crossbuild
+	docker build -t $(BUILD_IMAGE):2.1.1 -f $(TEMP_DIR)/Dockerfile.crossbuild $(TEMP_DIR)
 	rm -rf $(TEMP_DIR)
 
 endif
