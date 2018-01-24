@@ -22,7 +22,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     curl \
     erlang-nox \
     erlang-reltool \
-    haproxy \
     libicu52 \
     libmozjs185-1.0 \
     openssl \
