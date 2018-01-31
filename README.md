@@ -23,27 +23,48 @@ If you're looking for a CouchDB with SSL support you can check out [klaemo/couch
 ## Run (latest/2.1.1)
 
 Available on the docker registry as [apache/couchdb:latest](https://hub.docker.com/r/apache/couchdb/).
-This is a build of the CouchDB 2.1 release. A data volume
-is exposed on `/opt/couchdb/data`, and the node's port is exposed on `5984`.
+This is a build of the CouchDB 2.1 release. 
 
-Please note that CouchDB no longer autocreates system tables for you, so you will
-have to create `_global_changes`, `_metadata`, `_replicator` and `_users` manually (the admin interface has a "Setup" menu that does this for you).
-The node will also start in [admin party mode](http://guide.couchdb.org/draft/security.html#party)!
+By default, CouchDB's HTTP interface is exposed on port `5984`. Once running, you can visit the new admin interface at `http://<dockerhost>:5984/_utils/`
+
+CouchDB uses `/opt/couchdb/data` to store its data, and is exposed as a volume.
+
+Here is an example launch line for a single-node CouchDB with an admin username and password of `admin` and `password`, exposed to the world on port `5984`:
 
 ```bash
-# expose it to the world on port 5984 and use your current directory as the CouchDB Database directory
-[sudo] docker run -p 5984:5984 -v $(pwd):/opt/couchdb/data apache/couchdb
+$ docker run -p 5984:5984 --volume ~/data:/opt/couchdb/data --volume ~/etc/local.d:/opt/couchdb/etc/local.d --env COUCHDB_USER=admin --env COUCHDB_PASSWORD=password apache/couchdb:2.1.1
 18:54:48.780 [info] Application lager started on node nonode@nohost
 18:54:48.780 [info] Application couch_log_lager started on node nonode@nohost
 18:54:48.780 [info] Application couch_mrview started on node nonode@nohost
 18:54:48.780 [info] Application couch_plugins started on node nonode@nohost
+```
+
+### Detailed configuration (latest/2.x)
+
+CouchDB uses `/opt/couchdb/etc/local.d` to store its configuration. It is highly recommended to bind map this to an external directory, to persist the configuration across restarts.
+
+CouchDB also uses `/opt/couchdb/etc/vm.args` to store Erlang runtime-specific changes. Changing these values is less common. If you need to change the epmd port, for instance, you will want to bind mount this file as well. (Note: files cannot be bind-mounted on Windows hosts.)
+
+In addition, a few environment variables are provided to set very common parameters:
+
+* `COUCHDB_USER` and `COUCHDB_PASSWORD` will create an ini-file based local admin user with the given username and password in the file `/opt/couchdb/etc/local.d/docker.ini`.
+* `COUCHDB_SECRET` will set the CouchDB shared cluster secret value, in the file `/opt/couchdb/etc/local.d/docker.ini`.
+* `NODENAME` will set the name of the CouchDB node inside the container to `couchdb@${NODENAME}`, in the file `/opt/couchdb/etc/vm.args`. This is used for clustering purposes and can be ignored for single-node setups.
+
+If other configuration settings are desired, externally mount `/opt/couchdb/etc` and provide `.ini` configuration files under the `/opt/couchdb/etc/local.d` directory.
+
+### Important notes (latest/2.x)
+
+Please note that CouchDB no longer autocreates system databases for you. This is intentional; multi-node CouchDB deployments must be joined into a cluster before creating these databases.
+
+You must create `_global_changes`, `_metadata`, `_replicator` and `_users` after the cluster has been fully configured. (The Fauxton UI has a "Setup" wizard that does this for you.)
+
+The node will also start in [admin party mode](http://guide.couchdb.org/draft/security.html#party)!
+
 [...]
 ```
 
-Note that you can also use the NODENAME environment variable to set the name of the CouchDB node inside the container.
-Once running, you can visit the new admin interface at `http://dockerhost:5984/_utils/`
-
-Note also that port 5986 is not exposed, as this can present *significant* security risks. We recommend either connecting to the node directly to access this port, via `docker exec -it <instance> /bin/bash` and accessing port 5986, or use of `--expose 5986` when launching the container, but **ONLY** if you do not expose this port publicly.
+Note also that port 5986 is not exposed, as this can present *significant* security risks. We recommend either connecting to the node directly to access this port, via `docker exec -it <instance> /bin/bash` and accessing port 5986, or use of `--expose 5986` when launching the container, but **ONLY** if you do not expose this port publicly. Port 5986 is scheduled to be removed with the 3.x release series.
 
 ## Run (1.7.1)
 
