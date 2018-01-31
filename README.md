@@ -45,6 +45,8 @@ Once running, you can visit the new admin interface at `http://dockerhost:5984/_
 
 Note also that port 5986 is not exposed, as this can present *significant* security risks. We recommend either connecting to the node directly to access this port, via `docker exec -it <instance> /bin/bash` and accessing port 5986, or use of `--expose 5986` when launching the container, but **ONLY** if you do not expose this port publicly.
 
+**PLEASE NOTE** that environment variables are no longer the recommended approach for setting configuration. Please see discussion in #32 about using your own config file either via bind-mount or by seeing [Build you own](#build-your-own)
+
 ## Run (1.7.1)
 
 Available as an official image on Docker Hub as [apache/couchdb:1.7.1](https://hub.docker.com/r/apache/couchdb/)
