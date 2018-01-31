@@ -16,7 +16,7 @@ MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
 ENV COUCHDB_VERSION master
 
-RUN groupadd -r couchdb && useradd -d /usr/src/couchdb -g couchdb couchdb
+RUN groupadd -g 5984 -r couchdb && useradd -u 5984 -d /opt/couchdb -g couchdb couchdb
 
 # download dependencies
 RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
