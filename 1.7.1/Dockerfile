@@ -16,7 +16,7 @@ MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
 # Install instructions from https://cwiki.apache.org/confluence/display/COUCHDB/Debian
 
-RUN groupadd -r couchdb && useradd -d /var/lib/couchdb -g couchdb couchdb
+RUN groupadd -g 5984 -r couchdb && useradd -u 5984 -d /opt/couchdb -g couchdb couchdb
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \

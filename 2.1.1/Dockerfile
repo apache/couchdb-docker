@@ -15,7 +15,7 @@ FROM debian:jessie
 MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
 # Add CouchDB user account
-RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
+RUN groupadd -g 5984 -r couchdb && useradd -u 5984 -d /opt/couchdb -g couchdb couchdb
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
