@@ -10,74 +10,117 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-FROM debian:jessie
+# Base layer containing dependencies needed at runtime. This layer will be
+# cached after the initial build.
+FROM debian:jessie AS runtime
 
-MAINTAINER CouchDB Developers dev@couchdb.apache.org
+LABEL maintainer="CouchDB Developers <dev@couchdb.apache.org>"
 
-ENV COUCHDB_VERSION master
+# Add CouchDB user account
+RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
 
-RUN groupadd -g 5984 -r couchdb && useradd -u 5984 -d /opt/couchdb -g couchdb couchdb
-
-# download dependencies
-RUN apt-get update -y -qq && apt-get install -y --no-install-recommends \
-    apt-transport-https \
-    build-essential \
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
+    libicu52 \
+    libmozjs185-1.0 \
+    openssl \
+  && rm -rf /var/lib/apt/lists/*
+
+# grab gosu for easy step-down from root and tini for signal handling
+# see https://github.com/apache/couchdb-docker/pull/28#discussion_r141112407
+ENV GOSU_VERSION 1.10
+ENV TINI_VERSION 0.16.1
+RUN set -ex; \
+	\
+	apt-get update; \
+	apt-get install -y --no-install-recommends wget; \
+	rm -rf /var/lib/apt/lists/*; \
+	\
+	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+	\
+# install gosu
+	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch"; \
+	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+	export GNUPGHOME="$(mktemp -d)"; \
+	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
+	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+	rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+	chmod +x /usr/local/bin/gosu; \
+	gosu nobody true; \
+	\
+# install tini
+	wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch"; \
+	wget -O /usr/local/bin/tini.asc "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch.asc"; \
+	export GNUPGHOME="$(mktemp -d)"; \
+	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7; \
+	gpg --batch --verify /usr/local/bin/tini.asc /usr/local/bin/tini; \
+	rm -r "$GNUPGHOME" /usr/local/bin/tini.asc; \
+	chmod +x /usr/local/bin/tini; \
+	tini --version; \
+	\
+	apt-get purge -y --auto-remove wget
+
+# Dependencies only needed during build time. This layer will also be cached
+# unless for each clone_url.
+FROM runtime AS build_dependencies
+
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    apt-transport-https \
+    gcc \
+    g++ \
     curl \
-    default-jdk \
-    erlang-dev \
     erlang-nox \
+    erlang-reltool \
+    erlang-dev \
     git \
-    haproxy \
     libcurl4-openssl-dev \
     libicu-dev \
     libmozjs185-dev \
-    libwxgtk3.0 \
-    openssl \
-    pkg-config \
-    python \
-    python-sphinx \
-    texinfo \
-    texlive-base \
-    texlive-fonts-extra \
-    texlive-fonts-recommended \
-    texlive-latex-extra \
- && curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
- && echo 'deb https://deb.nodesource.com/node_6.x jessie main' > /etc/apt/sources.list.d/nodesource.list \
- && echo 'deb-src https://deb.nodesource.com/node_6.x jessie main' >> /etc/apt/sources.list.d/nodesource.list \
- && apt-get update -y -qq && apt-get install -y nodejs \
- && npm install -g grunt-cli \
- && cd /usr/src && git clone https://gitbox.apache.org/repos/asf/couchdb.git \
- && cd couchdb && git checkout $COUCHDB_VERSION \
- && cd /usr/src/couchdb && ./configure && make \
- && apt-get purge -y \
-    binutils \
-    build-essential \
-    cpp \
-    default-jdk \
-    git \
-    libcurl4-openssl-dev \
-    libicu-dev \
-    libwxgtk3.0 \
     make \
-    nodejs \
-    perl \
-    pkg-config \
-    texinfo \
-    texlive-base \
-    texlive-fonts-extra \
-    texlive-fonts-recommended \
-    texlive-latex-extra \
- && apt-get autoremove -y \
- && apt-get install -y libicu52 --no-install-recommends \
- && rm -rf /var/lib/apt/lists/* /usr/lib/node_modules src/fauxton/node_modules src/**/.git .git
+    python \
+    python-pip
 
-# permissions
-RUN chmod +x /usr/src/couchdb/dev/run && chown -R couchdb:couchdb /usr/src/couchdb
+RUN pip install \
+    sphinx \
+    sphinx_rtd_theme
 
-USER couchdb
-EXPOSE 5984 15984 25984 35984 15986 25986 35986
+# Node is special
+RUN set -ex; \
+    curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
+    echo 'deb https://deb.nodesource.com/node_6.x jessie main' > /etc/apt/sources.list.d/nodesource.list; \
+    echo 'deb-src https://deb.nodesource.com/node_6.x jessie main' >> /etc/apt/sources.list.d/nodesource.list; \
+    apt-get update -y && apt-get install -y nodejs; \
+    npm install -g grunt-cli
+
+
+# Clone CouchDB source code including all dependencies
+ARG clone_url=https://gitbox.apache.org/repos/asf/couchdb.git
+RUN git clone $clone_url /usr/src/couchdb
 WORKDIR /usr/src/couchdb
+RUN ./configure
 
-ENTRYPOINT ["/usr/src/couchdb/dev/run"]
+# This layer performs the actual build of a relocatable, self-contained
+# release of CouchDB. It pulls down the latest changes from the remote
+# origin (because the layer above will be cached) and switches to the
+# branch specified in the build_arg (defaults to master)
+FROM build_dependencies AS build
+
+ARG checkout_branch=master
+ARG configure_options
+
+WORKDIR /usr/src/couchdb
+RUN git fetch origin \
+    && git checkout $checkout_branch \
+    && ./configure $configure_options \
+    && make couch
+
+# we skip any finalisation of this image since this is purely for testing
+
+# Setup directories and permissions
+RUN chown -R couchdb:couchdb /usr/src/couchdb
+
+WORKDIR /usr/src/couchdb
+EXPOSE 5984 4369 9100
+
+ENTRYPOINT ["tini", "--", "/usr/src/couchdb/dev/run"]
 CMD ["--with-haproxy"]
