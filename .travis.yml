@@ -3,12 +3,13 @@ sudo: required
 services:
   - docker
 
-before_install:
-  - docker build -t couchdb:1.7.1 1.7.1
-  - docker build -t couchdb:1.7.1-couchperuser 1.7.1-couchperuser
-  - docker build -t couchdb:2.1.1 2.1.1
+env:
+  - RELEASE=1.7.1
+  - RELEASE=1.7.1-couchperuser
+  - RELEASE=2.1.1
+  - RELEASE=dev
+  - RELEASE=dev-cluster
 
 script:
-  - docker run -d -p 5984:5984 couchdb:1.7.1 && sleep 5 && curl http://localhost:5984
-  - docker run -d -p 5985:5984 couchdb:1.7.1-couchperuser && sleep 5 && curl http://localhost:5985
-  - docker run -d -p 5986:5984 couchdb:2.1.1 && sleep 5 && curl http://localhost:5986
+  - docker build -t couchdb:$RELEASE $RELEASE
+  - docker run -d -p 5984:5984 couchdb:$RELEASE && sleep 10 && curl http://localhost:5984
