@@ -12,63 +12,71 @@
 
 # Base layer containing dependencies needed at runtime. This layer will be
 # cached after the initial build.
-FROM debian:jessie AS runtime
+FROM debian:stretch as runtime
 
-LABEL maintainer="CouchDB Developers <dev@couchdb.apache.org>"
+MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
 # Add CouchDB user account
 RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
-    libicu52 \
+    curl \
+    dirmngr \
+    gnupg \
+    libicu57 \
     libmozjs185-1.0 \
     openssl \
-  && rm -rf /var/lib/apt/lists/*
+    python && \
+  rm -rf /var/lib/apt/lists/*
 
 # grab gosu for easy step-down from root and tini for signal handling
 # see https://github.com/apache/couchdb-docker/pull/28#discussion_r141112407
 ENV GOSU_VERSION 1.10
 ENV TINI_VERSION 0.16.1
 RUN set -ex; \
-	\
-	apt-get update; \
-	apt-get install -y --no-install-recommends wget; \
-	rm -rf /var/lib/apt/lists/*; \
-	\
-	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
-	\
+  apt-get update; \
+  apt-get install -y --no-install-recommends wget; \
+  rm -rf /var/lib/apt/lists/*; \
+  dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
 # install gosu
-	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch"; \
-	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
-	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
-	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
-	rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc; \
-	chmod +x /usr/local/bin/gosu; \
-	gosu nobody true; \
-	\
+  wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch"; \
+  wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in $(shuf -e ha.pool.sks-keyservers.net \
+                          hkp://p80.pool.sks-keyservers.net:80 \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+    gpg --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done; \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true; \
 # install tini
-	wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch"; \
-	wget -O /usr/local/bin/tini.asc "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch.asc"; \
-	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7; \
-	gpg --batch --verify /usr/local/bin/tini.asc /usr/local/bin/tini; \
-	rm -r "$GNUPGHOME" /usr/local/bin/tini.asc; \
-	chmod +x /usr/local/bin/tini; \
-	tini --version; \
-	\
-	apt-get purge -y --auto-remove wget
+  wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch"; \
+  wget -O /usr/local/bin/tini.asc "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch.asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in $(shuf -e ha.pool.sks-keyservers.net \
+                          hkp://p80.pool.sks-keyservers.net:80 \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+    gpg --keyserver "$server" --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7 && break || : ; \
+  done; \
+  gpg --batch --verify /usr/local/bin/tini.asc /usr/local/bin/tini; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/tini.asc; \
+  chmod +x /usr/local/bin/tini; \
+  tini --version; \
+  apt-get purge -y --auto-remove wget
 
 # Dependencies only needed during build time. This layer will also be cached
-# unless for each clone_url.
 FROM runtime AS build_dependencies
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     apt-transport-https \
-    gcc \
-    g++ \
-    curl \
+    build-essential \
     erlang-nox \
     erlang-reltool \
     erlang-dev \
@@ -76,14 +84,9 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev \
     libicu-dev \
     libmozjs185-dev \
-    make \
-    python \
+    python-setuptools \ 
     python-pip \
-    texinfo \
-    texlive-base \
-    texlive-fonts-extra \
-    texlive-fonts-recommended \
-    texlive-latex-extra
+    python-wheel
 
 RUN pip install \
     sphinx \
@@ -92,8 +95,8 @@ RUN pip install \
 # Node is special
 RUN set -ex; \
     curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
-    echo 'deb https://deb.nodesource.com/node_6.x jessie main' > /etc/apt/sources.list.d/nodesource.list; \
-    echo 'deb-src https://deb.nodesource.com/node_6.x jessie main' >> /etc/apt/sources.list.d/nodesource.list; \
+    echo 'deb https://deb.nodesource.com/node_6.x stretch main' > /etc/apt/sources.list.d/nodesource.list; \
+    echo 'deb-src https://deb.nodesource.com/node_6.x stretch main' >> /etc/apt/sources.list.d/nodesource.list; \
     apt-get update -y && apt-get install -y nodejs; \
     npm install -g grunt-cli
 
@@ -121,7 +124,7 @@ RUN git fetch origin \
 
 # This results in a single layer image (or at least skips the build stuff?)
 FROM runtime
-COPY --from=build /usr/src/couchdb/rel/couchdb /opt/
+COPY --from=build /usr/src/couchdb/rel/couchdb /opt/couchdb
 
 # Add configuration
 COPY local.ini /opt/couchdb/etc/default.d/

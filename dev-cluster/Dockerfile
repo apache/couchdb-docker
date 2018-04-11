@@ -12,63 +12,69 @@
 
 # Base layer containing dependencies needed at runtime. This layer will be
 # cached after the initial build.
-FROM debian:jessie AS runtime
+FROM debian:stretch
 
-LABEL maintainer="CouchDB Developers <dev@couchdb.apache.org>"
+MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
 # Add CouchDB user account
 RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
-    libicu52 \
+    curl \
+    dirmngr \
+    gnupg \
+    haproxy \ 
+    libicu57 \
     libmozjs185-1.0 \
     openssl \
-  && rm -rf /var/lib/apt/lists/*
+    python && \
+  rm -rf /var/lib/apt/lists/*
 
 # grab gosu for easy step-down from root and tini for signal handling
 # see https://github.com/apache/couchdb-docker/pull/28#discussion_r141112407
 ENV GOSU_VERSION 1.10
 ENV TINI_VERSION 0.16.1
 RUN set -ex; \
-	\
-	apt-get update; \
-	apt-get install -y --no-install-recommends wget; \
-	rm -rf /var/lib/apt/lists/*; \
-	\
-	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
-	\
+  apt-get update; \
+  apt-get install -y --no-install-recommends wget; \
+  rm -rf /var/lib/apt/lists/*; \
+  dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
 # install gosu
-	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch"; \
-	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
-	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
-	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
-	rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc; \
-	chmod +x /usr/local/bin/gosu; \
-	gosu nobody true; \
-	\
+  wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch"; \
+  wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in $(shuf -e ha.pool.sks-keyservers.net \
+                          hkp://p80.pool.sks-keyservers.net:80 \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+    gpg --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+  done; \
+  gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
+  chmod +x /usr/local/bin/gosu; \
+  gosu nobody true; \
 # install tini
-	wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch"; \
-	wget -O /usr/local/bin/tini.asc "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch.asc"; \
-	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7; \
-	gpg --batch --verify /usr/local/bin/tini.asc /usr/local/bin/tini; \
-	rm -r "$GNUPGHOME" /usr/local/bin/tini.asc; \
-	chmod +x /usr/local/bin/tini; \
-	tini --version; \
-	\
-	apt-get purge -y --auto-remove wget
-
-# Dependencies only needed during build time. This layer will also be cached
-# unless for each clone_url.
-FROM runtime AS build_dependencies
+  wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch"; \
+  wget -O /usr/local/bin/tini.asc "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch.asc"; \
+  export GNUPGHOME="$(mktemp -d)"; \
+  for server in $(shuf -e ha.pool.sks-keyservers.net \
+                          hkp://p80.pool.sks-keyservers.net:80 \
+                          keyserver.ubuntu.com \
+                          hkp://keyserver.ubuntu.com:80 \
+                          pgp.mit.edu) ; do \
+    gpg --keyserver "$server" --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7 && break || : ; \
+  done; \
+  gpg --batch --verify /usr/local/bin/tini.asc /usr/local/bin/tini; \
+  rm -rf "$GNUPGHOME" /usr/local/bin/tini.asc; \
+  chmod +x /usr/local/bin/tini; \
+  tini --version; \
+  apt-get purge -y --auto-remove wget
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     apt-transport-https \
-    gcc \
-    g++ \
-    curl \
+    build-essential \
     erlang-nox \
     erlang-reltool \
     erlang-dev \
@@ -76,9 +82,9 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev \
     libicu-dev \
     libmozjs185-dev \
-    make \
-    python \
-    python-pip
+    python-setuptools \ 
+    python-pip \
+    python-wheel
 
 RUN pip install \
     sphinx \
@@ -87,8 +93,8 @@ RUN pip install \
 # Node is special
 RUN set -ex; \
     curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
-    echo 'deb https://deb.nodesource.com/node_6.x jessie main' > /etc/apt/sources.list.d/nodesource.list; \
-    echo 'deb-src https://deb.nodesource.com/node_6.x jessie main' >> /etc/apt/sources.list.d/nodesource.list; \
+    echo 'deb https://deb.nodesource.com/node_6.x stretch main' > /etc/apt/sources.list.d/nodesource.list; \
+    echo 'deb-src https://deb.nodesource.com/node_6.x stretch main' >> /etc/apt/sources.list.d/nodesource.list; \
     apt-get update -y && apt-get install -y nodejs; \
     npm install -g grunt-cli
 
@@ -99,28 +105,21 @@ RUN git clone $clone_url /usr/src/couchdb
 WORKDIR /usr/src/couchdb
 RUN ./configure
 
-# This layer performs the actual build of a relocatable, self-contained
-# release of CouchDB. It pulls down the latest changes from the remote
-# origin (because the layer above will be cached) and switches to the
-# branch specified in the build_arg (defaults to master)
-FROM build_dependencies AS build
-
 ARG checkout_branch=master
 ARG configure_options
 
-WORKDIR /usr/src/couchdb
+WORKDIR /usr/src/couchdb/
 RUN git fetch origin \
     && git checkout $checkout_branch \
     && ./configure $configure_options \
-    && make couch
-
-# we skip any finalisation of this image since this is purely for testing
+    && make all
 
 # Setup directories and permissions
 RUN chown -R couchdb:couchdb /usr/src/couchdb
 
-WORKDIR /usr/src/couchdb
-EXPOSE 5984 4369 9100
+WORKDIR /opt/couchdb
+EXPOSE 5984 15984 25984 35984
+VOLUME ["/usr/src/couchdb/dev/lib"]
 
 ENTRYPOINT ["tini", "--", "/usr/src/couchdb/dev/run"]
 CMD ["--with-haproxy"]
