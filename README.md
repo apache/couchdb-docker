@@ -61,9 +61,6 @@ You must create `_global_changes`, `_metadata`, `_replicator` and `_users` after
 
 The node will also start in [admin party mode](http://guide.couchdb.org/draft/security.html#party)!
 
-[...]
-```
-
 Note also that port 5986 is not exposed, as this can present *significant* security risks. We recommend either connecting to the node directly to access this port, via `docker exec -it <instance> /bin/bash` and accessing port 5986, or use of `--expose 5986` when launching the container, but **ONLY** if you do not expose this port publicly. Port 5986 is scheduled to be removed with the 3.x release series.
 
 ## Run (1.7.1)
@@ -94,7 +91,7 @@ If you need (or want) to run couchdb in `net=host` mode, you can customize the p
  - `COUCHDB_HTTP_BIND_ADDRESS` (default: `0.0.0.0`)
  - `COUCHDB_HTTP_PORT` (default: `5984`)
 
-### with couchperuser plugin
+### 1.7.1 with couchperuser plugin
 
 This build includes the `couchperuser` plugin.
 `couchperuser` is a CouchDB plugin daemon that creates per-user databases [github.com/etrepum/couchperuser](https://github.com/etrepum/couchperuser).
@@ -103,19 +100,26 @@ This build includes the `couchperuser` plugin.
 [sudo] docker run -d -p 5984:5984 --name couchdb apache/couchdb:1.7.1-couchperuser
 ```
 
-### In a developer cluster
+## Development images
 
-This build demonstrates the CouchDB clustering features by creating a local
-cluster of a default three nodes inside the container, with a proxy in front.
-This is great for testing clustering in your local environment.
+This repository provides definitions to run the very latest (`master` branch)
+CouchDB code:
+
+* `dev` runs a single node off of the `master` branch, similar to the other
+  officially released images.
+* `dev-cluster` demonstrates the CouchDB clustering features by creating a
+  local cluster of a default three nodes inside the container, with a proxy in
+  front.  This is great for testing clustering in your local environment.
 
 You will need to build Docker images from the `dev` directory in this
 repository; [Apache Software Foundation policy][4] prevents us from publishing
 non-release builds for wide distribution.
 
+When launching the `dev-cluster` container, here is what you will see:
+
 ```bash
 # expose the cluster to the world
-[sudo] docker run -it -p 5984:5984 <image-hash>
+$ docker run -it -p 5984:5984 <image-hash>
 
 [ * ] Setup environment ... ok
 [ * ] Ensure CouchDB is built ... ok
@@ -132,24 +136,24 @@ Admin username: root
 Password: 37l7YDQJ
 Time to hack! ...
 ```
-**Note:** By default the cluster will be exposed on port `5984`, because it uses haproxy
-(passes `--with-haproxy` to `dev/run`) internally.
+**Note:** By default the cluster will be exposed on port `5984`, because it uses haproxy (passes `--with-haproxy` to `dev/run`) internally.
 
-...but you can pass arguments to the binary
+You can pass arguments to the binary:
 
 ```bash
 docker run -it <image-hash> --admin=foo:bar
 ```
+
 **Note:** This will overwrite the default `--with-haproxy` flag. The cluster **won't** be exposed on
 port `5984` anymore. The individual nodes listen on `15984`, `25984`, ...`x5984`. If you wish to expose
 the cluster on `5984`, pass `--with-haproxy` explicitly.
 
-Examples:
+More examples:
 ```bash
 # display the available options of the couchdb startup script
 docker run --rm <image-hash> --help
 
-# Enable admin party 🎉 and expose the cluster on port 5984
+# Enable admin party and expose the cluster on port 5984
 docker run -it -p 5984:5984 <image-hash> --with-admin-party-please --with-haproxy
 
 # Start two nodes (without proxy) exposed on port 15984 and 25984
@@ -178,7 +182,7 @@ and then build and run
 [sudo] docker run -d -p 5984:5984 -v ~/couchdb:/usr/local/var/lib/couchdb you/awesome-couchdb
 ```
 
-For the `2.1` image, configuration is stored at `/opt/couchdb/etc/`.
+For the `2` image, configuration is stored at `/opt/couchdb/etc/`.
 
 ## Feedback, Issues, Contributing
 
