@@ -36,7 +36,31 @@ if [ "$1" = 'couchdb' ]; then
 		chown couchdb:couchdb /usr/local/etc/couchdb/local.d/docker.ini
 	fi
 
-	printf "[httpd]\nport = %s\nbind_address = %s\n" ${COUCHDB_HTTP_PORT:=5984} ${COUCHDB_HTTP_BIND_ADDRESS:=0.0.0.0} > /usr/local/etc/couchdb/local.d/bind_address.ini
+	if [ -f /usr/local/etc/couchdb/local.d/bind_address.ini ]; then
+		if ! grep -Fq "port =" /usr/local/etc/couchdb/local.d/bind_address.ini; then
+			vport=$(printf "[httpd]\\\nport = %s" ${COUCHDB_HTTP_PORT:=5984})
+			if grep -qF '[httpd]' /usr/local/etc/couchdb/local.d/bind_address.ini; then
+				sed -i -e "s/\\[httpd\\]/$vport/g" /usr/local/etc/couchdb/local.d/bind_address.ini
+			else
+				printf "$vport" >> /usr/local/etc/couchdb/local.d/bind_address.ini
+			fi
+
+		fi
+
+		if ! grep -Fq "bind_address =" /usr/local/etc/couchdb/local.d/bind_address.ini; then
+			vaddress=$(printf "[httpd]\\\nbind_address = %s" ${COUCHDB_HTTP_BIND_ADDRESS:=0.0.0.0})
+			if grep -qF '[httpd]' /usr/local/etc/couchdb/local.d/bind_address.ini; then
+				sed -i -e "s/\\[httpd\\]/$vaddress/g" /usr/local/etc/couchdb/local.d/bind_address.ini
+			else
+				printf "$vaddress" >> /usr/local/etc/couchdb/local.d/bind_address.ini
+			fi
+
+		fi
+
+	else
+		printf "[httpd]\nport = %s\nbind_address = %s\n" ${COUCHDB_HTTP_PORT:=5984} ${COUCHDB_HTTP_BIND_ADDRESS:=0.0.0.0} > /usr/local/etc/couchdb/local.d/bind_address.ini
+	fi
+
 	chown couchdb:couchdb /usr/local/etc/couchdb/local.d/bind_address.ini
 
 	# if we don't find an [admins] section followed by a non-comment, display a warning
