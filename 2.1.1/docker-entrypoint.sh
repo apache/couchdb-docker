@@ -50,6 +50,12 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 		chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
 	fi
 
+	if [ "$COUCHDB_LOG_LEVEL" ]; then
+		# Set log level
+		printf "[log]\nlevel = %s\n" "$COUCHDB_LOG_LEVEL" >> /opt/couchdb/etc/local.d/docker.ini
+		chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
+	fi
+
 	# if we don't find an [admins] section followed by a non-comment, display a warning
 	if ! grep -Pzoqr '\[admins\]\n[^;]\w+' /opt/couchdb/etc/default.d/*.ini /opt/couchdb/etc/local.d/*.ini; then
 		# The - option suppresses leading tabs but *not* spaces. :)

@@ -36,6 +36,12 @@ if [ "$1" = 'couchdb' ]; then
 		chown couchdb:couchdb /usr/local/etc/couchdb/local.d/docker.ini
 	fi
 
+	if [ "$COUCHDB_LOG_LEVEL" ]; then
+		# Set log level
+		printf "[log]\nlevel = %s\n" "$COUCHDB_LOG_LEVEL" >> /usr/local/etc/couchdb/local.d/docker.ini
+		chown couchdb:couchdb /usr/local/etc/couchdb/local.d/docker.ini
+	fi
+
 	printf "[httpd]\nport = %s\nbind_address = %s\n" ${COUCHDB_HTTP_PORT:=5984} ${COUCHDB_HTTP_BIND_ADDRESS:=0.0.0.0} > /usr/local/etc/couchdb/local.d/bind_address.ini
 	chown couchdb:couchdb /usr/local/etc/couchdb/local.d/bind_address.ini
 
