@@ -15,7 +15,7 @@ MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
 CROSS_BUILD_COPY qemu-ARCH-static /usr/bin/
 # Add CouchDB user account
-RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
+RUN groupadd -g 5984 -r couchdb && useradd -u 5984 -d /opt/couchdb -g couchdb couchdb
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -110,7 +110,7 @@ RUN buildDeps=' \
  && chown -R couchdb:couchdb /opt/couchdb
 
 # Add configuration
-COPY local.ini /opt/couchdb/etc/local.d/
+COPY 10-docker-default.ini /opt/couchdb/etc/default.d/
 COPY vm.args /opt/couchdb/etc/
 
 COPY ./docker-entrypoint.sh /

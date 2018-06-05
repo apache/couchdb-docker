@@ -14,14 +14,4 @@
 VERSION ?= 2.1.1
 
 build:
-ifeq ($(VERSION), 2.1.1)
 	cd $(VERSION); make build
-endif
-
-ifeq ($(VERSION), 1.7.1)
-	docker build -t couchdb:1.7.1 1.7.1
-endif
-
-ifeq ($(VERSION), 1.7.1-couchperuser)
-	docker build -t couchdb:1.7.1-couchperuser 1.7.1-couchperuser
-endif

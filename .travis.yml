@@ -11,6 +11,5 @@ env:
   - RELEASE=dev-cluster
 
 script:
-  - make build VERSION=$RELEASE
-  - make build ARCH=ppc64le
-  - docker run -d -p 5984:5984 couchdb:$RELEASE && sleep 10 && curl http://localhost:5984
+  - make build VERSION=$RELEASE ARCH=ppc64le configure_options="--disable-fauxton --disable-docs"
+  - make build VERSION=$RELEASE configure_options="--disable-fauxton --disable-docs" && docker run -d -p 5984:5984 couchdb:$RELEASE && sleep 10 && curl http://localhost:5984

@@ -12,9 +12,10 @@
 
 # Base layer containing dependencies needed at runtime. This layer will be
 # cached after the initial build.
-FROM ubuntu:16.04 as runtime
-
+FROM BASEIMAGE
 MAINTAINER CouchDB Developers dev@couchdb.apache.org
+
+CROSS_BUILD_COPY qemu-ARCH-static /usr/bin/
 
 # Add CouchDB user account
 RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
@@ -24,6 +25,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     curl \
     dirmngr \
     gnupg \
+    haproxy \ 
     libicu55 \
     libmozjs185-1.0 \
     openssl \
@@ -71,9 +73,6 @@ RUN set -ex; \
   tini --version; \
   apt-get purge -y --auto-remove wget
 
-# Dependencies only needed during build time. This layer will also be cached
-FROM runtime AS build_dependencies
-
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     apt-transport-https \
     build-essential \
@@ -104,12 +103,6 @@ RUN git clone $clone_url /usr/src/couchdb
 WORKDIR /usr/src/couchdb
 RUN ./configure
 
-# This layer performs the actual build of a relocatable, self-contained
-# release of CouchDB. It pulls down the latest changes from the remote
-# origin (because the layer above will be cached) and switches to the
-# branch specified in the build_arg (defaults to master)
-FROM build_dependencies AS build
-
 ARG checkout_branch=master
 ARG configure_options
 
@@ -117,23 +110,14 @@ WORKDIR /usr/src/couchdb/
 RUN git fetch origin \
     && git checkout $checkout_branch \
     && ./configure $configure_options \
-    && make release
-
-# This results in a single layer image (or at least skips the build stuff?)
-FROM runtime
-COPY --from=build /usr/src/couchdb/rel/couchdb /opt/couchdb
-
-# Add configuration
-COPY local.ini /opt/couchdb/etc/default.d/
-COPY vm.args /opt/couchdb/etc/
-COPY docker-entrypoint.sh /
+    && make all
 
 # Setup directories and permissions
-RUN chown -R couchdb:couchdb /opt/couchdb/etc/default.d/ /opt/couchdb/etc/vm.args
+RUN chown -R couchdb:couchdb /usr/src/couchdb
 
 WORKDIR /opt/couchdb
-EXPOSE 5984 4369 9100
-VOLUME ["/opt/couchdb/data"]
+EXPOSE 5984 15984 25984 35984
+VOLUME ["/usr/src/couchdb/dev/lib"]
 
-ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
-CMD ["/opt/couchdb/bin/couchdb"]
+ENTRYPOINT ["tini", "--", "/usr/src/couchdb/dev/run"]
+CMD ["--with-haproxy"]

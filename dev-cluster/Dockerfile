@@ -12,7 +12,7 @@
 
 # Base layer containing dependencies needed at runtime. This layer will be
 # cached after the initial build.
-FROM debian:stretch
+FROM ubuntu:16.04
 
 MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
@@ -25,7 +25,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     dirmngr \
     gnupg \
     haproxy \ 
-    libicu57 \
+    libicu55 \
     libmozjs185-1.0 \
     openssl \
     python && \
@@ -92,10 +92,7 @@ RUN pip install \
 
 # Node is special
 RUN set -ex; \
-    curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
-    echo 'deb https://deb.nodesource.com/node_6.x stretch main' > /etc/apt/sources.list.d/nodesource.list; \
-    echo 'deb-src https://deb.nodesource.com/node_6.x stretch main' >> /etc/apt/sources.list.d/nodesource.list; \
-    apt-get update -y && apt-get install -y nodejs; \
+    apt-get update -y && apt-get install -y nodejs npm; \
     npm install -g grunt-cli
 
 

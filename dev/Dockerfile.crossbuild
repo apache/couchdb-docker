@@ -12,9 +12,11 @@
 
 # Base layer containing dependencies needed at runtime. This layer will be
 # cached after the initial build.
-FROM ubuntu:16.04 as runtime
+FROM BASEIMAGE as runtime
 
 MAINTAINER CouchDB Developers dev@couchdb.apache.org
+
+CROSS_BUILD_COPY qemu-ARCH-static /usr/bin/
 
 # Add CouchDB user account
 RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
