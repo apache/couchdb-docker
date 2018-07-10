@@ -4,12 +4,10 @@ services:
   - docker
 
 env:
-  - RELEASE=1.7.1
-  - RELEASE=1.7.1-couchperuser
-  - RELEASE=2.1.1
-  - RELEASE=dev
-  - RELEASE=dev-cluster
+  - RELEASES="1.7.2 1.7.2-couchperuser"
+  - RELEASES=2.1.2
+  - RELEASES=dev
+  - RELEASES=dev-cluster
 
 script:
-  - docker build -t couchdb:$RELEASE $RELEASE
-  - docker run -d -p 5984:5984 couchdb:$RELEASE && sleep 10 && curl http://localhost:5984
+  - for rel in $RELEASES; do docker build -t couchdb:$rel $rel; docker run -d --name $rel -p 5984:5984 couchdb:$rel && sleep 10 && curl http://localhost:5984 && docker kill $rel; done

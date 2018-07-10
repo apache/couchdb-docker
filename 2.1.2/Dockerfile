@@ -79,7 +79,7 @@ RUN set -xe \
     gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
   done
 
-ENV COUCHDB_VERSION 2.1.1
+ENV COUCHDB_VERSION 2.1.2
 
 # Download dev dependencies
 RUN buildDeps=' \
