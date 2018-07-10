@@ -86,10 +86,10 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     libmozjs185-dev \
     python-setuptools \ 
     python-pip \
+    python-sphinx \
     python-wheel
 
-RUN pip install \
-    sphinx \
+RUN pip install --upgrade \
     sphinx_rtd_theme
 
 # Node is special
