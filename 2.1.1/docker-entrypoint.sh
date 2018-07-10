@@ -26,32 +26,38 @@ fi
 
 if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 	# we need to set the permissions here because docker mounts volumes as root
-	chown -R couchdb:couchdb /opt/couchdb
+	chown -fR couchdb:couchdb /opt/couchdb || true
 
-	chmod -R 0770 /opt/couchdb/data
+	chmod -fR 0770 /opt/couchdb/data || true
 
-	chmod 664 /opt/couchdb/etc/*.ini
-	chmod 664 /opt/couchdb/etc/default.d/*.ini
-	chmod 775 /opt/couchdb/etc/*.d
+        find /opt/couchdb/etc -name \*.ini -exec chmod -f 664 {} \;
+	chmod -f 775 /opt/couchdb/etc/*.d || true
 
 	if [ ! -z "$NODENAME" ] && ! grep "couchdb@" /opt/couchdb/etc/vm.args; then
 		echo "-name couchdb@$NODENAME" >> /opt/couchdb/etc/vm.args
 	fi
 
+	# Ensure that CouchDB will write custom settings in this file
+	touch /opt/couchdb/etc/local.d/docker.ini
+
 	if [ "$COUCHDB_USER" ] && [ "$COUCHDB_PASSWORD" ]; then
-		# Create admin
-		printf "[admins]\n%s = %s\n" "$COUCHDB_USER" "$COUCHDB_PASSWORD" > /opt/couchdb/etc/local.d/docker.ini
-		chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
+		# Create admin only if not already present
+		if ! grep -Pzoqr "\[admins\]\n$COUCHDB_USER =" /opt/couchdb/etc/local.d/*.ini; then
+			printf "[admins]\n%s = %s\n" "$COUCHDB_USER" "$COUCHDB_PASSWORD" >> /opt/couchdb/etc/local.d/docker.ini
+		fi
 	fi
 
 	if [ "$COUCHDB_SECRET" ]; then
-		# Set secret
-		printf "[couch_httpd_auth]\nsecret = %s\n" "$COUCHDB_SECRET" >> /opt/couchdb/etc/local.d/docker.ini
-		chown couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini
+		# Set secret only if not already present
+		if ! grep -Pzoqr "\[couch_httpd_auth\]\nsecret =" /opt/couchdb/etc/local.d/*.ini; then
+			printf "[couch_httpd_auth]\nsecret = %s\n" "$COUCHDB_SECRET" >> /opt/couchdb/etc/local.d/docker.ini
+		fi
 	fi
 
+	chown -f couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini || true
+
 	# if we don't find an [admins] section followed by a non-comment, display a warning
-	if ! grep -Pzoqr '\[admins\]\n[^;]\w+' /opt/couchdb/etc/default.d/*.ini /opt/couchdb/etc/local.d/*.ini; then
+        if ! grep -Pzoqr '\[admins\]\n[^;]\w+' /opt/couchdb/etc/default.d/*.ini /opt/couchdb/etc/local.d/*.ini; then
 		# The - option suppresses leading tabs but *not* spaces. :)
 		cat >&2 <<-'EOWARN'
 			****************************************************
