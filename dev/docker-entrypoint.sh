@@ -57,7 +57,7 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 	chown -f couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini || true
 
 	# if we don't find an [admins] section followed by a non-comment, display a warning
-	if ! grep -Pzoqr '\[admins\]\n[^;]\w+' /opt/couchdb/etc/local.d/*.ini; then
+        if ! grep -Pzoqr '\[admins\]\n[^;]\w+' /opt/couchdb/etc/default.d/*.ini /opt/couchdb/etc/local.d/*.ini; then
 		# The - option suppresses leading tabs but *not* spaces. :)
 		cat >&2 <<-'EOWARN'
 			****************************************************
