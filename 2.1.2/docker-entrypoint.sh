@@ -43,14 +43,14 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 	if [ "$COUCHDB_USER" ] && [ "$COUCHDB_PASSWORD" ]; then
 		# Create admin only if not already present
 		if ! grep -Pzoqr "\[admins\]\n$COUCHDB_USER =" /opt/couchdb/etc/local.d/*.ini; then
-			printf "[admins]\n%s = %s\n" "$COUCHDB_USER" "$COUCHDB_PASSWORD" >> /opt/couchdb/etc/local.d/docker.ini
+			printf "\n[admins]\n%s = %s\n" "$COUCHDB_USER" "$COUCHDB_PASSWORD" >> /opt/couchdb/etc/local.d/docker.ini
 		fi
 	fi
 
 	if [ "$COUCHDB_SECRET" ]; then
 		# Set secret only if not already present
 		if ! grep -Pzoqr "\[couch_httpd_auth\]\nsecret =" /opt/couchdb/etc/local.d/*.ini; then
-			printf "[couch_httpd_auth]\nsecret = %s\n" "$COUCHDB_SECRET" >> /opt/couchdb/etc/local.d/docker.ini
+			printf "\n[couch_httpd_auth]\nsecret = %s\n" "$COUCHDB_SECRET" >> /opt/couchdb/etc/local.d/docker.ini
 		fi
 	fi
 
