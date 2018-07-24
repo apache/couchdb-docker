@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-FROM debian:jessie
+FROM debian:stretch
 
 MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
@@ -22,9 +22,11 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     curl \
     erlang-nox \
     erlang-reltool \
-    libicu52 \
+    libicu57 \
     libmozjs185-1.0 \
     openssl \
+    gpg \
+    dirmngr \
   && rm -rf /var/lib/apt/lists/*
 
 # grab gosu for easy step-down from root and tini for signal handling
