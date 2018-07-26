@@ -10,9 +10,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-# Base layer containing dependencies needed at runtime. This layer will be
-# cached after the initial build.
-FROM debian:stretch as runtime
+FROM debian:stretch
 
 MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
@@ -47,14 +45,17 @@ RUN apt-get update -y && apt-get install -y \
 ENV GOSU_VERSION 1.10
 ENV TINI_VERSION 0.16.1
 RUN set -ex; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends wget; \
-    rm -rf /var/lib/apt/lists/*; \
-    dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+	\
+	apt-get update; \
+	apt-get install -y --no-install-recommends wget; \
+	rm -rf /var/lib/apt/lists/*; \
+	\
+	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
+	\
 # install gosu
-    wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch"; \
-    wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
-    export GNUPGHOME="$(mktemp -d)"; \
+	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch"; \
+	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
+	export GNUPGHOME="$(mktemp -d)"; \
         for server in $(shuf -e pgpkeys.mit.edu \
             ha.pool.sks-keyservers.net \
             hkp://p80.pool.sks-keyservers.net:80 \
@@ -83,62 +84,64 @@ RUN set -ex; \
 	\
 	apt-get purge -y --auto-remove wget
 
-# Dependencies only needed during build time. This layer will also be cached
-FROM runtime AS build_dependencies
+# https://www.apache.org/dist/couchdb/KEYS
+ENV GPG_KEYS \
+  15DD4F3B8AACA54740EB78C7B7B7C53943ECCEE1 \
+  1CFBFA43C19B6DF4A0CA3934669C02FFDF3CEBA3 \
+  25BBBAC113C1BFD5AA594A4C9F96B92930380381 \
+  4BFCA2B99BADC6F9F105BEC9C5E32E2D6B065BFB \
+  5D680346FAA3E51B29DBCB681015F68F9DA248BC \
+  7BCCEB868313DDA925DF1805ECA5BCB7BB9656B0 \
+  C3F4DFAEAD621E1C94523AEEC376457E61D50B88 \
+  D2B17F9DA23C0A10991AF2E3D9EE01E47852AEE4 \
+  E0AF0A194D55C84E4A19A801CDB0C0F904F4EE9B \
+  29E4F38113DF707D722A6EF91FE9AF73118F1A7C \
+  2EC788AE3F239FA13E82D215CDE711289384AE37
+RUN set -xe \
+    && for key in $GPG_KEYS; do \
+        for server in $(shuf -e pgpkeys.mit.edu \
+            ha.pool.sks-keyservers.net \
+            hkp://p80.pool.sks-keyservers.net:80 \
+            pgp.mit.edu) ; do \
+        gpg --keyserver $server --recv-keys "$key" && break || : ; \
+        done; \
+    done
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
-    apt-transport-https \
-    build-essential \
-    couch-libmozjs185-dev \
-    erlang-nox \
-    erlang-reltool \
-    erlang-dev \
-    git \
-    libcurl4-openssl-dev \
-    libicu-dev \
-    python-setuptools \ 
-    python-pip \
-    python-sphinx \
-    python-wheel
+ENV COUCHDB_VERSION 2.2.0
 
-RUN pip install --upgrade \
-    sphinx_rtd_theme
-
-# Node is special
-RUN set -ex; \
-    curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
-    echo 'deb https://deb.nodesource.com/node_8.x stretch main' > /etc/apt/sources.list.d/nodesource.list; \
-    echo 'deb-src https://deb.nodesource.com/node_8.x stretch main' >> /etc/apt/sources.list.d/nodesource.list; \
-    apt-get update -y && apt-get install -y nodejs; \
-    npm install -g grunt-cli
-
-# Clone CouchDB source code including all dependencies
-ARG clone_url=https://github.com/apache/couchdb.git
-RUN git clone $clone_url /usr/src/couchdb
-WORKDIR /usr/src/couchdb
-RUN ./configure
-
-# This layer performs the actual build of a relocatable, self-contained
-# release of CouchDB. It pulls down the latest changes from the remote
-# origin (because the layer above will be cached) and switches to the
-# branch specified in the build_arg (defaults to master)
-FROM build_dependencies AS build
-
-ARG checkout_branch=master
-ARG configure_options
-
-WORKDIR /usr/src/couchdb/
-RUN git fetch origin \
-    && git checkout $checkout_branch \
-    && ./configure $configure_options \
-    && make release
-
-# This results in a single layer image (or at least skips the build stuff?)
-FROM runtime
-COPY --from=build /usr/src/couchdb/rel/couchdb /opt/couchdb
+# Download dev dependencies
+RUN buildDeps=' \
+        apt-transport-https \
+        build-essential \
+        couch-libmozjs185-dev \
+        erlang-dev \
+        erlang-nox \ 
+        erlang-reltool \
+        libcurl4-openssl-dev \
+        libicu-dev \
+        make \
+        libssl-dev \
+    ' \
+    && apt-get update -y -qq && apt-get install -y --no-install-recommends $buildDeps \
+    # Acquire CouchDB source code
+    && cd /usr/src && mkdir couchdb \
+    && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
+    && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
+    && gpg --batch --verify couchdb.tar.gz.asc couchdb.tar.gz \
+    && tar -xzf couchdb.tar.gz -C couchdb --strip-components=1 \
+    && cd couchdb \
+    # Build the release and install into /opt
+    && ./configure \
+    && make release \
+    && mv /usr/src/couchdb/rel/couchdb /opt/ \
+    # Cleanup build detritus
+    && apt-get purge -y --auto-remove $buildDeps \
+    && rm -rf /var/lib/apt/lists/* /usr/src/couchdb* \
+    && mkdir /opt/couchdb/data \
+    && chown -R couchdb:couchdb /opt/couchdb
 
 # Add configuration
-COPY local.ini /opt/couchdb/etc/default.d/
+COPY 10-docker-default.ini /opt/couchdb/etc/default.d/
 COPY vm.args /opt/couchdb/etc/
 COPY docker-entrypoint.sh /
 
