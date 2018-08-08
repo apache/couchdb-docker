@@ -34,9 +34,9 @@ RUN apt-get update -y && apt-get install -y \
             ha.pool.sks-keyservers.net \
             hkp://p80.pool.sks-keyservers.net:80 \
             pgp.mit.edu) ; do \
-        gpg --keyserver $server --recv-keys 379CE192D401AB61 && break || : ; \
+        gpg --keyserver $server --recv-keys 8756C4F765C9AC3CB6B85D62379CE192D401AB61 && break || : ; \
         done \
-    && gpg -a --export 379CE192D401AB61 | apt-key add - \
+    && gpg -a --export 8756C4F765C9AC3CB6B85D62379CE192D401AB61 > /etc/apt/trusted.gpg.d/couchdb.gpg.asc \
     && apt-get update -y && apt-get install -y --no-install-recommends couch-libmozjs185-1.0 \
     && rm -rf /var/lib/apt/lists/*
 
