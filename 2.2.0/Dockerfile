@@ -111,7 +111,6 @@ ENV COUCHDB_VERSION 2.2.0
 
 # Download dev dependencies
 RUN buildDeps=' \
-        apt-transport-https \
         build-essential \
         couch-libmozjs185-dev \
         erlang-dev \

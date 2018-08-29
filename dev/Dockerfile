@@ -87,7 +87,6 @@ RUN set -ex; \
 FROM runtime AS build_dependencies
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
-    apt-transport-https \
     build-essential \
     couch-libmozjs185-dev \
     erlang-nox \
