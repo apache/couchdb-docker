@@ -54,6 +54,24 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 		fi
 	fi
 
+	if ! grep -Pzoqr "\[cluster\]\n" /opt/couchdb/etc/local.d/*.ini; then
+		if [ "$COUCHDB_CLUSTER_Q" ]; then
+			APPEND+="q=$COUCHDB_CLUSTER_Q\n"
+		fi
+		if [ "$COUCHDB_CLUSTER_N" ]; then
+			APPEND+="n=$COUCHDB_CLUSTER_N\n"
+		fi
+		if [ "$COUCHDB_CLUSTER_W" ]; then
+			APPEND+="w=$COUCHDB_CLUSTER_W\n"
+		fi
+		if [ "$COUCHDB_CLUSTER_R" ]; then
+			APPEND+="r=$COUCHDB_CLUSTER_R\n"
+		fi
+		if [ ! -z "$APPEND" ]; then
+			echo -e "[cluster]\n$APPEND" >> /opt/couchdb/etc/local.d/docker.ini
+		fi
+	fi
+
 	chown -f couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini || true
 
 	# if we don't find an [admins] section followed by a non-comment, display a warning

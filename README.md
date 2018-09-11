@@ -43,6 +43,7 @@ In addition, a few environment variables are provided to set very common paramet
 * `COUCHDB_USER` and `COUCHDB_PASSWORD` will create an ini-file based local admin user with the given username and password in the file `/opt/couchdb/etc/local.d/docker.ini`.
 * `COUCHDB_SECRET` will set the CouchDB shared cluster secret value, in the file `/opt/couchdb/etc/local.d/docker.ini`.
 * `NODENAME` will set the name of the CouchDB node inside the container to `couchdb@${NODENAME}`, in the file `/opt/couchdb/etc/vm.args`. This is used for clustering purposes and can be ignored for single-node setups.
+* `COUCHDB_CLUSTER_Q` `COUCHDB_CLUSTER_N` `COUCHDB_CLUSTER_R` and `COUCHDB_CLUSTER_W` will set the appropriate cluster settings in the file `/opt/couchdb/etc/local.d/docker.ini`.
 
 If other configuration settings are desired, externally mount `/opt/couchdb/etc` and provide `.ini` configuration files under the `/opt/couchdb/etc/local.d` directory.
 
