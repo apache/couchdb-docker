@@ -41,8 +41,12 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 	find /opt/couchdb/data -type d ! -perm 0755 -exec chmod -f 0755 '{}' +
 	find /opt/couchdb/data -type f ! -perm 0644 -exec chmod -f 0644 '{}' +
 
-        find /opt/couchdb/etc -name \*.ini -exec chmod -f 664 {} \;
-	chmod -f 775 /opt/couchdb/etc/*.d || true
+	# Do the same thing for configuration files and directories. Technically
+	# CouchDB only needs read access to the configuration files as all online
+	# changes will be applied to the "docker.ini" file below, but we set 644
+	# for the sake of consistency.
+	find /opt/couchdb/etc -type d ! -perm 0755 -exec chmod -f 0755 '{}' +
+	find /opt/couchdb/etc -type f ! -perm 0644 -exec chmod -f 0644 '{}' +
 
 	if [ ! -z "$NODENAME" ] && ! grep "couchdb@" /opt/couchdb/etc/vm.args; then
 		echo "-name couchdb@$NODENAME" >> /opt/couchdb/etc/vm.args
