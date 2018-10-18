@@ -25,8 +25,12 @@ if [ "$1" = 'couchdb' ]; then
 fi
 
 if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
-	# we need to set the permissions here because docker mounts volumes as root
-	chown -fR couchdb:couchdb /opt/couchdb || true
+	# Check that we own everything in /opt/couchdb and fix if necessary. We also
+	# add the `-f` flag in all the following invocations because there may be
+	# cases where some of these ownership and permissions issues are non-fatal
+	# (e.g. a config file owned by root with o+r is actually fine), and we don't
+	# to be too aggressive about crashing here ...
+	find /opt/couchdb \! \( -user couchdb -group couchdb \) -exec chown -f couchdb:couchdb '{}' +
 
 	chmod -fR 0770 /opt/couchdb/data || true
 
