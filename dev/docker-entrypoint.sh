@@ -32,7 +32,14 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 	# to be too aggressive about crashing here ...
 	find /opt/couchdb \! \( -user couchdb -group couchdb \) -exec chown -f couchdb:couchdb '{}' +
 
-	chmod -fR 0770 /opt/couchdb/data || true
+	# Ensure that data files have the correct permissions. We were previously
+	# preventing any access to these files outside of couchdb:couchdb, but it
+	# turns out that CouchDB itself does not set such restrictive permissions
+	# when it creates the files. The approach taken here ensures that the
+	# contents of the datadir have the same permissions as they had when they
+	# were initially created. This should minimize any startup delay.
+	find /opt/couchdb/data -type d ! -perm 0755 -exec chmod -f 0755 '{}' +
+	find /opt/couchdb/data -type f ! -perm 0644 -exec chmod -f 0644 '{}' +
 
         find /opt/couchdb/etc -name \*.ini -exec chmod -f 664 {} \;
 	chmod -f 775 /opt/couchdb/etc/*.d || true
