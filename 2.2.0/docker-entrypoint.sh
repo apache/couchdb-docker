@@ -25,13 +25,28 @@ if [ "$1" = 'couchdb' ]; then
 fi
 
 if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
-	# we need to set the permissions here because docker mounts volumes as root
-	chown -fR couchdb:couchdb /opt/couchdb || true
+	# Check that we own everything in /opt/couchdb and fix if necessary. We also
+	# add the `-f` flag in all the following invocations because there may be
+	# cases where some of these ownership and permissions issues are non-fatal
+	# (e.g. a config file owned by root with o+r is actually fine), and we don't
+	# to be too aggressive about crashing here ...
+	find /opt/couchdb \! \( -user couchdb -group couchdb \) -exec chown -f couchdb:couchdb '{}' +
 
-	chmod -fR 0770 /opt/couchdb/data || true
+	# Ensure that data files have the correct permissions. We were previously
+	# preventing any access to these files outside of couchdb:couchdb, but it
+	# turns out that CouchDB itself does not set such restrictive permissions
+	# when it creates the files. The approach taken here ensures that the
+	# contents of the datadir have the same permissions as they had when they
+	# were initially created. This should minimize any startup delay.
+	find /opt/couchdb/data -type d ! -perm 0755 -exec chmod -f 0755 '{}' +
+	find /opt/couchdb/data -type f ! -perm 0644 -exec chmod -f 0644 '{}' +
 
-        find /opt/couchdb/etc -name \*.ini -exec chmod -f 664 {} \;
-	chmod -f 775 /opt/couchdb/etc/*.d || true
+	# Do the same thing for configuration files and directories. Technically
+	# CouchDB only needs read access to the configuration files as all online
+	# changes will be applied to the "docker.ini" file below, but we set 644
+	# for the sake of consistency.
+	find /opt/couchdb/etc -type d ! -perm 0755 -exec chmod -f 0755 '{}' +
+	find /opt/couchdb/etc -type f ! -perm 0644 -exec chmod -f 0644 '{}' +
 
 	if [ ! -z "$NODENAME" ] && ! grep "couchdb@" /opt/couchdb/etc/vm.args; then
 		echo "-name couchdb@$NODENAME" >> /opt/couchdb/etc/vm.args
