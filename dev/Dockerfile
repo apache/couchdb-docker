@@ -28,7 +28,6 @@ RUN apt-get update -y && apt-get install -y \
         libicu57 \
         libssl1.1 \
         openssl \
-        python \
     && echo "deb https://apache.bintray.com/couchdb-deb stretch main" \
         | tee /etc/apt/sources.list.d/couchdb.list \
     && cat /etc/apt/sources.list.d/couchdb.list \
@@ -36,7 +35,7 @@ RUN apt-get update -y && apt-get install -y \
             ha.pool.sks-keyservers.net \
             hkp://p80.pool.sks-keyservers.net:80 \
             pgp.mit.edu) ; do \
-        gpg --keyserver $server --recv-keys 8756C4F765C9AC3CB6B85D62379CE192D401AB61 && break || : ; \
+        gpg --batch --keyserver $server --recv-keys 8756C4F765C9AC3CB6B85D62379CE192D401AB61 && break || : ; \
         done \
     && gpg -a --export 8756C4F765C9AC3CB6B85D62379CE192D401AB61 > /etc/apt/trusted.gpg.d/couchdb.gpg.asc \
     && apt-get update -y && apt-get install -y --no-install-recommends couch-libmozjs185-1.0 \
@@ -59,7 +58,7 @@ RUN set -ex; \
             ha.pool.sks-keyservers.net \
             hkp://p80.pool.sks-keyservers.net:80 \
             pgp.mit.edu) ; do \
-        gpg --keyserver $server --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+        gpg --batch --keyserver $server --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
         done; \
 	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
 	rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
@@ -74,7 +73,7 @@ RUN set -ex; \
             ha.pool.sks-keyservers.net \
             hkp://p80.pool.sks-keyservers.net:80 \
             pgp.mit.edu) ; do \
-        gpg --keyserver $server --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7 && break || : ; \
+        gpg --batch --keyserver $server --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7 && break || : ; \
         done; \
 	gpg --batch --verify /usr/local/bin/tini.asc /usr/local/bin/tini; \
 	rm -rf "$GNUPGHOME" /usr/local/bin/tini.asc; \
@@ -95,13 +94,16 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     git \
     libcurl4-openssl-dev \
     libicu-dev \
-    python-setuptools \ 
-    python-pip \
-    python-sphinx \
-    python-wheel
+    python3 \
+    libpython3-dev \
+    python3-pip \
+    python3-sphinx
 
-RUN pip install --upgrade \
-    sphinx_rtd_theme
+RUN pip3 install --upgrade \
+    sphinx_rtd_theme \
+    nose \
+    requests \
+    hypothesis
 
 # Node is special
 RUN set -ex; \

@@ -27,8 +27,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     haproxy \ 
     libicu57 \
     libmozjs185-1.0 \
-    openssl \
-    python && \
+    openssl && \
   rm -rf /var/lib/apt/lists/*
 
 # grab gosu for easy step-down from root and tini for signal handling
@@ -49,7 +48,7 @@ RUN set -ex; \
                           keyserver.ubuntu.com \
                           hkp://keyserver.ubuntu.com:80 \
                           pgp.mit.edu) ; do \
-    gpg --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
+    gpg --batch --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || : ; \
   done; \
   gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
   rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc; \
@@ -64,7 +63,7 @@ RUN set -ex; \
                           keyserver.ubuntu.com \
                           hkp://keyserver.ubuntu.com:80 \
                           pgp.mit.edu) ; do \
-    gpg --keyserver "$server" --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7 && break || : ; \
+    gpg --batch --keyserver "$server" --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7 && break || : ; \
   done; \
   gpg --batch --verify /usr/local/bin/tini.asc /usr/local/bin/tini; \
   rm -rf "$GNUPGHOME" /usr/local/bin/tini.asc; \
@@ -82,13 +81,16 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev \
     libicu-dev \
     libmozjs185-dev \
-    python-setuptools \ 
-    python-pip \
-    python-sphinx \
-    python-wheel
+    python3 \
+    libpython3-dev \
+    python3-pip \
+    python3-sphinx
 
-RUN pip install --upgrade \
-    sphinx_rtd_theme
+RUN pip3 install --upgrade \
+    sphinx_rtd_theme \
+    nose \
+    requests \
+    hypothesis
 
 # Node is special
 RUN set -ex; \
