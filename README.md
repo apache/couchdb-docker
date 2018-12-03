@@ -1,8 +1,6 @@
 # Semi-official Apache CouchDB Docker images [![Build Status](https://travis-ci.org/apache/couchdb-docker.svg?branch=master)](https://travis-ci.org/apache/couchdb-docker)
 
-Put the couch in a docker container and ship it anywhere.
-
-- Version (stable): `CouchDB 2.2.0`, `Erlang 19.2.1`
+- Version (stable): `CouchDB 2.2.0`, `Erlang 19.3.5`
 
 ## Available tags
 
@@ -10,10 +8,10 @@ Put the couch in a docker container and ship it anywhere.
 
 ## Features
 
-* built on top of the solid and small `debian:stretch` base image
+* built on top of the solid and small `debian:stretch-slim` base image
 * exposes CouchDB on port `5984` of the container
 * runs everything as user `couchdb` (security ftw!)
-* docker volume for data
+* docker volumes for data and config
 
 ## Run
 
@@ -23,18 +21,32 @@ By default, CouchDB's HTTP interface is exposed on port `5984`. Once running, yo
 
 CouchDB uses `/opt/couchdb/data` to store its data, and is exposed as a volume.
 
+CouchDB uses `/opt/couchdb/etc/local.d` to store its configuration files, and is exposed as a volume.
+
 Here is an example launch line for a single-node CouchDB with an admin username and password of `admin` and `password`, exposed to the world on port `5984`:
 
 ```bash
-$ docker run -p 5984:5984 --volume ~/data:/opt/couchdb/data --volume ~/etc/local.d:/opt/couchdb/etc/local.d --env COUCHDB_USER=admin --env COUCHDB_PASSWORD=password apache/couchdb:2.1.1
-18:54:48.780 [info] Application lager started on node nonode@nohost
-18:54:48.780 [info] Application couch_log_lager started on node nonode@nohost
-18:54:48.780 [info] Application couch_mrview started on node nonode@nohost
-18:54:48.780 [info] Application couch_plugins started on node nonode@nohost
+$ docker run -p 5984:5984 --volume ~/data:/opt/couchdb/data --volume ~/etc/local.d:/opt/couchdb/etc/local.d --env COUCHDB_USER=admin --env COUCHDB_PASSWORD=password apache/couchdb:2.2.0
+[info] 2018-12-03T23:13:27.817076Z nonode@nohost <0.9.0> -------- Application couch_log started on node nonode@nohost
+[info] 2018-12-03T23:13:27.826886Z nonode@nohost <0.9.0> -------- Application folsom started on node nonode@nohost
+[info] 2018-12-03T23:13:27.902074Z nonode@nohost <0.9.0> -------- Application couch_stats started on node nonode@nohost
+[info] 2018-12-03T23:13:27.902263Z nonode@nohost <0.9.0> -------- Application khash started on node nonode@nohost
+[info] 2018-12-03T23:13:27.915398Z nonode@nohost <0.9.0> -------- Application couch_event started on node nonode@nohost
+[info] 2018-12-03T23:13:27.915545Z nonode@nohost <0.9.0> -------- Application hyper started on node nonode@nohost
+[info] 2018-12-03T23:13:27.926134Z nonode@nohost <0.9.0> -------- Application ibrowse started on node nonode@nohost
+[info] 2018-12-03T23:13:27.937730Z nonode@nohost <0.9.0> -------- Application ioq started on node nonode@nohost
+[info] 2018-12-03T23:13:27.937887Z nonode@nohost <0.9.0> -------- Application mochiweb started on node nonode@nohost
+[info] 2018-12-03T23:13:27.953558Z nonode@nohost <0.198.0> -------- Apache CouchDB 2.2.0 is starting.
+
+[info] 2018-12-03T23:13:27.953626Z nonode@nohost <0.199.0> -------- Starting couch_sup
+[notice] 2018-12-03T23:13:28.038617Z nonode@nohost <0.86.0> -------- config: [features] pluggable-storage-engines set to true for reason nil
+[notice] 2018-12-03T23:13:28.054010Z nonode@nohost <0.86.0> -------- config: [admins] admin set to -pbkdf2-6cc5b71480085c5b31429d1374cff8de7ec1df3a,7d366ab9d34caf8903f4f11cdaf5e65c,10 for reason nil
+[notice] 2018-12-03T23:13:28.098765Z nonode@nohost <0.86.0> -------- config: [couchdb] uuid set to bf7d73c802f7dbf9bb0cfd668dd94504 for reason nil
+[info] 2018-12-03T23:13:28.348952Z nonode@nohost <0.198.0> -------- Apache CouchDB has started. Time to relax.
 ```
 ### Detailed configuration
 
-CouchDB uses `/opt/couchdb/etc/local.d` to store its configuration. It is highly recommended to bind map this to an external directory, to persist the configuration across restarts.
+CouchDB uses `/opt/couchdb/etc/local.d` to store its configuration. It is highly recommended to use a volume or bind mount for this path to persist the configuration across restarts.
 
 CouchDB also uses `/opt/couchdb/etc/vm.args` to store Erlang runtime-specific changes. Changing these values is less common. If you need to change the epmd port, for instance, you will want to bind mount this file as well. (Note: files cannot be bind-mounted on Windows hosts.)
 
@@ -43,9 +55,9 @@ In addition, a few environment variables are provided to set very common paramet
 * `COUCHDB_USER` and `COUCHDB_PASSWORD` will create an ini-file based local admin user with the given username and password in the file `/opt/couchdb/etc/local.d/docker.ini`.
 * `COUCHDB_SECRET` will set the CouchDB shared cluster secret value, in the file `/opt/couchdb/etc/local.d/docker.ini`.
 * `NODENAME` will set the name of the CouchDB node inside the container to `couchdb@${NODENAME}`, in the file `/opt/couchdb/etc/vm.args`. This is used for clustering purposes and can be ignored for single-node setups.
-* Erlang Environment Variables like `ELR_FLAGS` will be used by Erlang itself. For a complete list have a look [here](http://erlang.org/doc/man/erl.html#environment-variables)
+* Erlang Environment Variables like `ERL_FLAGS` will be used by Erlang itself. For a complete list have a look [here](http://erlang.org/doc/man/erl.html#environment-variables)
 
-If other configuration settings are desired, externally mount `/opt/couchdb/etc` and provide `.ini` configuration files under the `/opt/couchdb/etc/local.d` directory.
+If other configuration settings are desired, externally mount the entire `/opt/couchdb/etc` path and provide `.ini` configuration files under the `/opt/couchdb/etc/local.d` directory. *Note that this will prevent you from getting important updates to the `default.ini` file when upgrading your CouchDB version. You have been warned.*
 
 For a CouchDB cluster you need to provide the `NODENAME` setting as well as the erlang cookie. Settings to Erlang can be made with the environment variable `ERL_FLAGS`, e.g. `ERL_FLAGS=-setcookie "brumbrum"`. Further information can be found [here](http://docs.couchdb.org/en/stable/cluster/setup.html).
 
@@ -57,7 +69,7 @@ You must create `_global_changes`, `_metadata`, `_replicator` and `_users` after
 
 The node will also start in [admin party mode](http://guide.couchdb.org/draft/security.html#party)!
 
-Note also that port 5986 is not exposed, as this can present *significant* security risks. We recommend either connecting to the node directly to access this port, via `docker exec -it <instance> /bin/bash` and accessing port 5986, or use of `--expose 5986` when launching the container, but **ONLY** if you do not expose this port publicly. Port 5986 is scheduled to be removed with the 3.x release series.
+Note also that port 5986 is not exposed, as this can present **significant** security risks. We recommend either connecting to the node directly to access this port, via `docker exec -it <instance> /bin/bash` and accessing port 5986, or use of `--expose 5986` when launching the container, but **ONLY** if you do not expose this port publicly. Port 5986 is scheduled to be removed in CouchDB 3.0.
 
 ## Development images
 
@@ -149,7 +161,7 @@ Apache CouchDB has a [CONTRIBUTING][3] file with details on how to get started
 with issue reporting or contributing to the upkeep of this project. In short,
 use GitHub Issues, do not report anything on Docker's website.
 
-## Contributors
+## Non-Apache CouchDB Development Team Contributors
 
 - [@klaemo](https://github.com/klaemo)
 - [@joeybaker](https://github.com/joeybaker)
