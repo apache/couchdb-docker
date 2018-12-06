@@ -26,12 +26,6 @@ RUN set -ex; \
                 dirmngr \
                 gnupg \
         ; \
-        if ! command -v gpg > /dev/null; then \
-                apt-get install -y --no-install-recommends \
-                        dirmngr \
-                        gnupg \
-                ; \
-        fi ; \
         rm -rf /var/lib/apt/lists/*
 
 # grab gosu for easy step-down from root and tini for signal handling and zombie reaping
@@ -74,12 +68,25 @@ RUN set -ex; \
 	gpg --batch --verify /usr/local/bin/tini.asc /usr/local/bin/tini; \
 	rm -rf "$GNUPGHOME" /usr/local/bin/tini.asc; \
 	chmod +x /usr/local/bin/tini; \
+        apt-get purge -y --auto-remove wget; \
 	tini --version
 
 # http://docs.couchdb.org/en/latest/install/unix.html#installing-the-apache-couchdb-packages
+ENV GPG_COUCH_KEY \
+# gpg: key D401AB61: public key "Bintray (by JFrog) <bintray@bintray.com> imported
+       8756C4F765C9AC3CB6B85D62379CE192D401AB61
 RUN set -xe; \
-        wget -O - https://couchdb.apache.org/repo/bintray-pubkey.asc | apt-key add -; \
-        apt-get purge -y --auto-remove wget
+        export GNUPGHOME="$(mktemp -d)"; \
+        for server in $(shuf -e pgpkeys.mit.edu \
+            ha.pool.sks-keyservers.net \
+            hkp://p80.pool.sks-keyservers.net:80 \
+            pgp.mit.edu) ; do \
+                gpg --batch --keyserver $server --recv-keys $GPG_COUCH_KEY && break || : ; \
+        done; \
+        gpg --batch --export $GPG_COUCH_KEY > /etc/apt/trusted.gpg.d/couchdb.gpg; \
+        command -v gpgconf && gpgconf --kill all || :; \
+        rm -rf "$GNUPGHOME"; \
+        apt-key list
 
 ENV COUCHDB_VERSION 2.3.0
 
@@ -113,7 +120,7 @@ ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
 
 # Setup directories and permissions
 RUN chown -R couchdb:couchdb /opt/couchdb/etc/default.d/ /opt/couchdb/etc/vm.args
-VOLUME /opt/couchdb/data /opt/couchdb/etc/local.d
+VOLUME /opt/couchdb/data
 
 # 5984: Main CouchDB endpoint
 # 4369: Erlang portmap daemon (epmd)
