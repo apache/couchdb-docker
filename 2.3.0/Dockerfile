@@ -81,7 +81,7 @@ RUN set -xe; \
         wget -O - https://couchdb.apache.org/repo/bintray-pubkey.asc | apt-key add -; \
         apt-get purge -y --auto-remove wget
 
-ENV COUCHDB_VERSION 2.2.0
+ENV COUCHDB_VERSION 2.3.0
 
 RUN echo "deb https://apache.bintray.com/couchdb-deb stretch main" > /etc/apt/sources.list.d/couchdb.list
 
