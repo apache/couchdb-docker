@@ -153,6 +153,24 @@ and then build and run
 [sudo] docker run -d -p 5984:5984 -v ~/couchdb:/usr/local/var/lib/couchdb you/awesome-couchdb
 ```
 
+## Admin uploading for CouchDB release managers
+
+Taking a hypothetical example of CouchDB 2.9.7, here's all of the tags you'd want:
+
+```bash
+docker build -t apache/couchdb:2.9.7 2.9.7
+docker tag apache/couchdb:2.9.7 apache/couchdb:latest
+docker tag apache/couchdb:2.9.7 apache/couchdb:2.9
+docker tag apache/couchdb:2.9.7 apache/couchdb:2
+docker login
+docker push apache/couchdb:2.9.7
+docker push apache/couchdb:2.9
+docker push apache/couchdb:2
+docker push apache/couchdb:latest
+```
+
+Obviously don't create/push the `latest` or `2` tags if this is a maintenance branch superceded by a newer one.
+
 ## Feedback, Issues, Contributing
 
 General feedback is welcome at our [user][1] or [developer][2] mailing lists.

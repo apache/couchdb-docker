@@ -12,7 +12,7 @@ services:
 
 env:
   - RELEASES="1.7.2 1.7.2-couchperuser"
-  - RELEASES=2.2.0
+  - RELEASES=2.3.0
   - RELEASES=dev
   - RELEASES=dev-cluster
 
