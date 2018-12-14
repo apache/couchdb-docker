@@ -1,3 +1,9 @@
+<!-- STOP! If this is a CouchDB-specific issue - unrelated to running CouchDB
+     in Docker, file your issue here: https://github.com/apache/couchdb/issues 
+     instead!
+
+     This repository is only for CouchDB *Docker* specific issues. -->
+
 <!--- Provide a general summary of the issue in the Title above -->
 
 ## Expected Behavior
