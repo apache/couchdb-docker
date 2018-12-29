@@ -1,52 +1,78 @@
 # Semi-official Apache CouchDB Docker images [![Build Status](https://travis-ci.org/apache/couchdb-docker.svg?branch=master)](https://travis-ci.org/apache/couchdb-docker)
 
-- Version (stable): `CouchDB 2.2.0`, `Erlang 19.3.5`
+- Version (stable): `CouchDB 2.3.0`, `Erlang 19.3.5`
 
 ## Available tags
 
-- `latest`, `2.2.0`: CouchDB 2.2.0 single node (capable of running in a cluster)
+- `latest`, `2.3.0`: CouchDB 2.3.0 single node (capable of running in a cluster)
 
-## Features
+# How to use this image
 
-* built on top of the solid and small `debian:stretch-slim` base image
-* exposes CouchDB on port `5984` of the container
-* runs everything as user `couchdb` (security ftw!)
-* docker volumes for data and config
+The most up-to-date instructions on using this image are always available at https://github.com/apache/couchdb-docker/blob/master/README.md .
 
-## Run
+## Start a CouchDB instance
 
-Available on the docker registry as [apache/couchdb:latest](https://hub.docker.com/r/apache/couchdb/).
+Starting a CouchDB instantce is simple:
 
-By default, CouchDB's HTTP interface is exposed on port `5984`. Once running, you can visit the new admin interface at `http://<dockerhost>:5984/_utils/`
-
-CouchDB uses `/opt/couchdb/data` to store its data, and is exposed as a volume.
-
-CouchDB uses `/opt/couchdb/etc/local.d` to store its configuration files, and is exposed as a volume.
-
-Here is an example launch line for a single-node CouchDB with an admin username and password of `admin` and `password`, exposed to the world on port `5984`:
-
-```bash
-$ docker run -p 5984:5984 --volume ~/data:/opt/couchdb/data --volume ~/etc/local.d:/opt/couchdb/etc/local.d --env COUCHDB_USER=admin --env COUCHDB_PASSWORD=password apache/couchdb:2.2.0
-[info] 2018-12-03T23:13:27.817076Z nonode@nohost <0.9.0> -------- Application couch_log started on node nonode@nohost
-[info] 2018-12-03T23:13:27.826886Z nonode@nohost <0.9.0> -------- Application folsom started on node nonode@nohost
-[info] 2018-12-03T23:13:27.902074Z nonode@nohost <0.9.0> -------- Application couch_stats started on node nonode@nohost
-[info] 2018-12-03T23:13:27.902263Z nonode@nohost <0.9.0> -------- Application khash started on node nonode@nohost
-[info] 2018-12-03T23:13:27.915398Z nonode@nohost <0.9.0> -------- Application couch_event started on node nonode@nohost
-[info] 2018-12-03T23:13:27.915545Z nonode@nohost <0.9.0> -------- Application hyper started on node nonode@nohost
-[info] 2018-12-03T23:13:27.926134Z nonode@nohost <0.9.0> -------- Application ibrowse started on node nonode@nohost
-[info] 2018-12-03T23:13:27.937730Z nonode@nohost <0.9.0> -------- Application ioq started on node nonode@nohost
-[info] 2018-12-03T23:13:27.937887Z nonode@nohost <0.9.0> -------- Application mochiweb started on node nonode@nohost
-[info] 2018-12-03T23:13:27.953558Z nonode@nohost <0.198.0> -------- Apache CouchDB 2.2.0 is starting.
-
-[info] 2018-12-03T23:13:27.953626Z nonode@nohost <0.199.0> -------- Starting couch_sup
-[notice] 2018-12-03T23:13:28.038617Z nonode@nohost <0.86.0> -------- config: [features] pluggable-storage-engines set to true for reason nil
-[notice] 2018-12-03T23:13:28.054010Z nonode@nohost <0.86.0> -------- config: [admins] admin set to -pbkdf2-6cc5b71480085c5b31429d1374cff8de7ec1df3a,7d366ab9d34caf8903f4f11cdaf5e65c,10 for reason nil
-[notice] 2018-12-03T23:13:28.098765Z nonode@nohost <0.86.0> -------- config: [couchdb] uuid set to bf7d73c802f7dbf9bb0cfd668dd94504 for reason nil
-[info] 2018-12-03T23:13:28.348952Z nonode@nohost <0.198.0> -------- Apache CouchDB has started. Time to relax.
+```console
+$ docker run -d --name my-couchdb %%IMAGE%%:tag
 ```
-### Detailed configuration
 
-CouchDB uses `/opt/couchdb/etc/local.d` to store its configuration. It is highly recommended to use a volume or bind mount for this path to persist the configuration across restarts.
+where `my-couchdb` is the name you want to assign to your container, and `tag` is the tag specifying the CouchDB version you want. See the list above for relevant tags.
+
+## Connect to CouchDB from an application in another Docker container
+
+This image exposes the standard CouchDB port `5984`, so standard container linking will make it automatically available to the linked containers. Start your application container like this in order to link it to the Cassandra container:
+
+```console
+$ docker run --name my-couchdb-app --link my-%%REPO%%:%%REPO%% -d app-that-uses-couchdb
+```
+
+## Exposing CouchDB to the outside world
+
+If you want to expose the port to the outside world, run
+
+```console
+$ docker run -p 5984:5984 -d %%IMAGE%%
+```
+
+*WARNING*: Do not do this until you have established an admin user and setup permissions correctly on any databases you have created.
+
+If you intend to network this CouchDB instance with others in a cluster, you will need to map additional ports; see the [official CouchDB documentation](http://docs.couchdb.org/en/stable/setup/cluster.html) for details.
+
+## Make a cluster
+
+Start your multiple CouchDB instances, then follow the Setup Wizard in the [official CouchDB documentation](http://docs.couchdb.org/en/stable/setup/cluster.html) to complete the process.
+
+For a CouchDB cluster you need to provide the `NODENAME` setting as well as the erlang cookie. Settings to Erlang can be made with the environment variable `ERL_FLAGS`, e.g. `ERL_FLAGS=-setcookie "brumbrum"`. Further information can be found [here](http://docs.couchdb.org/en/stable/cluster/setup.html).
+
+There is also a [Kubernetes helm chart](https://github.com/helm/charts/tree/master/incubator/couchdb) available.
+
+## Container shell access, `remsh`, and viewing logs
+
+The `docker exec` command allows you to run commands inside a Docker container. The following command line will give you a bash shell inside your `%%REPO%%` container:
+
+```console
+$ docker exec -it my-%%REPO%% bash
+```
+
+If you need direct access to the Erlang runtime:
+
+```console
+$ docker exec -it my-%%REPO%% /opt/couchdb/bin/remsh
+```
+
+The CouchDB log is available through Docker's container log:
+
+```console
+$ docker logs my-%%REPO%%
+```
+
+## Configuring CouchDB
+
+The best way to provide configuration to the `%%REPO%%` image is to provide a custom `ini` file to CouchDB, preferably stored in the `/opt/couchdb/etc/local.d/` directory. There are many ways to provide this file to the container (via short `Dockerfile` with `FROM` + `COPY`, via [Docker Configs](https://docs.docker.com/engine/swarm/configs/), via runtime bind-mount, etc), the details of which are left as an exercise for the reader.
+
+Keep in mind that run-time reconfiguration of CouchDB will overwrite the [last file in the configuration chain](http://docs.couchdb.org/en/stable/config/intro.html#configuration-files), and that this Docker container creates the `/opt/couchdb/etc/local.d/docker.ini` file at startup.
 
 CouchDB also uses `/opt/couchdb/etc/vm.args` to store Erlang runtime-specific changes. Changing these values is less common. If you need to change the epmd port, for instance, you will want to bind mount this file as well. (Note: files cannot be bind-mounted on Windows hosts.)
 
@@ -57,21 +83,95 @@ In addition, a few environment variables are provided to set very common paramet
 * `NODENAME` will set the name of the CouchDB node inside the container to `couchdb@${NODENAME}`, in the file `/opt/couchdb/etc/vm.args`. This is used for clustering purposes and can be ignored for single-node setups.
 * Erlang Environment Variables like `ERL_FLAGS` will be used by Erlang itself. For a complete list have a look [here](http://erlang.org/doc/man/erl.html#environment-variables)
 
-If other configuration settings are desired, externally mount the entire `/opt/couchdb/etc` path and provide `.ini` configuration files under the `/opt/couchdb/etc/local.d` directory. *Note that this will prevent you from getting important updates to the `default.ini` file when upgrading your CouchDB version. You have been warned.*
 
-For a CouchDB cluster you need to provide the `NODENAME` setting as well as the erlang cookie. Settings to Erlang can be made with the environment variable `ERL_FLAGS`, e.g. `ERL_FLAGS=-setcookie "brumbrum"`. Further information can be found [here](http://docs.couchdb.org/en/stable/cluster/setup.html).
+# Caveats
 
-### Important notes
+## Where to Store Data
 
-Please note that CouchDB no longer autocreates system databases for you. This is intentional; multi-node CouchDB deployments must be joined into a cluster before creating these databases.
+Important note: There are several ways to store data used by applications that run in Docker containers. We encourage users of the `%%REPO%%` images to familiarize themselves with the options available, including:
 
-You must create `_global_changes`, `_metadata`, `_replicator` and `_users` after the cluster has been fully configured. (The Fauxton UI has a "Setup" wizard that does this for you.)
+-	Let Docker manage the storage of your database data [by writing the database files to disk on the host system using its own internal volume management](https://docs.docker.com/engine/tutorials/dockervolumes/#adding-a-data-volume). This is the default and is easy and fairly transparent to the user. The downside is that the files may be hard to locate for tools and applications that run directly on the host system, i.e. outside containers.
+-	Create a data directory on the host system (outside the container) and [mount this to a directory visible from inside the container](https://docs.docker.com/engine/tutorials/dockervolumes/#mount-a-host-directory-as-a-data-volume). This places the database files in a known location on the host system, and makes it easy for tools and applications on the host system to access the files. The downside is that the user needs to make sure that the directory exists, and that e.g. directory permissions and other security mechanisms on the host system are set up correctly.
 
-The node will also start in [admin party mode](http://guide.couchdb.org/draft/security.html#party)!
+The Docker documentation is a good starting point for understanding the different storage options and variations, and there are multiple blogs and forum postings that discuss and give advice in this area. We will simply show the basic procedure here for the latter option above:
 
-Note also that port 5986 is not exposed, as this can present **significant** security risks. We recommend either connecting to the node directly to access this port, via `docker exec -it <instance> /bin/bash` and accessing port 5986, or use of `--expose 5986` when launching the container, but **ONLY** if you do not expose this port publicly. Port 5986 is scheduled to be removed in CouchDB 3.0.
+1. Create a data directory on a suitable volume on your host system, e.g. `/home/couchdb/data`.
+2. Start your `%%REPO%%` container like this:
 
-## Development images
+```bash
+$ docker run --name some-%%REPO% -v /home/couchdb/data:/opt/couchdb/data -d %%IMAGE%%:tag
+```
+
+The `-v /home/couchdb/data:/opt/couchdb/data` part of the command mounts the `/home/couchdb/data` directory from the underlying host system as `/opt/couchdb/data` inside the container, where CouchDB by default will write its data files.
+
+## No system databases until the installation is finalized
+
+Please note that CouchDB no longer autocreates system databases for you, as it is not known at startup time if this is a single-node or clustered CouchDB installation. In a cluster, the databases must only be created once all nodes have been joined together.
+
+If you use the [Cluster Setup Wizard](http://docs.couchdb.org/en/stable/setup/cluster.html#the-cluster-setup-wizard) or the [Cluster Setup API](http://docs.couchdb.org/en/stable/setup/cluster.html#the-cluster-setup-api), these databases will be created for you when you complete the process.
+
+If you choose not to use the Cluster Setup wizard or API, you will have to create `_global_changes`, `_replicator` and `_users` manually.
+
+## Admin party mode
+
+The node will also start in [admin party mode](https://docs.couchdb.org/en/stable/intro/security.html#the-admin-party). Be sure to create an admin user! The [Cluster Setup Wizard](http://docs.couchdb.org/en/stable/setup/cluster.html#the-cluster-setup-wizard) or the [Cluster Setup API](http://docs.couchdb.org/en/stable/setup/cluster.html#the-cluster-setup-api) will do this for you.
+
+You can also use the two environment variables `COUCHDB_USER` and `COUCHDB_PASSWORD` to set up an admin user:
+
+```console
+$ docker run -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password -d %%IMAGE%%
+```
+
+Note that if you are setting up a clustered CouchDB, you will want to pre-hash this password and use the identical hashed text across all nodes to ensure sessions work correctly when a load balancer is placed in front of the cluster. Hashing can be accomplished by running the container with the `/opt/couchdb/etc/local.d` directory mounted as a volume, allowing CouchDB to hash the password you set, then copying out the hashed version and using this value in the future.
+
+## Using a persistent CouchDB configuration file
+
+The CouchDB configuration is specified in `.ini` files in `/opt/couchdb/etc`. Take a look at the [CouchDB configuration documentation](http://docs.couchdb.org/en/stable/config/index.html) to learn more about CouchDB's configuration structure.
+
+If you want to use a customized CouchDB configuration, you can create your configuration file in a directory on the host machine and then mount that directory as `/opt/couchdb/etc/local.d` inside the `%%REPO%%` container.
+
+```console
+$ docker run --name my-couchdb -v /home/couchdb/etc:/opt/couchdb/etc/local.d -d %%IMAGE%%
+```
+
+The `-v /home/couchdb/etc:/opt/couchdb/etc/local.d` part of the command mounts the `/home/couchdb/etc` directory from the underlying host system as `/opt/couchdb/etc/local.d` inside the container, where CouchDB by default will write its dynamic configuration files.
+
+You can also use `couchdb` as the base image for your own couchdb instance and provide your own version of the `local.ini` config file:
+
+Example Dockerfile:
+
+```dockerfile
+FROM %%IMAGE%%
+
+COPY local.ini /opt/couchdb/etc/
+```
+
+and then build and run
+
+```console
+$ docker build -t you/awesome-couchdb .
+$ docker run -d -p 5984:5984 you/awesome-couchdb
+```
+
+Remember that, with this approach, any newly written changes will still appear in the `/opt/couchdb/etc/local.d` directory, so it is still recommended to map this to a host path for persistence.
+
+## Logging
+
+By default containers run from this image only log to `stdout`. You can enable logging to file in the [configuration](http://docs.couchdb.org/en/2.1.0/config/logging.html).
+
+For example in `local.ini`:
+
+```ini
+[log]
+writer = file
+file = /opt/couchdb/log/couch.log
+```
+
+It is recommended to then mount this path to a directory on the host, as CouchDB logging can be quite voluminous.
+
+-----
+
+# Development images
 
 This repository provides definitions to run the very latest (`master` branch)
 CouchDB code:
@@ -115,9 +215,7 @@ You can pass arguments to the binary:
 docker run -it <image-hash> --admin=foo:bar
 ```
 
-**Note:** This will overwrite the default `--with-haproxy` flag. The cluster **won't** be exposed on
-port `5984` anymore. The individual nodes listen on `15984`, `25984`, ...`x5984`. If you wish to expose
-the cluster on `5984`, pass `--with-haproxy` explicitly.
+**Note:** This will overwrite the default `--with-haproxy` flag. The cluster **won't** be exposed on port `5984` anymore. The individual nodes listen on `15984`, `25984`, ...`x5984`. If you wish to expose the cluster on `5984`, pass `--with-haproxy` explicitly.
 
 More examples:
 ```bash
@@ -131,29 +229,7 @@ docker run -it -p 5984:5984 <image-hash> --with-admin-party-please --with-haprox
 docker run -it -p 15984:15984 -p 25984:25984 <image-hash> -n 2
 ```
 
-## Build your own
-
-You can use `apache/couchdb` as the base image for your own couchdb instance.
-You might want to provide your own version of the following files:
-
-* `local.ini` for your custom CouchDB config
-
-Example Dockerfile:
-
-```
-FROM apache/couchdb:latest
-
-COPY 99-local.ini /opt/couchdb/etc/local.d
-```
-
-and then build and run
-
-```
-[sudo] docker build -t you/awesome-couchdb .
-[sudo] docker run -d -p 5984:5984 -v ~/couchdb:/usr/local/var/lib/couchdb you/awesome-couchdb
-```
-
-## Admin uploading for CouchDB release managers
+# Image uploading for CouchDB release managers
 
 Taking a hypothetical example of CouchDB 2.9.7, here's all of the tags you'd want:
 
