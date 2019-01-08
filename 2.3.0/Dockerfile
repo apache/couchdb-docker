@@ -12,7 +12,7 @@
 
 FROM debian:stretch-slim
 
-MAINTAINER CouchDB Developers dev@couchdb.apache.org
+LABEL maintainer="CouchDB Developers dev@couchdb.apache.org"
 
 # Add CouchDB user account to make sure the IDs are assigned consistently
 RUN groupadd -g 5984 -r couchdb && useradd -u 5984 -d /opt/couchdb -g couchdb couchdb
