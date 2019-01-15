@@ -12,7 +12,7 @@ The most up-to-date instructions on using this image are always available at htt
 
 ## Start a CouchDB instance
 
-Starting a CouchDB instantce is simple:
+Starting a CouchDB instance is simple:
 
 ```console
 $ docker run -d --name my-couchdb %%IMAGE%%:tag
@@ -22,7 +22,7 @@ where `my-couchdb` is the name you want to assign to your container, and `tag` i
 
 ## Connect to CouchDB from an application in another Docker container
 
-This image exposes the standard CouchDB port `5984`, so standard container linking will make it automatically available to the linked containers. Start your application container like this in order to link it to the Cassandra container:
+This image exposes the standard CouchDB port `5984`, so standard container linking will make it automatically available to the linked containers. Start your application container like this in order to link it to the CouchDB container:
 
 ```console
 $ docker run --name my-couchdb-app --link my-%%REPO%%:%%REPO%% -d app-that-uses-couchdb
@@ -99,7 +99,7 @@ The Docker documentation is a good starting point for understanding the differen
 2. Start your `%%REPO%%` container like this:
 
 ```bash
-$ docker run --name some-%%REPO% -v /home/couchdb/data:/opt/couchdb/data -d %%IMAGE%%:tag
+$ docker run --name some-%%REPO%% -v /home/couchdb/data:/opt/couchdb/data -d %%IMAGE%%:tag
 ```
 
 The `-v /home/couchdb/data:/opt/couchdb/data` part of the command mounts the `/home/couchdb/data` directory from the underlying host system as `/opt/couchdb/data` inside the container, where CouchDB by default will write its data files.
