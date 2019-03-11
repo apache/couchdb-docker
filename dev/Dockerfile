@@ -54,6 +54,7 @@ RUN set -ex; \
     wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch"; \
     wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
     export GNUPGHOME="$(mktemp -d)"; \
+        echo "disable-ipv6" >> ${GNUPGHOME}/dirmngr.conf; \
         for server in $(shuf -e pgpkeys.mit.edu \
             ha.pool.sks-keyservers.net \
             hkp://p80.pool.sks-keyservers.net:80 \
@@ -69,6 +70,7 @@ RUN set -ex; \
 	wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch"; \
 	wget -O /usr/local/bin/tini.asc "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch.asc"; \
 	export GNUPGHOME="$(mktemp -d)"; \
+        echo "disable-ipv6" >> ${GNUPGHOME}/dirmngr.conf; \
         for server in $(shuf -e pgpkeys.mit.edu \
             ha.pool.sks-keyservers.net \
             hkp://p80.pool.sks-keyservers.net:80 \
