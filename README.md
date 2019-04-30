@@ -1,10 +1,11 @@
 # Semi-official Apache CouchDB Docker images [![Build Status](https://travis-ci.org/apache/couchdb-docker.svg?branch=master)](https://travis-ci.org/apache/couchdb-docker)
 
-- Version (stable): `CouchDB 2.3.0`, `Erlang 19.3.5`
+- Version (stable): `CouchDB 2.3.1`, `Erlang 19.3.5`
 
 ## Available tags
 
-- `latest`, `2.3.0`: CouchDB 2.3.0 single node (capable of running in a cluster)
+- `latest`, `2.3.1`: CouchDB 2.3.1 single node (capable of running in a cluster)
+- `2.3.0`: CouchDB 2.3.0 single node (capable of running in a cluster)
 
 # How to use this image
 
