@@ -122,7 +122,7 @@ RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards c
 ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
 
 # Setup directories and permissions
-RUN chown -R couchdb:couchdb /opt/couchdb/etc/default.d/ /opt/couchdb/etc/vm.args
+RUN find /opt/couchdb \! \( -user couchdb -group couchdb \) -exec chown -f couchdb:couchdb '{}' +
 VOLUME /opt/couchdb/data
 
 # 5984: Main CouchDB endpoint
