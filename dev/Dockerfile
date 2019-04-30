@@ -146,7 +146,7 @@ COPY vm.args /opt/couchdb/etc/
 COPY docker-entrypoint.sh /
 
 # Setup directories and permissions
-RUN chown -R couchdb:couchdb /opt/couchdb/etc/default.d/ /opt/couchdb/etc/vm.args
+RUN find /opt/couchdb \! \( -user couchdb -group couchdb \) -exec chown -f couchdb:couchdb '{}' +
 
 WORKDIR /opt/couchdb
 EXPOSE 5984 4369 9100
