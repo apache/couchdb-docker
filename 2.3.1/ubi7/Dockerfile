@@ -98,7 +98,7 @@ RUN set -ex; \
 #         rm -rf "$GNUPGHOME"; \
 #         apt-key list
 
-COPY bintray-apache-couchdb-rpm.repo /etc/yum.repos.d/bintray-apache-couchdb-rpm.repo
+COPY ubi7/bintray-apache-couchdb-rpm.repo /etc/yum.repos.d/bintray-apache-couchdb-rpm.repo
 
 ENV COUCHDB_VERSION 2.3.1
 
