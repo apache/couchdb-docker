@@ -19,7 +19,7 @@ RUN groupadd -g 5984 -r couchdb && useradd -u 5984 -d /opt/couchdb -g couchdb co
 
 # be sure GPG and apt-transport-https are available and functional
 RUN set -ex; \
-        yum update; \
+        yum update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
         yum install -y \
                 ca-certificates \
                 dirmngr \
@@ -33,7 +33,7 @@ ENV GOSU_VERSION 1.11
 ENV TINI_VERSION 0.18.0
 RUN set -ex; \
 	\
-	yum update -y; \
+	yum update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
         yum history new; \
 	yum install -y wget; \
 	\
@@ -104,6 +104,7 @@ ENV COUCHDB_VERSION 2.3.1
 
 # Install CouchDB
 RUN set -xe; \
+    yum update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
     yum install --enablerepo=bintray-apache-couchdb-rpm -y couchdb; \
     yum clean all; \
     rm -rf /var/cache/yum
