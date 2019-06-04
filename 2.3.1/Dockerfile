@@ -129,4 +129,5 @@ VOLUME /opt/couchdb/data
 # 4369: Erlang portmap daemon (epmd)
 # 9100: CouchDB cluster communication port
 EXPOSE 5984 4369 9100
+
 CMD ["/opt/couchdb/bin/couchdb"]

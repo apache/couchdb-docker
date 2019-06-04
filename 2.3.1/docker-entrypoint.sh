@@ -13,6 +13,15 @@
 
 set -e
 
+delayed() {
+    sleep 10s
+
+    curl -X PUT http://127.0.0.1:5984/_users
+    curl -X PUT http://127.0.0.1:5984/_replicator
+}
+
+delayed &
+
 # first arg is `-something` or `+something`
 if [ "${1#-}" != "$1" ] || [ "${1#+}" != "$1" ]; then
 	set -- /opt/couchdb/bin/couchdb "$@"
@@ -93,3 +102,4 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 fi
 
 exec "$@"
+
