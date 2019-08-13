@@ -121,8 +121,13 @@ COPY docker-entrypoint.sh /usr/local/bin
 RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
 ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
 
-# Setup directories and permissions
-RUN find /opt/couchdb \! \( -user couchdb -group couchdb \) -exec chown -f couchdb:couchdb '{}' +
+# Setup directories and permissions for config. Technically these could be 555 and 444 respectively
+# but we keep them as 755 and 644 for consistency with CouchDB defaults and the dockerfile_entrypoint.
+RUN find /opt/couchdb/etc -type d ! -perm 0755 -exec chmod -f 0755 '{}' +; \
+    find /opt/couchdb/etc -type f ! -perm 0644 -exec chmod -f 0644 '{}' +; \
+    # only local.d needs to be writable for the docker_entrypoint.sh
+    chmod -f 0777 /opt/couchdb/etc/local.d
+
 VOLUME /opt/couchdb/data
 
 # 5984: Main CouchDB endpoint

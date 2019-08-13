@@ -170,6 +170,15 @@ file = /opt/couchdb/log/couch.log
 
 It is recommended to then mount this path to a directory on the host, as CouchDB logging can be quite voluminous.
 
+## Running under a custom UID
+
+By default, CouchDB will run as the `couchdb` user with UID 5984. Running under a different UID is supported, so long as any volume mounts have appropriate read/write permissions. For example, assuming user `myuser` has write access to `/home/couchdb/data`, the following command will run CouchDB as that user:
+
+```
+docker run --name my-couchdb --user myuser -v /home/couchdb/data:/opt/couchdb/data %%IMAGE%%:tag
+```
+
+
 -----
 
 # Development images
