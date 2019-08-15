@@ -24,7 +24,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     curl \
     dirmngr \
     gnupg \
-    haproxy \ 
+    haproxy \
     libicu57 \
     libmozjs185-1.0 \
     openssl && \
@@ -84,7 +84,8 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     python3 \
     libpython3-dev \
     python3-pip \
-    python3-sphinx
+    python3-sphinx \
+    python3-setuptools
 
 RUN pip3 install --upgrade \
     sphinx_rtd_theme \
