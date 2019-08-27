@@ -112,17 +112,6 @@ RUN set -xe; \
     chmod 777 /opt/couchdb/data /opt/couchdb/var/log; \
 # Remove file that sets logging to a file
     rm /opt/couchdb/etc/default.d/10-filelog.ini; \
-    rm -rf /var/lib/apt/lists/*
-
-# Add configuration
-COPY 10-docker-default.ini /opt/couchdb/etc/default.d/
-COPY vm.args /opt/couchdb/etc/
-COPY docker-entrypoint.sh /usr/local/bin
-RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
-ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
-
-
-RUN set -xe; \
 # Check we own everything in /opt/couchdb. Matches the command in dockerfile_entrypoint.sh
     find /opt/couchdb \! \( -user couchdb -group couchdb \) -exec chown -f couchdb:couchdb '{}' +; \
 # Setup directories and permissions for config. Technically these could be 555 and 444 respectively
@@ -130,7 +119,17 @@ RUN set -xe; \
     find /opt/couchdb/etc -type d ! -perm 0755 -exec chmod -f 0755 '{}' +; \
     find /opt/couchdb/etc -type f ! -perm 0644 -exec chmod -f 0644 '{}' +; \
 # only local.d needs to be writable for the docker_entrypoint.sh
-    chmod -f 0777 /opt/couchdb/etc/local.d
+    chmod -f 0777 /opt/couchdb/etc/local.d; \
+# apt clean-up
+    rm -rf /var/lib/apt/lists/*;
+
+# Add configuration
+COPY --chown=couchdb:couchdb 10-docker-default.ini /opt/couchdb/etc/default.d/
+COPY --chown=couchdb:couchdb vm.args /opt/couchdb/etc/
+
+COPY docker-entrypoint.sh /usr/local/bin
+RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
+ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
 
 VOLUME /opt/couchdb/data
 
