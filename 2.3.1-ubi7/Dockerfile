@@ -91,7 +91,7 @@ RUN set -xe; \
 # Check we own everything in /opt/couchdb. Matches the command in dockerfile_entrypoint.sh
     find /opt/couchdb \! \( -user couchdb -group 0 \) -exec chown -f couchdb:0 '{}' +; \
 # Setup directories and permissions for config. Technically these could be 555 and 444 respectively
-# but we keep them as 755 and 644 for consistency with CouchDB defaults and the dockerfile_entrypoint.
+# but we keep them as 775 and 664 for consistency with the dockerfile_entrypoint.
     find /opt/couchdb/etc -type d ! -perm 0775 -exec chmod -f 0775 '{}' +; \
     find /opt/couchdb/etc -type f ! -perm 0664 -exec chmod -f 0664 '{}' +; \
 # Setup directories and permissions for data.

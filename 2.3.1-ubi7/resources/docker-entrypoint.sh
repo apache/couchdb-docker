@@ -54,7 +54,7 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 		# Do the same thing for configuration files and directories. Technically
 		# CouchDB only needs read access to the configuration files, except "docker.ini" 
 		# (created above) as that is where all online changes will be writted. 
-		# But we set 644 for the sake of consistency.
+		# But we set 664 for the sake of consistency.
 		find /opt/couchdb/etc -type d ! -perm 0775 -exec chmod -f 0775 '{}' +
 		find /opt/couchdb/etc -type f ! -perm 0664 -exec chmod -f 0664 '{}' +
 	fi
