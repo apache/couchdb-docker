@@ -13,7 +13,7 @@ services:
 env:
   - RELEASES=2.3.0
   - RELEASES=2.3.1
-  - RELEASES=2.3.1-ubi7
+  - RELEASES=2.3.1-ubi
   - RELEASES=dev
   - RELEASES=dev-cluster
 

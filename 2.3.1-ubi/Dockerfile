@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-FROM registry.access.redhat.com/ubi7/ubi
+FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 ARG RELEASE
 ARG BUILD_DATE
@@ -25,7 +25,7 @@ LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
       build-date=${BUILD_DATE} \
       io.k8s.display-name="Apache CouchDB" \
       io.k8s.description="Red Hat OpenShift-compatible container that runs Apache CouchDB" \
-      io.openshift.tags="database couchdb apache rhel7" \
+      io.openshift.tags="database couchdb apache rhel8" \
       io.openshift.expose-services="5984/http,4369/epmd,9100/erlang" \
       io.openshift.min-memory="1Gi" \
       io.openshift.min-cpu="1"
@@ -38,28 +38,21 @@ ENV COUCHDB_VERSION 2.3.1
 # Add CouchDB user account to make sure the IDs are assigned consistently
 # CouchDB user added to root group for OpenShift support
 RUN set -ex; \
-    useradd -u 5984 -d /opt/couchdb -g root couchdb; \
 # be sure GPG and apt-transport-https are available and functional
-    yum update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
-    yum install -y \
+    microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
+    microdnf install -y \
             ca-certificates \
             gnupg \
-            pygpgme; \
-# install wget
-    yum update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
-    yum history new; \
-    yum install -y wget; \
-# Enable EPEL repositories (needed for python-progressbar dependency)
-    wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; \
-# Remove wget
-    yum -y history undo 1; \
-    yum install -y epel-release-latest-7.noarch.rpm; \
-    rm epel-release-latest-7.noarch.rpm; \
+            findutils \
+            shadow-utils; \
+# Add CouchDB User and Group (group required by rpm)
+    useradd -u 5984 -d /opt/couchdb -g root couchdb; \
+    groupadd -g 5984 couchdb; \
 # Install runit
-     yum update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
-     yum install --enablerepo=imeyer_runit -y runit; \
+    microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
+    microdnf install --enablerepo=imeyer_runit -y runit; \
 # Clean up
-    yum clean all; \
+    microdnf clean all; \
     rm -rf /var/cache/yum
 
 # https://docs.couchdb.org/en/stable/install/unix.html
@@ -82,9 +75,9 @@ RUN set -ex; \
 
 # Install CouchDB
 RUN set -xe; \
-    yum update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
-    yum install --enablerepo=bintray-apache-couchdb-rpm -y couchdb; \
-    yum clean all; \
+    microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
+    microdnf install --enablerepo=bintray-apache-couchdb-rpm -y couchdb; \
+    microdnf clean all; \
     rm -rf /var/cache/yum; \
 # remove defaults that force writing logs to file
     rm /opt/couchdb/etc/default.d/10-filelog.ini; \
