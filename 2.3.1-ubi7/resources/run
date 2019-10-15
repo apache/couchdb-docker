@@ -1,0 +1,4 @@
+#!/bin/sh
+export HOME=/opt/couchdb
+exec 2>&1
+exec chpst -u couchdb /opt/couchdb/bin/couchdb
