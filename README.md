@@ -1,11 +1,11 @@
 # Semi-official Apache CouchDB Docker images [![Build Status](https://travis-ci.org/apache/couchdb-docker.svg?branch=master)](https://travis-ci.org/apache/couchdb-docker)
 
-- Version (stable): `CouchDB 2.3.1`, `Erlang 19.3.5`
+- Version (stable): `CouchDB 3.0.0`, `Erlang 20.3.8.25`
 
 ## Available tags
 
-- `latest`, `2.3.1`: CouchDB 2.3.1 single node (capable of running in a cluster)
-- `2.3.0`: CouchDB 2.3.0 single node (capable of running in a cluster)
+- `latest`, `3.0.0`: CouchDB 3.0.0 single node (capable of running in a cluster)
+- `2.3.1`: CouchDB 2.3.1 single node (capable of running in a cluster)
 
 # How to use this image
 
@@ -16,10 +16,12 @@ The most up-to-date instructions on using this image are always available at htt
 Starting a CouchDB instance is simple:
 
 ```console
-$ docker run -d --name my-couchdb %%IMAGE%%:tag
+$ docker run -d --name my-couchdb -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password %%IMAGE%%:tag
 ```
 
 where `my-couchdb` is the name you want to assign to your container, and `tag` is the tag specifying the CouchDB version you want. See the list above for relevant tags.
+
+**As of CouchDB 3.0, an admin user and password is required for CouchDB startup.** Specify these on the command line as shown, or overlay your own ini file with a pre-defined admin user (see below).
 
 ## Connect to CouchDB from an application in another Docker container
 
@@ -36,8 +38,6 @@ If you want to expose the port to the outside world, run
 ```console
 $ docker run -p 5984:5984 -d %%IMAGE%%
 ```
-
-*WARNING*: Do not do this until you have established an admin user and setup permissions correctly on any databases you have created.
 
 If you intend to network this CouchDB instance with others in a cluster, you will need to map additional ports; see the [official CouchDB documentation](http://docs.couchdb.org/en/stable/setup/cluster.html) for details.
 
@@ -113,11 +113,11 @@ If you use the [Cluster Setup Wizard](http://docs.couchdb.org/en/stable/setup/cl
 
 If you choose not to use the Cluster Setup wizard or API, you will have to create `_global_changes`, `_replicator` and `_users` manually.
 
-## Admin party mode
+## Administrator user
 
-The node will also start in [admin party mode](https://docs.couchdb.org/en/stable/intro/security.html#the-admin-party). Be sure to create an admin user! The [Cluster Setup Wizard](http://docs.couchdb.org/en/stable/setup/cluster.html#the-cluster-setup-wizard) or the [Cluster Setup API](http://docs.couchdb.org/en/stable/setup/cluster.html#the-cluster-setup-api) will do this for you.
+**CouchDB 3.0+ requires an admin user to start!**
 
-You can also use the two environment variables `COUCHDB_USER` and `COUCHDB_PASSWORD` to set up an admin user:
+You can use the two environment variables `COUCHDB_USER` and `COUCHDB_PASSWORD` to set up an admin user:
 
 ```console
 $ docker run -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password -d %%IMAGE%%
@@ -227,13 +227,10 @@ docker run -it <image-hash> --admin=foo:bar
 
 **Note:** This will overwrite the default `--with-haproxy` flag. The cluster **won't** be exposed on port `5984` anymore. The individual nodes listen on `15984`, `25984`, ...`x5984`. If you wish to expose the cluster on `5984`, pass `--with-haproxy` explicitly.
 
-More examples:
+More examples for the `dev` image only:
 ```bash
 # display the available options of the couchdb startup script
 docker run --rm <image-hash> --help
-
-# Enable admin party and expose the cluster on port 5984
-docker run -it -p 5984:5984 <image-hash> --with-admin-party-please --with-haproxy
 
 # Start two nodes (without proxy) exposed on port 15984 and 25984
 docker run -it -p 15984:15984 -p 25984:25984 <image-hash> -n 2

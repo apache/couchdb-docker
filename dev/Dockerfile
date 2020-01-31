@@ -28,7 +28,7 @@ RUN apt-get update -y && apt-get install -y \
         libicu63 \
         libssl1.1 \
         openssl \
-    && echo "deb https://apache.bintray.com/couchdb-deb stretch main" \
+    && echo "deb https://apache.bintray.com/couchdb-deb buster main" \
         | tee /etc/apt/sources.list.d/couchdb.list \
     && cat /etc/apt/sources.list.d/couchdb.list \
     && for server in $(shuf -e pgpkeys.mit.edu \
