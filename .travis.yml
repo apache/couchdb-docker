@@ -18,4 +18,4 @@ env:
   - RELEASES=dev-cluster
 
 script:
-  - for rel in $RELEASES; do docker build -t couchdb:$rel $rel; docker run -d --name $rel -p 5984:5984 couchdb:$rel && sleep 10 && curl http://localhost:5984 && docker kill $rel; done
+  - for rel in $RELEASES; do docker build -t couchdb:$rel $rel; docker run -d --name $rel -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password -p 5984:5984 couchdb:$rel && sleep 10 && curl http://admin:password@localhost:5984/ && docker kill $rel; done

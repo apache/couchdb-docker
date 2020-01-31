@@ -12,7 +12,7 @@
 
 # Base layer containing dependencies needed at runtime. This layer will be
 # cached after the initial build.
-FROM debian:stretch
+FROM debian:buster
 
 MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
@@ -25,8 +25,8 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     dirmngr \
     gnupg \
     haproxy \
-    libicu57 \
-    libmozjs185-1.0 \
+    libicu63 \
+    libmozjs-60-0 \
     openssl && \
   rm -rf /var/lib/apt/lists/*
 
@@ -80,7 +80,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     git \
     libcurl4-openssl-dev \
     libicu-dev \
-    libmozjs185-dev \
+    libmozjs-60-dev \
     python3 \
     libpython3-dev \
     python3-pip \
@@ -96,8 +96,8 @@ RUN pip3 install --upgrade \
 # Node is special
 RUN set -ex; \
     curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
-    echo 'deb https://deb.nodesource.com/node_8.x stretch main' > /etc/apt/sources.list.d/nodesource.list; \
-    echo 'deb-src https://deb.nodesource.com/node_8.x stretch main' >> /etc/apt/sources.list.d/nodesource.list; \
+    echo 'deb https://deb.nodesource.com/node_10.x buster main' > /etc/apt/sources.list.d/nodesource.list; \
+    echo 'deb-src https://deb.nodesource.com/node_10.x buster main' >> /etc/apt/sources.list.d/nodesource.list; \
     apt-get update -y && apt-get install -y nodejs; \
     npm install -g grunt-cli
 
@@ -106,10 +106,10 @@ RUN set -ex; \
 ARG clone_url=https://gitbox.apache.org/repos/asf/couchdb.git
 RUN git clone $clone_url /usr/src/couchdb
 WORKDIR /usr/src/couchdb
-RUN ./configure
+RUN ./configure -c --spidermonkey-version 60
 
 ARG checkout_branch=master
-ARG configure_options
+ARG configure_options="-c --spidermonkey-version 60"
 
 WORKDIR /usr/src/couchdb/
 RUN git fetch origin \

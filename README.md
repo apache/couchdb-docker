@@ -239,6 +239,13 @@ docker run -it -p 5984:5984 <image-hash> --with-admin-party-please --with-haprox
 docker run -it -p 15984:15984 -p 25984:25984 <image-hash> -n 2
 ```
 
+# Image building for CouchDB release managers
+
+Check out the `build.sh` script in the apache/couchdb-docker GitHub repository,
+which can build images for any version, even in a cross-platform way.
+
+Also, read the next section to ensure you push all of the tags necessary.
+
 # Image uploading for CouchDB release managers
 
 Taking a hypothetical example of CouchDB 2.9.7, here's all of the tags you'd want:
@@ -255,7 +262,11 @@ docker push apache/couchdb:2
 docker push apache/couchdb:latest
 ```
 
-Obviously don't create/push the `latest` or `2` tags if this is a maintenance branch superceded by a newer one.
+Obviously don't create/push the `latest` or `2` tags if this is a maintenance
+branch superceded by a newer one.
+
+The `build.sh` utility can help you do this quickly, see its usage help for
+more details.
 
 ## Feedback, Issues, Contributing
 
