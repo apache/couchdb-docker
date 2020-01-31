@@ -12,7 +12,7 @@
 
 # Base layer containing dependencies needed at runtime. This layer will be
 # cached after the initial build.
-FROM debian:stretch as runtime
+FROM debian:buster as runtime
 
 MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
@@ -25,7 +25,7 @@ RUN apt-get update -y && apt-get install -y \
         curl \
         dirmngr \
         gnupg \
-        libicu57 \
+        libicu63 \
         libssl1.1 \
         openssl \
     && echo "deb https://apache.bintray.com/couchdb-deb stretch main" \
@@ -38,7 +38,7 @@ RUN apt-get update -y && apt-get install -y \
         gpg --batch --keyserver $server --recv-keys 8756C4F765C9AC3CB6B85D62379CE192D401AB61 && break || : ; \
         done \
     && gpg -a --export 8756C4F765C9AC3CB6B85D62379CE192D401AB61 > /etc/apt/trusted.gpg.d/couchdb.gpg.asc \
-    && apt-get update -y && apt-get install -y --no-install-recommends couch-libmozjs185-1.0 \
+    && apt-get update -y && apt-get install -y --no-install-recommends libmozjs-60-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # grab gosu for easy step-down from root and tini for signal handling
@@ -89,7 +89,7 @@ FROM runtime AS build_dependencies
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
-    couch-libmozjs185-dev \
+    libmozjs-60-dev \
     erlang-nox \
     erlang-reltool \
     erlang-dev \
@@ -111,8 +111,8 @@ RUN pip3 install --upgrade \
 # Node is special
 RUN set -ex; \
     curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
-    echo 'deb https://deb.nodesource.com/node_8.x stretch main' > /etc/apt/sources.list.d/nodesource.list; \
-    echo 'deb-src https://deb.nodesource.com/node_8.x stretch main' >> /etc/apt/sources.list.d/nodesource.list; \
+    echo 'deb https://deb.nodesource.com/node_10.x buster main' > /etc/apt/sources.list.d/nodesource.list; \
+    echo 'deb-src https://deb.nodesource.com/node_10.x buster main' >> /etc/apt/sources.list.d/nodesource.list; \
     apt-get update -y && apt-get install -y nodejs; \
     npm install -g grunt-cli
 
@@ -120,7 +120,7 @@ RUN set -ex; \
 ARG clone_url=https://github.com/apache/couchdb.git
 RUN git clone $clone_url /usr/src/couchdb
 WORKDIR /usr/src/couchdb
-RUN ./configure
+RUN ./configure -c --spidermonkey-version 60
 
 # This layer performs the actual build of a relocatable, self-contained
 # release of CouchDB. It pulls down the latest changes from the remote
@@ -129,7 +129,7 @@ RUN ./configure
 FROM build_dependencies AS build
 
 ARG checkout_branch=master
-ARG configure_options
+ARG configure_options="-c --spidermonkey-version 60"
 
 WORKDIR /usr/src/couchdb/
 RUN git fetch origin \
