@@ -55,10 +55,25 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 	# Ensure that CouchDB will write custom settings in this file
 	touch /opt/couchdb/etc/local.d/docker.ini
 
-	if [ "$COUCHDB_USER" ] && [ "$COUCHDB_PASSWORD" ]; then
-		# Create admin only if not already present
-		if ! grep -Pzoqr "\[admins\]\n$COUCHDB_USER =" /opt/couchdb/etc/local.d/*.ini; then
+
+	# Check if admin users are missing then
+	if ! grep -Pzoqr "\[admins\]\n$COUCHDB_USER =" /opt/couchdb/etc/local.d/*.ini; then
+		# Check if admin credentials provided
+		if [ "$COUCHDB_USER" ] && [ "$COUCHDB_PASSWORD" ]; then
 			printf "\n[admins]\n%s = %s\n" "$COUCHDB_USER" "$COUCHDB_PASSWORD" >> /opt/couchdb/etc/local.d/docker.ini
+		else # If not print an error and exit
+			cat >&2 <<-'EOWARN'
+*************************************************************
+ERROR: CouchDB 3.0+ will no longer run in "Admin Party"
+       mode. You *MUST* specify an admin user and
+       password, either via your own .ini file mapped
+       into the container at /opt/couchdb/etc/local.ini
+       or inside /opt/couchdb/etc/local.d, or with
+       "-e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password"
+       to set it via "docker run".
+*************************************************************
+EOWARN
+			exit 1
 		fi
 	fi
 
