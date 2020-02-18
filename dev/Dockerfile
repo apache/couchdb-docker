@@ -120,7 +120,7 @@ RUN set -ex; \
 ARG clone_url=https://github.com/apache/couchdb.git
 RUN git clone $clone_url /usr/src/couchdb
 WORKDIR /usr/src/couchdb
-RUN ./configure -c --spidermonkey-version 60
+RUN ./configure
 
 # This layer performs the actual build of a relocatable, self-contained
 # release of CouchDB. It pulls down the latest changes from the remote
@@ -129,12 +129,13 @@ RUN ./configure -c --spidermonkey-version 60
 FROM build_dependencies AS build
 
 ARG checkout_branch=master
-ARG configure_options="-c --spidermonkey-version 60"
+ARG configure_options
+ARG spidermonkey_version=60
 
 WORKDIR /usr/src/couchdb/
 RUN git fetch origin \
     && git checkout $checkout_branch \
-    && ./configure $configure_options \
+    && ./configure $configure_options --spidermonkey-version $spidermonkey_version\
     && make release
 
 # This results in a single layer image (or at least skips the build stuff?)
