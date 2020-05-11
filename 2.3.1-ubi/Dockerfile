@@ -76,7 +76,7 @@ RUN set -ex; \
 # Install CouchDB
 RUN set -xe; \
     microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
-    microdnf install --enablerepo=bintray-apache-couchdb-rpm -y couchdb; \
+    microdnf install --enablerepo=bintray-apache-couchdb-rpm -y couchdb-2.3.1; \
     microdnf clean all; \
     rm -rf /var/cache/yum; \
 # remove defaults that force writing logs to file
