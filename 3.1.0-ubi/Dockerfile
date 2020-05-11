@@ -1,0 +1,115 @@
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal
+
+ARG RELEASE
+ARG BUILD_DATE
+
+LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
+      name="Apache CouchDB" \
+      version="3.1.0" \
+      summary="Apache CouchDB based on Red Hat UBI" \
+      description="Red Hat OpenShift-compatible container that runs Apache CouchDB" \
+      release=${RELEASE}  \
+      usage="https://github.com/apache/couchdb-docker" \
+      build-date=${BUILD_DATE} \
+      io.k8s.display-name="Apache CouchDB" \
+      io.k8s.description="Red Hat OpenShift-compatible container that runs Apache CouchDB" \
+      io.openshift.tags="database couchdb apache rhel8" \
+      io.openshift.expose-services="5984/http,4369/epmd,9100/erlang" \
+      io.openshift.min-memory="1Gi" \
+      io.openshift.min-cpu="1"
+
+COPY imeyer_runit.repo /etc/yum.repos.d/imeyer_runit.repo
+COPY bintray-apache-couchdb-rpm.repo /etc/yum.repos.d/bintray-apache-couchdb-rpm.repo
+
+ENV COUCHDB_VERSION 3.1.0
+
+# Add CouchDB user account to make sure the IDs are assigned consistently
+# CouchDB user added to root group for OpenShift support
+RUN set -ex; \
+# be sure GPG and apt-transport-https are available and functional
+    microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
+    microdnf install -y \
+            ca-certificates \
+            gnupg \
+            findutils \
+            shadow-utils; \
+# Add CouchDB User and Group (group required by rpm)
+    useradd -u 5984 -d /opt/couchdb -g root couchdb; \
+    groupadd -g 5984 couchdb; \
+# Install runit
+    microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
+    microdnf install --enablerepo=imeyer_runit -y runit; \
+# Clean up
+    microdnf clean all; \
+    rm -rf /var/cache/yum
+
+# https://docs.couchdb.org/en/stable/install/unix.html
+# ENV GPG_COUCH_KEY \
+# # gpg: key D401AB61: public key "Bintray (by JFrog) <bintray@bintray.com> imported
+#        8756C4F765C9AC3CB6B85D62379CE192D401AB61
+# RUN set -xe; \
+#         export GNUPGHOME="$(mktemp -d)"; \
+#         echo "disable-ipv6" >> ${GNUPGHOME}/dirmngr.conf; \
+#         for server in $(shuf -e pgpkeys.mit.edu \
+#             ha.pool.sks-keyservers.net \
+#             hkp://p80.pool.sks-keyservers.net:80 \
+#             pgp.mit.edu) ; do \
+#                 gpg --batch --keyserver $server --recv-keys $GPG_COUCH_KEY && break || : ; \
+#         done; \
+#         gpg --batch --export $GPG_COUCH_KEY > /etc/apt/trusted.gpg.d/couchdb.gpg; \
+#         command -v gpgconf && gpgconf --kill all || :; \
+#         rm -rf "$GNUPGHOME"; \
+#         apt-key list
+
+# Install CouchDB
+RUN set -xe; \
+    microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
+    microdnf install --enablerepo=bintray-apache-couchdb-rpm -y couchdb-3.1.0; \
+    microdnf clean all; \
+    rm -rf /var/cache/yum; \
+# remove defaults that force writing logs to file
+    rm /opt/couchdb/etc/default.d/10-filelog.ini; \
+# Check we own everything in /opt/couchdb. Matches the command in dockerfile_entrypoint.sh
+    find /opt/couchdb \! \( -user couchdb -group 0 \) -exec chown -f couchdb:0 '{}' +; \
+# Setup directories and permissions for config. Technically these could be 555 and 444 respectively
+# but we keep them as 775 and 664 for consistency with the dockerfile_entrypoint.
+    find /opt/couchdb/etc -type d ! -perm 0755 -exec chmod -f 0755 '{}' +; \
+    find /opt/couchdb/etc -type f ! -perm 0644 -exec chmod -f 0644 '{}' +; \
+# Setup directories and permissions for data.
+    chmod 777 /opt/couchdb/data
+
+# Add the License
+COPY licenses /licenses
+
+# Add configuration
+COPY --chown=couchdb:0 resources/10-docker-default.ini /opt/couchdb/etc/default.d/
+COPY --chown=couchdb:0 resources/vm.args /opt/couchdb/etc/
+COPY resources/docker-entrypoint.sh /usr/local/bin
+COPY resources/run /etc/service/couchdb/
+
+# set permissions on runit scripts
+RUN chmod -R 777 /etc/service/couchdb; \
+    chmod 777 /usr/local/bin/docker-entrypoint.sh; \
+# symlink to root folder
+    ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+VOLUME /opt/couchdb/data
+
+# 5984: Main CouchDB endpoint
+# 4369: Erlang portmap daemon (epmd)
+# 9100: CouchDB cluster communication port
+EXPOSE 5984 4369 9100
+CMD ["/opt/couchdb/bin/couchdb"]

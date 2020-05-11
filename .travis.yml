@@ -15,6 +15,7 @@ env:
   - RELEASES=2.3.1-ubi
   - RELEASES=3.0.1
   - RELEASES=3.1.0
+  - RELEASES=3.1.0-ubi
   - RELEASES=dev
   - RELEASES=dev-cluster
 
