@@ -17,7 +17,7 @@ ARG BUILD_DATE
 
 LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
       name="Apache CouchDB" \
-      version="2.3.1" \
+      version="3.1.0" \
       summary="Apache CouchDB based on Red Hat UBI" \
       description="Red Hat OpenShift-compatible container that runs Apache CouchDB" \
       release=${RELEASE}  \
@@ -33,7 +33,7 @@ LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
 COPY imeyer_runit.repo /etc/yum.repos.d/imeyer_runit.repo
 COPY bintray-apache-couchdb-rpm.repo /etc/yum.repos.d/bintray-apache-couchdb-rpm.repo
 
-ENV COUCHDB_VERSION 2.3.1
+ENV COUCHDB_VERSION 3.1.0
 
 # Add CouchDB user account to make sure the IDs are assigned consistently
 # CouchDB user added to root group for OpenShift support
@@ -76,7 +76,7 @@ RUN set -ex; \
 # Install CouchDB
 RUN set -xe; \
     microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
-    microdnf install --enablerepo=bintray-apache-couchdb-rpm -y couchdb-2.3.1; \
+    microdnf install --enablerepo=bintray-apache-couchdb-rpm -y couchdb-3.1.0; \
     microdnf clean all; \
     rm -rf /var/cache/yum; \
 # remove defaults that force writing logs to file
@@ -85,8 +85,8 @@ RUN set -xe; \
     find /opt/couchdb \! \( -user couchdb -group 0 \) -exec chown -f couchdb:0 '{}' +; \
 # Setup directories and permissions for config. Technically these could be 555 and 444 respectively
 # but we keep them as 775 and 664 for consistency with the dockerfile_entrypoint.
-    find /opt/couchdb/etc -type d ! -perm 0775 -exec chmod -f 0775 '{}' +; \
-    find /opt/couchdb/etc -type f ! -perm 0664 -exec chmod -f 0664 '{}' +; \
+    find /opt/couchdb/etc -type d ! -perm 0755 -exec chmod -f 0755 '{}' +; \
+    find /opt/couchdb/etc -type f ! -perm 0644 -exec chmod -f 0644 '{}' +; \
 # Setup directories and permissions for data.
     chmod 777 /opt/couchdb/data
 
