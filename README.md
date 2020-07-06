@@ -183,6 +183,26 @@ By default, CouchDB will run as the `couchdb` user with UID 5984. Running under 
 docker run --name my-couchdb --user myuser -v /home/couchdb/data:/opt/couchdb/data %%IMAGE%%:tag
 ```
 
+## Example docker-compose file (for an instance of a cluster)
+
+```
+version: '3'
+services:
+  couchdb:
+    image: couchdb:3
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=password
+      - COUCHDB_SECRET=secret
+      - NODENAME=192.168.0.1
+      - ERL_FLAGS=-setcookie "brumbrum"
+    ports:
+      - "5984:5984"
+      - "4369:4369"
+      - "9100:9100"
+    volumes:
+      - ./couch_data:/opt/couchdb/data
+```
 
 -----
 
