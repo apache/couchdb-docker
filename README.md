@@ -50,7 +50,9 @@ If you intend to network this CouchDB instance with others in a cluster, you wil
 
 Start your multiple CouchDB instances, then follow the Setup Wizard in the [official CouchDB documentation](http://docs.couchdb.org/en/stable/setup/cluster.html) to complete the process.
 
-For a CouchDB cluster you need to provide the `NODENAME` setting as well as the erlang cookie. Settings to Erlang can be made with the environment variable `ERL_FLAGS`, e.g. `ERL_FLAGS=-setcookie "brumbrum"`. Further information can be found [here](http://docs.couchdb.org/en/stable/cluster/setup.html).
+For a CouchDB cluster you need to provide the `NODENAME` setting as well as the erlang cookie. Settings to Erlang can be made with the environment variable `ERL_FLAGS`, e.g. `ERL_FLAGS=-setcookie "brumbrum"`.
+By default, this image exposes the `epmd` port `4369` and the Erlang cluster communication port `9100` (i.e. `inet_dist_listen_min` and `inet_dist_listen_max` are both 9100).
+Further information can be found [here](http://docs.couchdb.org/en/stable/cluster/setup.html).
 
 There is also a [Kubernetes helm chart](https://github.com/helm/charts/tree/master/incubator/couchdb) available.
 
