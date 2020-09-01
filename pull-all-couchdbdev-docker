@@ -1,0 +1,99 @@
+#!/bin/bash
+
+DOCKER_ORG="couchdbdev"
+
+# These are the images that are currently being used, so don't `docker rmi` them on cleanup.
+KEEP_IMAGES=(
+debian-buster-erlang-all
+ppc64ledebian-buster-erlang-20.3.8.25-1
+arm64v8debian-buster-erlang-20.3.8.25-1
+centos-8-erlang-20.3.8.25-1
+centos-7-erlang-20.3.8.25-1
+centos-6-erlang-20.3.8.25-1
+ubuntu-focal-erlang-20.3.8.25-1
+ubuntu-bionic-erlang-20.3.8.25-1
+ubuntu-xenial-erlang-20.3.8.25-1
+debian-buster-erlang-20.3.8.25-1
+debian-stretch-erlang-20.3.8.25-1
+ppc64le-debian-buster-erlang-20.3.8.25-1
+arm64v8-debian-buster-erlang-20.3.8.25-1
+debian-stretch-erlang-19.3.6
+centos-7-erlang-19.3.6
+centos-6-erlang-19.3.6
+)
+
+# Base images are used for building old libmozjs, primarily.
+BASE_IMAGES=(
+aarch64-debian-stretch-base
+arm64v8-debian-buster-base
+centos-6-base
+centos-7-base
+centos-8-base
+debian-buster-base
+debian-jessie-base
+debian-stretch-base
+ppc64le-debian-buster-base
+ubuntu-bionic-base
+ubuntu-trusty-base
+ubuntu-xenial-base
+)
+# These images layer in the rest of the CouchDB build chain, and 1 or more Erlang versions.
+IMAGES=(
+aarch64-debian-stretch-erlang-20.3.8.20
+#arm64v8-debian-buster-erlang-20.3.8.22-1
+#arm64v8-debian-buster-erlang-20.3.8.24-1
+arm64v8-debian-buster-erlang-20.3.8.25-1
+arm64v8-debian-stretch-erlang-20.3.8.22-1
+centos-6-erlang-19.3.6
+#centos-6-erlang-20.3.8.22-1
+#centos-6-erlang-20.3.8.24-1
+centos-6-erlang-20.3.8.25-1
+centos-7-erlang-19.3.6
+#centos-7-erlang-20.3.8.22-1
+#centos-7-erlang-20.3.8.24-1
+centos-7-erlang-20.3.8.25-1
+#centos-8-erlang-20.3.8.22-1
+#centos-8-erlang-20.3.8.24-1
+centos-8-erlang-20.3.8.25-1
+#debian-buster-erlang-20.3.8.22-1
+#debian-buster-erlang-20.3.8.24-1
+debian-buster-erlang-20.3.8.25-1
+debian-buster-erlang-all
+debian-jessie-erlang-17.5.3
+debian-jessie-erlang-19.3.6
+debian-stretch-erlang-19.3.6
+#debian-stretch-erlang-20.3.8.22-1
+#debian-stretch-erlang-20.3.8.24-1
+debian-stretch-erlang-20.3.8.25-1
+#ppc64le-debian-buster-erlang-20.3.8.24-1
+ppc64le-debian-buster-erlang-20.3.8.25-1
+#ppc64le-debian-stretch-erlang-20.3.8.20
+#ppc64le-debian-stretch-erlang-20.3.8.22-1
+ppc64le-debian-stretch-erlang-20.3.8.24-1
+s390x-debian-buster-erlang-20.3.8.25-1
+ubuntu-12.04-erlang-18.3
+ubuntu-bionic-erlang-19.3.6
+#ubuntu-bionic-erlang-20.3.8.22-1
+#ubuntu-bionic-erlang-20.3.8.24-1
+ubuntu-bionic-erlang-20.3.8.25-1
+ubuntu-focal-erlang-20.3.8.25-1
+ubuntu-trusty-erlang-19.3.6
+ubuntu-trusty-erlang-default
+ubuntu-xenial-erlang-19.3.6
+#ubuntu-xenial-erlang-20.3.8.22-1
+#ubuntu-xenial-erlang-20.3.8.24-1
+ubuntu-xenial-erlang-20.3.8.25-1
+)
+
+for image in ${IMAGES[*]} ${BASE_IMAGES[*]}
+do
+    echo docker pull couchdbdev/${image}
+    docker pull couchdbdev/${image}
+    # We don't want to delete the current working set of images.
+    if ! printf '%s\n' "${KEEP_IMAGES[@]}" | grep -q -P "^${image}$"; then
+        echo docker rmi couchdbdev/$image
+        docker rmi couchdbdev/$image
+    fi
+done
+
+docker system prune -f
