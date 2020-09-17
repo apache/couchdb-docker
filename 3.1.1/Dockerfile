@@ -91,7 +91,7 @@ RUN set -xe; \
     rm -rf "$GNUPGHOME"; \
     apt-key list
 
-ENV COUCHDB_VERSION 3.1.0
+ENV COUCHDB_VERSION 3.1.1
 
 RUN echo "deb https://apache.bintray.com/couchdb-deb buster main" > /etc/apt/sources.list.d/couchdb.list
 
