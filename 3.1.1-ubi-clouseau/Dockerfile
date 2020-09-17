@@ -10,14 +10,32 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+ARG CLOUSEAU_VERSION=2.17.0
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal as builder
+
+ARG CLOUSEAU_VERSION
+
+WORKDIR /usr/src
+
+# Fetch and extract clouseau
+RUN set -xe; \
+    microdnf update -y && rm -rf /var/cache/yum && \
+    microdnf install -y unzip wget && \
+    wget https://github.com/cloudant-labs/clouseau/releases/download/${CLOUSEAU_VERSION}/clouseau-${CLOUSEAU_VERSION}-dist.zip && \
+    unzip clouseau-2.17.0-dist.zip && \ 
+    microdnf clean all; \
+    rm -rf /var/cache/yum
+
 FROM registry.access.redhat.com/ubi8/ubi-minimal
 
 ARG RELEASE
 ARG BUILD_DATE
+ARG CLOUSEAU_VERSION
 
 LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
       name="Apache CouchDB" \
-      version="3.1.0" \
+      version="3.1.1" \
       summary="Apache CouchDB based on Red Hat UBI" \
       description="Red Hat OpenShift-compatible container that runs Apache CouchDB" \
       release=${RELEASE}  \
@@ -33,14 +51,19 @@ LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
 COPY imeyer_runit.repo /etc/yum.repos.d/imeyer_runit.repo
 COPY bintray-apache-couchdb-rpm.repo /etc/yum.repos.d/bintray-apache-couchdb-rpm.repo
 
-ENV COUCHDB_VERSION 3.1.0
+ENV COUCHDB_VERSION 3.1.1 \
+    CLOUSEAU_VERSION=${CLOUSEAU_VERSION} \
+    JAVA_MAJOR_VERSION=8 \
+    JAVA_HOME=/usr/lib/jvm/jre-1.8.0 \
+    CLASSPATH=${APP_ROOT}/lib/*
 
 # Add CouchDB user account to make sure the IDs are assigned consistently
 # CouchDB user added to root group for OpenShift support
 RUN set -ex; \
 # be sure GPG and apt-transport-https are available and functional
-    microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
+    microdnf update -y && rm -rf /var/cache/yum; \
     microdnf install -y \
+            java-1.8.0-openjdk-headless \
             ca-certificates \
             gnupg \
             findutils \
@@ -76,7 +99,7 @@ RUN set -ex; \
 # Install CouchDB
 RUN set -xe; \
     microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
-    microdnf install --enablerepo=bintray-apache-couchdb-rpm -y couchdb-3.1.0; \
+    microdnf install --enablerepo=bintray-apache-couchdb-rpm -y couchdb-3.1.1; \
     microdnf clean all; \
     rm -rf /var/cache/yum; \
 # remove defaults that force writing logs to file
@@ -90,17 +113,28 @@ RUN set -xe; \
 # Setup directories and permissions for data.
     chmod 777 /opt/couchdb/data
 
+# Copy Clouseau jar and set directory permissions
+COPY resources/clouseau/clouseau.ini resources/clouseau/log4j.properties /opt/couchdb-search/etc/
+COPY --from=builder /usr/src/clouseau-${CLOUSEAU_VERSION}/*.jar /opt/couchdb-search/lib/
+
+RUN install -d -m 0755 -o couchdb -g 0 -p /opt/couchdb-search/etc /opt/couchdb-search/lib /opt/couchdb/data/search_indexes && \
+    find -L /opt/couchdb-search \! \( -user couchdb -group 0 \) -exec chown -f couchdb:0 '{}' +; \
+	find -L /opt/couchdb-search -type d ! -perm 0755 -exec chmod -f 0755 '{}' +; \
+    find -L /opt/couchdb-search -type f ! -perm 0644 -exec chmod -f 0644 '{}' +;
+
 # Add the License
 COPY licenses /licenses
 
 # Add configuration
 COPY --chown=couchdb:0 resources/10-docker-default.ini /opt/couchdb/etc/default.d/
 COPY --chown=couchdb:0 resources/vm.args /opt/couchdb/etc/
-COPY resources/docker-entrypoint.sh /usr/local/bin
-COPY resources/run /etc/service/couchdb/
+COPY --chown=couchdb:0 resources/docker-entrypoint.sh /usr/local/bin
+COPY --chown=couchdb:0 resources/run /etc/service/couchdb/
+COPY --chown=couchdb:0 resources/run_clouseau /etc/service/couchdb-search/run
 
 # set permissions on runit scripts
 RUN chmod -R 777 /etc/service/couchdb; \
+    chmod -R 777 /etc/service/couchdb-search; \
     chmod 777 /usr/local/bin/docker-entrypoint.sh; \
 # symlink to root folder
     ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh
