@@ -1,0 +1,18 @@
+github:
+  description: "Semi-official Apache CouchDB Docker images"
+  homepage: https://github.com/apache/couchdb-docker
+  labels:
+    - apache
+    - couchdb
+    - erlang
+    - network-client
+    - http
+    - cplusplus
+    - big-data
+    - cloud
+    - database
+    - network-server
+    - javascript
+  protected_branches:
+    main
+
