@@ -125,10 +125,10 @@ RUN ./configure
 # This layer performs the actual build of a relocatable, self-contained
 # release of CouchDB. It pulls down the latest changes from the remote
 # origin (because the layer above will be cached) and switches to the
-# branch specified in the build_arg (defaults to master)
+# branch specified in the build_arg (defaults to main)
 FROM build_dependencies AS build
 
-ARG checkout_branch=master
+ARG checkout_branch=main
 ARG configure_options
 ARG spidermonkey_version=60
 
