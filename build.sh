@@ -31,8 +31,8 @@ set -e
 
 PROMPT="Are you sure (y/n)? "
 QEMU="YES"
-PLATFORMS="amd64 arm64v8 ppc64le"
-BUILDX_PLATFORMS="linux/amd64,linux/arm64/v8,linux/ppc64le"
+PLATFORMS="amd64 arm64v8"
+BUILDX_PLATFORMS="linux/amd64,linux/arm64/v8"
 
 prompt() {
   if [ -z "${PROMPT}" ]
@@ -124,14 +124,10 @@ push() {
   fi
   docker manifest create apache/couchdb:$tag_as \
     apache/couchdb:amd64-$1 \
-    apache/couchdb:arm64v8-$1 \
-    apache/couchdb:ppc64le-$1
+    apache/couchdb:arm64v8-$1
 
   docker manifest annotate apache/couchdb:$tag_as \
     apache/couchdb:arm64v8-$1 --os linux --arch arm64 --variant v8
-
-  docker manifest annotate apache/couchdb:$tag_as \
-    apache/couchdb:ppc64le-$1 --os linux --arch ppc64le
 
   docker manifest push --purge apache/couchdb:$tag_as
 
