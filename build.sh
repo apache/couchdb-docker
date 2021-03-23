@@ -21,6 +21,8 @@
 # architecture Docker containers on an x86_64 host.
 #
 # For more reading:
+#   https://github.com/moby/buildkit/issues/1943
+#   https://github.com/tonistiigi/binfmt
 #   https://github.com/multiarch/qemu-user-static
 #   https://lobradov.github.io/Building-docker-multiarch-images/
 #   https://github.com/jessfraz/irssi/blob/master/.travis.yml
@@ -56,9 +58,26 @@ update_qemu() {
   # necessary locally after every reboot, not sure why....update related maybe?
   # basically harmless to run everytime, except for elevated privs necessary.
   # disable with -n flag
-  docker rmi multiarch/qemu-user-static >/dev/null 2>&1 || true
-  docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-  docker rmi multiarch/qemu-user-static
+  # NOTE multiarch/qemu-user-static broken as of Jan 2021
+  # docker rmi multiarch/qemu-user-static >/dev/null 2>&1 || true
+  # docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+  # docker rmi multiarch/qemu-user-static
+  # use tonistiigi/binfmt instead.
+  # this requires bash 4.*, sorry jan!
+  echo "Uninstalling all qemu emulators..."
+  readarray -t platforms < <(docker run --privileged tonistiigi/binfmt | jq -c '.emulators[] | select(. | contains("qemu"))')
+  for plat in "${platforms[@]}"; do
+    plat="${plat//\"}"
+    docker run --privileged tonistiigi/binfmt --uninstall $plat >/dev/null 2>&1
+  done
+
+  echo "Reinstalling all qemu emulators with latest version..."
+  docker run --privileged --rm tonistiigi/binfmt --install all
+
+  echo "Proving all emulators work..."
+  docker run --rm arm32v7/alpine uname -a
+  docker run --rm arm64v8/alpine uname -a
+  docker run --rm tonistiigi/debian:riscv uname -a
 }
 
 clean() {
@@ -143,7 +162,10 @@ buildx() {
     tag_as=$1
   fi
   docker buildx rm apache-couchdb >/dev/null 2>&1 || true
-  docker buildx create --name apache-couchdb
+
+
+  echo "Creating the buildx environment..."
+  docker buildx create --name apache-couchdb --driver docker-container --use
   docker buildx use apache-couchdb
   docker buildx inspect --bootstrap
 
@@ -290,14 +312,14 @@ case "$1" in
     ;;
   buildx)
     # builds and pushes using docker buildx
-    if [ ${QEMU} ]
-    then
-      update_qemu
-    fi
     shift
     if [ $# -ne 1 -a $# -ne 3 ]
     then
       usage
+    fi
+    if [ ${QEMU} ]
+    then
+      update_qemu
     fi
     if [ $# -eq 1 ]
     then
