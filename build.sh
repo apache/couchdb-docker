@@ -109,11 +109,21 @@ clean() {
 build() {
   VERSION=$1
   ARCH=${2:-amd64}
-  FROMIMG="$(awk '$1 == toupper("FROM") { print $2 }' $VERSION/Dockerfile)"
-  CURRARCH=$(docker run --rm -t ${FROMIMG} uname -m)
-
-  if [ ${CURRARCH} != ${ARCH} ]
+  FROMIMG="$(awk '$1 == toupper("FROM") { print $2; exit; }' $VERSION/Dockerfile)"
+  echo ${FROMIMG}
+  CURRARCH="$(docker run --rm -t ${FROMIMG} uname -m | sed -e 's/[[:space:]]*$//')"
+  if [ "${CURRARCH}" == "x86_64" ]
   then
+    CURRARCH="amd64"
+  fi
+
+  if [ "${CURRARCH}" != "${ARCH}" ]
+  then
+    if [[ "${FROMIMG}" == *"redhat.com"* ]]
+    then
+      echo "Script does not handle multiarch for ubi images. Please fix me!"
+      exit 1
+    fi
     docker rmi ${FROMIMG}
     docker pull "${ARCH}/${FROMIMG}"
     docker tag "${ARCH}/${FROMIMG}" "${FROMIMG}"
