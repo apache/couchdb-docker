@@ -31,7 +31,7 @@ LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
       io.openshift.min-cpu="1"
 
 COPY imeyer_runit.repo /etc/yum.repos.d/imeyer_runit.repo
-COPY bintray-apache-couchdb-rpm.repo /etc/yum.repos.d/bintray-apache-couchdb-rpm.repo
+COPY couchdb.repo /etc/yum.repos.d/couchdb.repo
 
 ENV COUCHDB_VERSION 2.3.1
 
@@ -55,28 +55,10 @@ RUN set -ex; \
     microdnf clean all; \
     rm -rf /var/cache/yum
 
-# https://docs.couchdb.org/en/stable/install/unix.html
-# ENV GPG_COUCH_KEY \
-# # gpg: key D401AB61: public key "Bintray (by JFrog) <bintray@bintray.com> imported
-#        8756C4F765C9AC3CB6B85D62379CE192D401AB61
-# RUN set -xe; \
-#         export GNUPGHOME="$(mktemp -d)"; \
-#         echo "disable-ipv6" >> ${GNUPGHOME}/dirmngr.conf; \
-#         for server in $(shuf -e pgpkeys.mit.edu \
-#             ha.pool.sks-keyservers.net \
-#             hkp://p80.pool.sks-keyservers.net:80 \
-#             pgp.mit.edu) ; do \
-#                 gpg --batch --keyserver $server --recv-keys $GPG_COUCH_KEY && break || : ; \
-#         done; \
-#         gpg --batch --export $GPG_COUCH_KEY > /etc/apt/trusted.gpg.d/couchdb.gpg; \
-#         command -v gpgconf && gpgconf --kill all || :; \
-#         rm -rf "$GNUPGHOME"; \
-#         apt-key list
-
 # Install CouchDB
 RUN set -xe; \
     microdnf update --disableplugin=subscription-manager -y && rm -rf /var/cache/yum; \
-    microdnf install --enablerepo=bintray-apache-couchdb-rpm -y couchdb-2.3.1; \
+    microdnf install --enablerepo=couchdb -y couchdb-${COUCHDB_VERSION}; \
     microdnf clean all; \
     rm -rf /var/cache/yum; \
 # remove defaults that force writing logs to file

@@ -39,29 +39,31 @@ RUN set -eux; \
 
 # http://docs.couchdb.org/en/latest/install/unix.html#installing-the-apache-couchdb-packages
 ENV GPG_COUCH_KEY \
-# gpg: key D401AB61: public key "Bintray (by JFrog) <bintray@bintray.com> imported
-    8756C4F765C9AC3CB6B85D62379CE192D401AB61
-RUN set -xe; \
+# gpg: rsa8192 205-01-19 The Apache Software Foundation (Package repository signing key) <root@apache.org>
+    390EF70BB1EA12B2773962950EE62FB37A00258D
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y curl; \
     export GNUPGHOME="$(mktemp -d)"; \
     echo "disable-ipv6" >> ${GNUPGHOME}/dirmngr.conf; \
-    for server in $(shuf -e pgpkeys.mit.edu \
-        ha.pool.sks-keyservers.net \
-        hkp://p80.pool.sks-keyservers.net:80 \
-        hkps://hkps.pool.sks-keyservers.net \
-        pgp.mit.edu) ; do \
-        gpg --batch --keyserver $server --recv-keys $GPG_COUCH_KEY && break || : ; \
-    done; \
-    gpg --batch --export $GPG_COUCH_KEY > /etc/apt/trusted.gpg.d/couchdb.gpg; \
+    curl https://couchdb.apache.org/repo/keys.asc | \
+        gpg --dearmor | \
+        tee /usr/share/keyrings/couchdb-archive-keyring.gpg >/dev/null 2>&1; \
+    gpg --show-keys /usr/share/keyrings/couchdb-archive-keyring.gpg | grep -q ${GPG_COUCH_KEY}; \
     command -v gpgconf && gpgconf --kill all || :; \
     rm -rf "$GNUPGHOME"; \
-    apt-key list
+    apt-key list; \
+    apt purge -y --autoremove curl; \
+    rm -rf /var/lib/apt/lists/*
 
 ENV COUCHDB_VERSION 2.3.1-1
 
-RUN echo "deb https://apache.bintray.com/couchdb-deb buster main" > /etc/apt/sources.list.d/couchdb.list
+RUN . /etc/os-release; \
+    echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://apache.jfrog.io/artifactory/couchdb-deb/ ${VERSION_CODENAME} main" | \
+        tee /etc/apt/sources.list.d/couchdb.list >/dev/null
 
 # https://github.com/apache/couchdb-pkg/blob/master/debian/README.Debian
-RUN set -xe; \
+RUN set -eux; \
     apt-get update; \
     \
     echo "couchdb couchdb/mode select none" | debconf-set-selections; \

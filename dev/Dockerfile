@@ -28,17 +28,6 @@ RUN apt-get update -y && apt-get install -y \
         libicu63 \
         libssl1.1 \
         openssl \
-    && echo "deb https://apache.bintray.com/couchdb-deb buster main" \
-        | tee /etc/apt/sources.list.d/couchdb.list \
-    && cat /etc/apt/sources.list.d/couchdb.list \
-    && for server in $(shuf -e pgpkeys.mit.edu \
-            ha.pool.sks-keyservers.net \
-            hkp://p80.pool.sks-keyservers.net:80 \
-            hkps://hkps.pool.sks-keyservers.net \
-            pgp.mit.edu) ; do \
-        gpg --batch --keyserver $server --recv-keys 8756C4F765C9AC3CB6B85D62379CE192D401AB61 && break || : ; \
-        done \
-    && gpg -a --export 8756C4F765C9AC3CB6B85D62379CE192D401AB61 > /etc/apt/trusted.gpg.d/couchdb.gpg.asc \
     && apt-get update -y && apt-get install -y --no-install-recommends libmozjs-60-0 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -46,7 +35,7 @@ RUN apt-get update -y && apt-get install -y \
 # see https://github.com/apache/couchdb-docker/pull/28#discussion_r141112407
 ENV GOSU_VERSION 1.10
 ENV TINI_VERSION 0.16.1
-RUN set -ex; \
+RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends gosu tini; \
     rm -rf /var/lib/apt/lists/*; \
@@ -56,12 +45,14 @@ RUN set -ex; \
 # Dependencies only needed during build time. This layer will also be cached
 FROM runtime AS build_dependencies
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
+RUN set -eux; \
+    apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
     libmozjs-60-dev \
     erlang-nox \
     erlang-reltool \
     erlang-dev \
+    erlang-dialyzer \
     git \
     libcurl4-openssl-dev \
     libicu-dev \
@@ -69,16 +60,25 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     libpython3-dev \
     python3-pip \
     python3-sphinx \
-    python3-setuptools
+    python3-setuptools \
+    wget
 
-RUN pip3 install --upgrade \
+RUN set -eux; \
+    pip3 install --upgrade \
     sphinx_rtd_theme \
     nose \
     requests \
     hypothesis
 
+RUN set -eux; \
+    wget https://www.foundationdb.org/downloads/6.3.9/ubuntu/installers/foundationdb-clients_6.3.9-1_amd64.deb; \
+    wget https://www.foundationdb.org/downloads/6.3.9/ubuntu/installers/foundationdb-server_6.3.9-1_amd64.deb; \
+    dpkg -i ./foundationdb*deb; \
+    pkill -f fdb || true; pkill -f foundation || true; \
+    rm -rf ./foundationdb*deb
+
 # Node is special
-RUN set -ex; \
+RUN set -eux; \
     curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
     echo 'deb https://deb.nodesource.com/node_10.x buster main' > /etc/apt/sources.list.d/nodesource.list; \
     echo 'deb-src https://deb.nodesource.com/node_10.x buster main' >> /etc/apt/sources.list.d/nodesource.list; \

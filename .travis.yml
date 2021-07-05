@@ -5,7 +5,7 @@ language: minimal
 # Avoid double build on PRs (See https://github.com/travis-ci/travis-ci/issues/1147)
 branches:
   only:
-    - master
+    - main
 
 services:
   - docker
@@ -15,8 +15,9 @@ env:
   - RELEASES=2.3.1-ubi
   - RELEASES=3.1.1
   - RELEASES=3.1.1-ubi
-  - RELEASES=dev
-  - RELEASES=dev-cluster
+# Needs updating for fdb
+#  - RELEASES=dev
+#  - RELEASES=dev-cluster
 
 script:
   - for rel in $RELEASES; do docker build -t couchdb:$rel $rel; docker run -d --name $rel -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password -p 5984:5984 couchdb:$rel && sleep 10 && curl http://admin:password@localhost:5984/ && docker kill $rel; done
