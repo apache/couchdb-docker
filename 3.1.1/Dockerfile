@@ -45,11 +45,9 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y curl; \
     export GNUPGHOME="$(mktemp -d)"; \
-    echo "disable-ipv6" >> ${GNUPGHOME}/dirmngr.conf; \
-    curl https://couchdb.apache.org/repo/keys.asc | \
-        gpg --dearmor | \
-        tee /usr/share/keyrings/couchdb-archive-keyring.gpg >/dev/null 2>&1; \
-    gpg --show-keys /usr/share/keyrings/couchdb-archive-keyring.gpg | grep -q ${GPG_COUCH_KEY}; \
+    curl -fL -o keys.asc https://couchdb.apache.org/repo/keys.asc; \
+    gpg --batch --import keys.asc; \
+    gpg --batch --export "${GPG_COUCH_KEY}" > /usr/share/keyrings/couchdb-archive-keyring.gpg; \
     command -v gpgconf && gpgconf --kill all || :; \
     rm -rf "$GNUPGHOME"; \
     apt-key list; \
