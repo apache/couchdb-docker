@@ -13,6 +13,33 @@
 
 set -e
 
+# usage: file_env "ENV_VAR"
+# (sets VAR from docker-compose.yml secrets, mounted to /run/secrets/var_file_name)
+file_env() {
+	local var="$1"
+	local fileVar="${var}_FILE"
+
+	if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
+		echo >&2 "error: $var and $fileVar are exclusive"
+		exit 1
+	fi
+
+	if [ "${!var:-}" ]; then
+		val="${!var}"
+	elif [ "${!fileVar:-}" ]; then
+		val="$(< "${!fileVar}")"
+	fi
+
+	if [ -n "$val" ]; then
+		export "$var"="$val"
+	fi
+	unset "$fileVar"
+}
+
+file_env "COUCHDB_USER"
+file_env "COUCHDB_PASSWORD"
+file_env "COUCHDB_SECRET"
+
 # first arg is `-something` or `+something`
 if [ "${1#-}" != "$1" ] || [ "${1#+}" != "$1" ]; then
 	set -- /opt/couchdb/bin/couchdb "$@"
