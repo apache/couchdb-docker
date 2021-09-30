@@ -17,7 +17,7 @@ ARG BUILD_DATE
 
 LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
       name="Apache CouchDB" \
-      version="3.1.1" \
+      version="3.1.2" \
       summary="Apache CouchDB based on Red Hat UBI" \
       description="Red Hat OpenShift-compatible container that runs Apache CouchDB" \
       release=${RELEASE}  \
@@ -33,7 +33,7 @@ LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
 COPY imeyer_runit.repo /etc/yum.repos.d/imeyer_runit.repo
 COPY couchdb.repo /etc/yum.repos.d/couchdb.repo
 
-ENV COUCHDB_VERSION 3.1.1
+ENV COUCHDB_VERSION 3.1.2
 
 # Add CouchDB user account to make sure the IDs are assigned consistently
 # CouchDB user added to root group for OpenShift support
