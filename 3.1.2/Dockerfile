@@ -54,7 +54,7 @@ RUN set -eux; \
     apt purge -y --autoremove curl; \
     rm -rf /var/lib/apt/lists/*
 
-ENV COUCHDB_VERSION 3.1.1
+ENV COUCHDB_VERSION 3.1.2
 
 RUN . /etc/os-release; \
     echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://apache.jfrog.io/artifactory/couchdb-deb/ ${VERSION_CODENAME} main" | \

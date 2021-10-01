@@ -35,7 +35,7 @@ ARG CLOUSEAU_VERSION
 
 LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
       name="Apache CouchDB" \
-      version="3.1.1" \
+      version="3.1.2" \
       summary="Apache CouchDB based on Red Hat UBI" \
       description="Red Hat OpenShift-compatible container that runs Apache CouchDB" \
       release=${RELEASE}  \
@@ -51,7 +51,7 @@ LABEL maintainer="CouchDB Developers dev@couchdb.apache.org" \
 COPY imeyer_runit.repo /etc/yum.repos.d/imeyer_runit.repo
 COPY couchdb.repo /etc/yum.repos.d/couchdb.repo
 
-ENV COUCHDB_VERSION=3.1.1 \
+ENV COUCHDB_VERSION=3.1.2 \
     CLOUSEAU_VERSION=${CLOUSEAU_VERSION} \
     JAVA_MAJOR_VERSION=8 \
     JAVA_HOME=/usr/lib/jvm/jre-1.8.0 \
