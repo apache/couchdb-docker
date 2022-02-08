@@ -69,6 +69,21 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 		fi
 	fi
 
+	if [ "$COUCHDB_ERLANG_COOKIE" ]; then
+		cookieFile='/opt/couchdb/.erlang.cookie'
+		if [ -e "$cookieFile" ]; then
+			if [ "$(cat "$cookieFile" 2>/dev/null)" != "$COUCHDB_ERLANG_COOKIE" ]; then
+				echo >&2
+				echo >&2 "warning: $cookieFile contents do not match COUCHDB_ERLANG_COOKIE"
+				echo >&2
+			fi
+		else
+			echo "$COUCHDB_ERLANG_COOKIE" > "$cookieFile"
+		fi
+		chown couchdb:couchdb "$cookieFile"
+		chmod 600 "$cookieFile"
+	fi
+
 	chown -f couchdb:couchdb /opt/couchdb/etc/local.d/docker.ini || true
 
 	# if we don't find an [admins] section followed by a non-comment, display a warning
