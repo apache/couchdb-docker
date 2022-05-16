@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    terminationPeriod=300
+else
+    terminationPeriod=$1
+fi
+
+timeToSleep=5
+numIterations=$(awk -v var1=$terminationPeriod -v var2=$timeToSleep 'BEGIN { print  ( var1 / var2 ) }')
+
+# Mark each runsv service as down, which will send each process a TERM
+for file in /conf/service/*/supervise/control; do
+    echo "d" > $file;
+done
+
+# Allow the processes time to terminate gracefully
+i="0"
+while [ $i -lt $numIterations ]; do
+    numServices=$(find /conf/service/* -maxdepth 0 -type d | wc -l)
+    numDownServices=$(grep -r "^down$" /conf/service/*/supervise/stat | wc -l)
+    if [ $numServices -ne $numDownServices ]; then
+        sleep $timeToSleep
+        i=$[$i+1]
+    else
+        exit 0
+    fi
+done
+
+exit 1
