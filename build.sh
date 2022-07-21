@@ -63,10 +63,8 @@ update_qemu() {
   # docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   # docker rmi multiarch/qemu-user-static
   # use tonistiigi/binfmt instead.
-  # this requires bash 4.*, sorry jan!
   echo "Uninstalling all qemu emulators..."
-  readarray -t platforms < <(docker run --privileged tonistiigi/binfmt | jq -c '.emulators[] | select(. | contains("qemu"))')
-  for plat in "${platforms[@]}"; do
+  for plat in $(docker run --privileged tonistiigi/binfmt | jq -c '.emulators[] | select(. | contains("qemu"))'); do
     plat="${plat//\"}"
     docker run --privileged tonistiigi/binfmt --uninstall $plat >/dev/null 2>&1
   done
