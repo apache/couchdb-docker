@@ -19,6 +19,8 @@ env:
   - RELEASES=3.2.1
   - RELEASES=3.2.2
   - RELEASES=3.3.0
+  - RELEASES=3.3.1
+
 # Needs updating for fdb
 #  - RELEASES=dev
 #  - RELEASES=dev-cluster
