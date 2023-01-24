@@ -1,4 +1,4 @@
-# Semi-official Apache CouchDB Docker images [![Build Status](https://travis-ci.org/apache/couchdb-docker.svg?branch=master)](https://travis-ci.org/apache/couchdb-docker)
+# Semi-official Apache CouchDB Docker images
 
 ## Available tags
 
