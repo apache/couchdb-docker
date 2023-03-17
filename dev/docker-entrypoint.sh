@@ -104,7 +104,7 @@ EOWARN
 	fi
 
 
-	exec gosu couchdb "$@"
+	exec setpriv --reuid=couchdb --regid=couchdb --clear-groups "$@"
 fi
 
 exec "$@"

@@ -30,13 +30,12 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     openssl && \
   rm -rf /var/lib/apt/lists/*
 
-# grab gosu for easy step-down from root and tini for signal handling
+# grab tini for signal handling
 # see https://github.com/apache/couchdb-docker/pull/28#discussion_r141112407
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends gosu tini; \
+    apt-get install -y --no-install-recommends tini; \
     rm -rf /var/lib/apt/lists/*; \
-    gosu nobody true; \
     tini --version
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \

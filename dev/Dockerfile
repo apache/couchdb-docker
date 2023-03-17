@@ -31,15 +31,13 @@ RUN apt-get update -y && apt-get install -y \
     && apt-get update -y && apt-get install -y --no-install-recommends libmozjs-60-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# grab gosu for easy step-down from root and tini for signal handling
+# grab tini for signal handling
 # see https://github.com/apache/couchdb-docker/pull/28#discussion_r141112407
-ENV GOSU_VERSION 1.10
 ENV TINI_VERSION 0.16.1
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends gosu tini; \
+    apt-get install -y --no-install-recommends tini; \
     rm -rf /var/lib/apt/lists/*; \
-    gosu nobody true; \
     tini --version
 
 # Dependencies only needed during build time. This layer will also be cached
