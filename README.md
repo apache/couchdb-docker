@@ -284,6 +284,12 @@ branch superceded by a newer one.
 The `build.sh` utility can help you do this quickly, see its usage help for
 more details.
 
+To see full build logs, export `PROGRESS_NO_TRUNC=1` and use `--progress
+plain` as an option to `docker build`.
+
+To rebuild all Dockerfile steps without caching (so you can inspect the
+build log e.g.), use the `--no-cache` option of `docker build`.
+
 ## Feedback, Issues, Contributing
 
 General feedback is welcome at our [user][1] or [developer][2] mailing lists.
