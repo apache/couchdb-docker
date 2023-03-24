@@ -103,7 +103,7 @@ EOWARN
 		exit 1
 	fi
 
-
+	export HOME=$(echo ~couchdb)
 	exec setpriv --reuid=couchdb --regid=couchdb --clear-groups "$@"
 fi
 
