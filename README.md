@@ -19,7 +19,7 @@ As of this writing, the latest numbered tags available are:
 
 # How to use this image
 
-The most up-to-date instructions on using this image are always available at https://github.com/apache/couchdb-docker/blob/master/README.md .
+The most up-to-date instructions on using this image are always available at https://github.com/apache/couchdb-docker/blob/main/README.md .
 
 ## Start a CouchDB instance
 
@@ -202,10 +202,10 @@ docker run --name my-couchdb --user myuser -v /home/couchdb/data:/opt/couchdb/da
 
 # Development images
 
-This repository provides definitions to run the very latest (`master` branch)
+This repository provides definitions to run the very latest (`main` branch)
 CouchDB code:
 
-* `dev` runs a single node off of the `master` branch, similar to the other
+* `dev` runs a single node off of the `main` branch, similar to the other
   officially released images.
 * `dev-cluster` demonstrates the CouchDB clustering features by creating a
   local cluster of a default three nodes inside the container, with a proxy in
@@ -264,25 +264,20 @@ Also, read the next section to ensure you push all of the tags necessary.
 
 # Image uploading for CouchDB release managers
 
-Taking a hypothetical example of CouchDB 2.9.7, here's all of the tags you'd want:
+Taking a hypothetical example of CouchDB 3.3.1 with 3.3.1 as the latest release:
 
 ```bash
-docker build -t apache/couchdb:2.9.7 2.9.7
-docker tag apache/couchdb:2.9.7 apache/couchdb:latest
-docker tag apache/couchdb:2.9.7 apache/couchdb:2.9
-docker tag apache/couchdb:2.9.7 apache/couchdb:2
-docker login
-docker push apache/couchdb:2.9.7
-docker push apache/couchdb:2.9
-docker push apache/couchdb:2
-docker push apache/couchdb:latest
+./build.sh buildx 3.3.1
+./build.sh buildx 3.3.1 as 3.3
+./build.sh buildx 3.3.1 as 3
+./build.sh buildx 3.3.1 as latest
+
+./build.sh buildx 3.2.2
+./build.sh buildx 3.2.2 as 3.2
 ```
 
 Obviously don't create/push the `latest` or `2` tags if this is a maintenance
 branch superceded by a newer one.
-
-The `build.sh` utility can help you do this quickly, see its usage help for
-more details.
 
 To see full build logs, export `PROGRESS_NO_TRUNC=1` and use `--progress
 plain` as an option to `docker build`.
@@ -306,5 +301,5 @@ use GitHub Issues, do not report anything on Docker's website.
 
 [1]: http://mail-archives.apache.org/mod_mbox/couchdb-user/
 [2]: http://mail-archives.apache.org/mod_mbox/couchdb-dev/
-[3]: https://github.com/apache/couchdb/blob/master/CONTRIBUTING.md
+[3]: https://github.com/apache/couchdb/blob/main/CONTRIBUTING.md
 [4]: http://www.apache.org/dev/release-distribution.html#unreleased
