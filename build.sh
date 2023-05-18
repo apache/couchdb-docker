@@ -33,8 +33,8 @@ set -e
 
 PROMPT="Are you sure (y/n)? "
 QEMU="YES"
-PLATFORMS="amd64 arm64v8 ppc64le"
-BUILDX_PLATFORMS="linux/amd64,linux/arm64/v8,linux/ppc64le"
+PLATFORMS="amd64 arm64v8 ppc64le s390x"
+BUILDX_PLATFORMS="linux/amd64,linux/arm64/v8,linux/ppc64le,linux/s390x"
 
 prompt() {
   if [ -z "${PROMPT}" ]
@@ -75,6 +75,7 @@ update_qemu() {
   echo "Proving all emulators work..."
   docker run --rm arm32v7/alpine uname -a
   docker run --rm arm64v8/alpine uname -a
+  docker run --rm s390x/alpine uname -a
   docker run --rm tonistiigi/debian:riscv uname -a
 }
 
@@ -152,13 +153,17 @@ push() {
   docker manifest create apache/couchdb:$tag_as \
     apache/couchdb:amd64-$1 \
     apache/couchdb:arm64v8-$1 \
-    apache/couchdb:ppc64le-$1
+    apache/couchdb:ppc64le-$1 \
+    apache/couchdb:s390x-$1
 
   docker manifest annotate apache/couchdb:$tag_as \
     apache/couchdb:arm64v8-$1 --os linux --arch arm64 --variant v8
 
   docker manifest annotate apache/couchdb:$tag_as \
     apache/couchdb:ppc64le-$1 --os linux --arch ppc64le
+  
+  docker manifest annotate apache/couchdb:$tag_as \
+    apache/couchdb:s390x-$1 --os linux --arch s390x
 
   docker manifest push --purge apache/couchdb:$tag_as
 
