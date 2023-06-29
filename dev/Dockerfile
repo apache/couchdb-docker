@@ -12,7 +12,7 @@
 
 # Base layer containing dependencies needed at runtime. This layer will be
 # cached after the initial build.
-FROM debian:buster as runtime
+FROM debian:bookworm-slim as runtime
 
 MAINTAINER CouchDB Developers dev@couchdb.apache.org
 
@@ -25,15 +25,14 @@ RUN apt-get update -y && apt-get install -y \
         curl \
         dirmngr \
         gnupg \
-        libicu63 \
-        libssl1.1 \
+        libicu72 \
+        libssl3 \
         openssl \
-    && apt-get update -y && apt-get install -y --no-install-recommends libmozjs-60-0 \
+    && apt-get update -y && apt-get install -y --no-install-recommends libmozjs-78-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # grab tini for signal handling
 # see https://github.com/apache/couchdb-docker/pull/28#discussion_r141112407
-ENV TINI_VERSION 0.16.1
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends tini; \
@@ -46,7 +45,7 @@ FROM runtime AS build_dependencies
 RUN set -eux; \
     apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
-    libmozjs-60-dev \
+    libmozjs-78-dev \
     erlang-nox \
     erlang-reltool \
     erlang-dev \
@@ -57,37 +56,18 @@ RUN set -eux; \
     python3 \
     libpython3-dev \
     python3-pip \
-    python3-sphinx \
-    python3-setuptools \
-    wget
+    python3.11-venv \
+    nodejs \
+    npm \
+    grunt
 
-RUN set -eux; \
-    pip3 install --upgrade \
-    sphinx_rtd_theme \
-    nose \
-    requests \
-    hypothesis
-
-RUN set -eux; \
-    wget https://www.foundationdb.org/downloads/6.3.9/ubuntu/installers/foundationdb-clients_6.3.9-1_amd64.deb; \
-    wget https://www.foundationdb.org/downloads/6.3.9/ubuntu/installers/foundationdb-server_6.3.9-1_amd64.deb; \
-    dpkg -i ./foundationdb*deb; \
-    pkill -f fdb || true; pkill -f foundation || true; \
-    rm -rf ./foundationdb*deb
-
-# Node is special
-RUN set -eux; \
-    curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
-    echo 'deb https://deb.nodesource.com/node_10.x buster main' > /etc/apt/sources.list.d/nodesource.list; \
-    echo 'deb-src https://deb.nodesource.com/node_10.x buster main' >> /etc/apt/sources.list.d/nodesource.list; \
-    apt-get update -y && apt-get install -y nodejs; \
-    npm install -g grunt-cli
+ARG spidermonkey_version=78
 
 # Clone CouchDB source code including all dependencies
 ARG clone_url=https://github.com/apache/couchdb.git
 RUN git clone $clone_url /usr/src/couchdb
 WORKDIR /usr/src/couchdb
-RUN ./configure
+RUN ./configure --spidermonkey-version $spidermonkey_version
 
 # This layer performs the actual build of a relocatable, self-contained
 # release of CouchDB. It pulls down the latest changes from the remote
@@ -97,7 +77,6 @@ FROM build_dependencies AS build
 
 ARG checkout_branch=main
 ARG configure_options
-ARG spidermonkey_version=60
 
 WORKDIR /usr/src/couchdb/
 RUN git fetch origin \
