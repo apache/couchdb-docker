@@ -42,7 +42,7 @@ ENV GPG_COUCH_KEY \
     390EF70BB1EA12B2773962950EE62FB37A00258D
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y curl; \
+    apt-get install -y --no-install-recommends curl; \
     export GNUPGHOME="$(mktemp -d)"; \
     curl -fL -o keys.asc https://couchdb.apache.org/repo/keys.asc; \
     gpg --batch --import keys.asc; \
@@ -65,7 +65,7 @@ RUN set -eux; \
     \
     echo "couchdb couchdb/mode select none" | debconf-set-selections; \
 # we DO want recommends this time
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --allow-downgrades --allow-remove-essential --allow-change-held-packages \
             couchdb="$COUCHDB_VERSION"~bullseye \
     ; \
 # Undo symlinks to /var/log and /var/lib
