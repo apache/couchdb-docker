@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 LABEL maintainer="CouchDB Developers dev@couchdb.apache.org"
 
