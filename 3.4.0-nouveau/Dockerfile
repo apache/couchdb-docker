@@ -40,26 +40,22 @@ RUN set -eux; \
 ENV GPG_COUCH_KEY \
 # gpg: rsa8192 205-01-19 The Apache Software Foundation (Package repository signing key) <root@apache.org>
     390EF70BB1EA12B2773962950EE62FB37A00258D
-#RUN set -eux; \
-#    apt-get update; \
-#    apt-get install -y curl; \
-#    export GNUPGHOME="$(mktemp -d)"; \
-#    curl -fL -o keys.asc https://couchdb.apache.org/repo/keys.asc; \
-#    gpg --batch --import keys.asc; \
-#    gpg --batch --export "${GPG_COUCH_KEY}" > /usr/share/keyrings/couchdb-archive-keyring.gpg; \
-#    command -v gpgconf && gpgconf --kill all || :; \
-#    rm -rf "$GNUPGHOME"; \
-#    apt-key list; \
-#    apt purge -y --autoremove curl; \
-#    rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+   apt-get update; \
+   apt-get install -y curl; \
+   export GNUPGHOME="$(mktemp -d)"; \
+   curl -fL -o keys.asc https://couchdb.apache.org/repo/keys.asc; \
+   gpg --batch --import keys.asc; \
+   gpg --batch --export "${GPG_COUCH_KEY}" > /usr/share/keyrings/couchdb-archive-keyring.gpg; \
+   command -v gpgconf && gpgconf --kill all || :; \
+   rm -rf "$GNUPGHOME"; \
+   apt-key list; \
+   apt purge -y --autoremove curl; \
+   rm -rf /var/lib/apt/lists/*
 
-# until the .deb is available on jFrog, get it from here and place it next to the Dockerfile
-# https://clients.neighbourhood.ie/couchdb/couchdb-nouveau_3.3.3-022ffd1~debian-bookworm_amd64.deb
-COPY --chown=nouveau:nouveau couchdb-nouveau_3.3.3-022ffd1~debian-bookworm_amd64.deb /root/couchdb-nouveau_3.3.3-022ffd1~debian-bookworm_amd64.deb
-
-#RUN . /etc/os-release; \
-#    echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://apache.jfrog.io/artifactory/couchdb-deb/ ${VERSION_CODENAME} main" | \
-#        tee /etc/apt/sources.list.d/couchdb.list >/dev/null
+RUN . /etc/os-release; \
+   echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://apache.jfrog.io/artifactory/couchdb-deb/ ${VERSION_CODENAME} main" | \
+       tee /etc/apt/sources.list.d/couchdb.list >/dev/null
 
 # https://github.com/apache/couchdb-pkg/blob/master/debian/README.Debian
 RUN set -eux; \
@@ -67,7 +63,7 @@ RUN set -eux; \
     \
     echo "couchdb-nouveau couchdb-nouveau/enable select false" | debconf-set-selections; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages \
-            /root/couchdb-nouveau_3.3.3-022ffd1~debian-bookworm_amd64.deb;
+            couchdb="$COUCHDB_VERSION"~wookworm;
 
 
 COPY --chown=nouveau:nouveau nouveau.yaml /opt/nouveau/etc/nouveau.yaml
