@@ -62,7 +62,7 @@ RUN set -eux; \
    rm -rf /var/lib/apt/lists/*
 
 RUN . /etc/os-release; \
-   echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://apache.jfrog.io/artifactory/couch-dev-deb/ bookworm main" | \
+   echo "deb [signed-by=/usr/share/keyrings/couchdb-archive-keyring.gpg] https://apache.jfrog.io/artifactory/couchdb-deb/ bookworm main" | \
        tee /etc/apt/sources.list.d/couchdb.list >/dev/null
 
 # https://github.com/apache/couchdb-pkg/blob/master/debian/README.Debian
