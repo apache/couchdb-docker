@@ -206,7 +206,7 @@ buildx() {
   docker buildx inspect --bootstrap
 
   echo "Starting buildx nouveau build at $(date)..."
-  docker buildx build --platform ${BUILDX_PLATFORMS} --tag apache/couchdb-nouveau:$tag_as --push $1-nouveau
+  docker buildx build --platform ${BUILDX_PLATFORMS} --tag apache/couchdb:${tag_as}-nouveau --push $1-nouveau
   echo ""
 }
 
