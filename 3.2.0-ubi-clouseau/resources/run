@@ -1,1 +1,0 @@
-# populated in dockerfile entrypoint so that ERL_FLAGS are propagated
