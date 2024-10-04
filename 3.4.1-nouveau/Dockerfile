@@ -33,7 +33,8 @@ RUN set -ex; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         openjdk-17-jre-headless \
-     ;
+     ; \
+    rm -rf /var/lib/apt/lists/*
 
 # grab tini for signal handling and zombie reaping
 # see https://github.com/apache/couchdb-docker/pull/28#discussion_r141112407
