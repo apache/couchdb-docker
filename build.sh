@@ -197,17 +197,19 @@ buildx() {
   docker buildx build --platform ${BUILDX_PLATFORMS} --tag apache/couchdb:$tag_as --push $1
   echo ""
 
-  # build nouveau
-  docker buildx rm apache-couchdb-nouveau >/dev/null 2>&1 || true
-
-  echo "Creating the buildx nouveau environment..."
-  docker buildx create --name apache-couchdb-nouveau --driver docker-container --use
-  docker buildx use apache-couchdb-nouveau
-  docker buildx inspect --bootstrap
-
-  echo "Starting buildx nouveau build at $(date)..."
-  docker buildx build --platform ${BUILDX_PLATFORMS} --tag apache/couchdb:${tag_as}-nouveau --push $1-nouveau
-  echo ""
+  if [ -d "$1-novueau" ]; then
+    # build nouveau
+    docker buildx rm apache-couchdb-nouveau >/dev/null 2>&1 || true
+  
+    echo "Creating the buildx nouveau environment..."
+    docker buildx create --name apache-couchdb-nouveau --driver docker-container --use
+    docker buildx use apache-couchdb-nouveau
+    docker buildx inspect --bootstrap
+  
+    echo "Starting buildx nouveau build at $(date)..."
+    docker buildx build --platform ${BUILDX_PLATFORMS} --tag apache/couchdb:${tag_as}-nouveau --push $1-nouveau
+    echo ""
+  fi
 }
 
 usage() {
