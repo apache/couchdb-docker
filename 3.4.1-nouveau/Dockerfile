@@ -71,9 +71,10 @@ RUN set -eux; \
     \
     echo "couchdb-nouveau couchdb-nouveau/enable select false" | debconf-set-selections; \
     DEBIAN_FRONTEND=noninteractive COUCHDB_NOUVEAU_ENABLE=1 apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends \
-            couchdb-nouveau=3.4.1~bookworm;
+            couchdb-nouveau=3.4.1~bookworm; \
+    rm -rf /var/lib/apt/lists/*; \
+    chown -R nouveau:nouveau /opt/nouveau
 
-RUN chown -R nouveau:nouveau /opt/nouveau
 COPY --chown=nouveau:nouveau nouveau.yaml /opt/nouveau/etc/nouveau.yaml
 
 VOLUME /opt/nouveau/data
