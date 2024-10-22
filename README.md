@@ -107,6 +107,17 @@ In addition, a few environment variables are provided to set very common paramet
 * `NODENAME` will set the name of the CouchDB node inside the container to `couchdb@${NODENAME}`, in the file `/opt/couchdb/etc/vm.args`. This is used for clustering purposes and can be ignored for single-node setups.
 * Erlang Environment Variables like `ERL_FLAGS` will be used by Erlang itself. For a complete list have a look [here](http://erlang.org/doc/man/erl.html#environment-variables)
 
+## Configure CouchDB Nouveau
+
+Using the `couchdb:3.4-nouveau` image with `couchdb:3.4` container, there are additional configurations required to set the communication between the containers. CouchDB by default communicates with Nouveau at `http://localhost:5987`, which would now be running in a different container. To enable the communication, the CouchDB container should know the location of Nouveau location and enable the configuration. This can be done by puting following configuration file at `/opt/couchdb/etc/local.d/nouveau.ini` in the CouchDB container.
+
+```ini
+[nouveau]
+enable = true
+url = http://couchdb-nouveau:5987
+```
+
+**Note:** Replace the location in the URL.
 
 # Caveats
 
