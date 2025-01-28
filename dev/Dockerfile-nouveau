@@ -18,6 +18,7 @@ LABEL maintainer="CouchDB Developers dev@couchdb.apache.org"
 RUN groupadd -g 5984 -r nouveau && useradd -u 5984 -d /opt/nouveau -g nouveau nouveau
 
 # be sure GPG and apt-transport-https are available and functional
+# Nouveau wants a JRE/JDK
 RUN set -ex; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
@@ -25,29 +26,27 @@ RUN set -ex; \
         ca-certificates \
         dirmngr \
         gnupg \
-     ; \
-    rm -rf /var/lib/apt/lists/*
-
-# Nouveau wants a JRE/JDK
-RUN set -ex; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
         openjdk-17-jre-headless \
+        curl \
+        unzip \
+        procps \
+        systemd \
      ; \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*;
 
-# todo - hack in .dev from CloudBees CI instead of using versioned .deb from apt repo
-# see https://ci-couchdb.apache.org/job/jenkins-cm1/job/FullPlatformMatrix/job/main/lastSuccessfulBuild/artifact/pkgs/bookworm/
+# this is a hack to avoid building nouveau in docker - instead, we'll grab it from last known
+# good CI build on CloudBees CI artifacts
 RUN set -eux; \
-    apt-get update; \
-    \
-    echo "couchdb-nouveau couchdb-nouveau/enable select false" | debconf-set-selections; \
-    DEBIAN_FRONTEND=noninteractive COUCHDB_NOUVEAU_ENABLE=1 apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends \
-            couchdb-nouveau=3.4.2~bookworm; \
-    rm -rf /var/lib/apt/lists/*; \
-    chown -R nouveau:nouveau /opt/nouveau
+    curl -o /tmp/couchdb-packages.zip  \
+      https://ci-couchdb.apache.org/job/jenkins-cm1/job/FullPlatformMatrix/job/main/lastSuccessfulBuild/artifact/pkgs/bookworm/*zip*/bookworm.zip; \
+    mkdir -p /tmp/couchdb-packages; \
+    unzip /tmp/couchdb-packages.zip -d /tmp/couchdb-packages; \
+    DEBIAN_FRONTEND=noninteractive COUCHDB_NOUVEAU_ENABLE=1 apt-get install -fy --allow-downgrades  \
+      --allow-remove-essential --allow-change-held-packages \
+      /tmp/couchdb-packages/bookworm/couchdb-nouveau_*bookworm_amd64.deb; \
+    chown -R nouveau:nouveau /opt/nouveau;
 
-COPY --chown=nouveau:nouveau nouveau.yaml /opt/nouveau/etc/nouveau.yaml
+COPY --chown=nouveau:nouveau nouveau.ini /opt/nouveau/etc/nouveau.yaml
 
 VOLUME /opt/nouveau/data
 
@@ -55,5 +54,5 @@ VOLUME /opt/nouveau/data
 # 5988: Nouveau Admin
 EXPOSE 5987 5988
 
-# TODO: re-add tini
-CMD ["/usr/bin/java", "-server", "-Djava.awt.headless=true", "-Xmx2g", "-jar", "/opt/nouveau/lib/nouveau-1.0-SNAPSHOT.jar", "server", "/opt/nouveau/etc/nouveau.yaml"]
+CMD ["/usr/bin/java", "-server", "-Djava.awt.headless=true", "-Xmx2g", "-jar", \
+    "/opt/nouveau/lib/nouveau-1.0-SNAPSHOT.jar", "server", "/opt/nouveau/etc/nouveau.yaml"]
