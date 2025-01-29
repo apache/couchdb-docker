@@ -46,7 +46,7 @@ RUN set -eux; \
       /tmp/couchdb-packages/bookworm/couchdb-nouveau_*bookworm_amd64.deb; \
     chown -R nouveau:nouveau /opt/nouveau;
 
-COPY --chown=nouveau:nouveau nouveau.ini /opt/nouveau/etc/nouveau.yaml
+COPY --chown=nouveau:nouveau nouveau.yaml /opt/nouveau/etc/nouveau.yaml
 
 VOLUME /opt/nouveau/data
 
