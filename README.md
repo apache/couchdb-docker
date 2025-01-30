@@ -218,6 +218,9 @@ docker run --name my-couchdb --user myuser -v /home/couchdb/data:/opt/couchdb/da
 
 # Development images
 
+
+## CouchDB 
+
 This repository provides definitions to run the very latest (`main` branch)
 CouchDB code:
 
@@ -270,6 +273,46 @@ docker run --rm <image-hash> --help
 # Start two nodes (without proxy) exposed on port 15984 and 25984
 docker run -it -p 15984:15984 -p 25984:25984 <image-hash> -n 2
 ```
+
+## CouchDB & Nouveau
+
+To run a CouchDB instance compiled from main as well as the latest Nouveau build, you can use use [Docker Compose](https://docs.docker.com/compose/).  One caveat is that while CouchDB will be compiled from scratch, Nouveau will actually download the latest passing build for Bookwarm from [CloudBees CI artifacts](https://ci-couchdb.apache.org/job/jenkins-cm1/job/FullPlatformMatrix/job/main/lastSuccessfulBuild/artifact/pkgs/bookworm/).
+
+To stand up both services:
+
+1. Go into dev: `cd dev`
+2. Start docker compose: `docker compose up`
+3. If this is your first time running this - wait a good long while.  Maybe [say "hello" to a co-worker](https://xkcd.com/303/). Compiling everything from source can take many minutes depending on CPU and bandwidth.
+4. When it's done you should see `dev-couchdb-nouveau-1` and `dev-couchdb-1` containers start and a fun "Nouveau" ASCII art:
+    ```shell
+     => => writing image sha256:16b4265aae1844834895a16c67c984f794b0191f1279e5d5072bcda3b5c27477                             0.0s
+     => => naming to docker.io/library/couchdb:dev                                                                           0.0s  => [couchdb] resolving provenance for metadata file                                                                     0.0s
+    [+] Running 4/4      
+     ✔ couchdb                          Built                                                                                0.0s  ✔ couchdb-nouveau                  Built                                                                                0.0s 
+     ✔ Container dev-couchdb-nouveau-1  Created                                                                              0.2s 
+     ✔ Container dev-couchdb-1          Created                                                                              0.1s Attaching to couchdb-1, couchdb-nouveau-1
+    couchdb-nouveau-1  | INFO  [2025-01-30 22:07:09,504] io.dropwizard.core.server.DefaultServerFactory: Registering jersey handle
+    r with root path prefix: /                                                                                                    
+    couchdb-nouveau-1  | INFO  [2025-01-30 22:07:09,507] io.dropwizard.core.server.DefaultServerFactory: Registering admin handler with root path prefix: /
+    couchdb-nouveau-1  | INFO  [2025-01-30 22:07:09,578] io.dropwizard.core.server.ServerFactory: Starting Nouveau                couchdb-nouveau-1  |       .-.                                       
+    couchdb-nouveau-1  |         /  |                                    
+    couchdb-nouveau-1  |        /\  | .-._.)  (  )   .-..-.  .-.  )  (                                                      
+    couchdb-nouveau-1  |       /  \ |(   )(    )(   / ./.-'_(  | (    )                                                     
+    couchdb-nouveau-1  |  .-' /    \| `-'  `--': \_/  (__.'  `-'-'`--':                                                       
+    couchdb-nouveau-1  | (__.'      `.                                                                                  
+    couchdb-nouveau-1  | 
+    ```
+5.  CouchDB will be on on port `5984` and the login is `admin` and the password is `password`.  Nouveau will be on port `5988` 
+
+In another terminal you can verify everything is working with `docker ps`
+
+```shell
+CONTAINER ID   IMAGE                 COMMAND                  CREATED         STATUS                            PORTS                                                           NAMES
+26a343424fda   couchdb:dev           "tini -- /docker-ent…"   5 seconds ago   Up 3 seconds (health: starting)   4369/tcp, 9100/tcp, 0.0.0.0:5984->5984/tcp, :::5984->5984/tcp   dev-couchdb-1
+b1e5de6cf445   couchdb-nouveau:dev   "/usr/bin/java -serv…"   5 seconds ago   Up 4 seconds                      0.0.0.0:5987-5988->5987-5988/tcp, :::5987-5988->5987-5988/tcp   dev-couchdb-nouveau-1
+```
+
+To stop the services, hit `ctrl + c` in the `docker compose up` terminal. 
 
 # Image building for CouchDB release managers
 

@@ -1,0 +1,36 @@
+services:
+  couchdb:
+    build:
+      context: .
+    image: couchdb:dev
+    restart: unless-stopped
+    environment:
+      - "COUCHDB_USER=${COUCHDB_USER:-admin}"
+      - "COUCHDB_PASSWORD=${COUCHDB_PASSWORD:-password}"
+      - "COUCHDB_SECRET=${COUCHDB_SECRET:-secret}"
+      - "COUCHDB_UUID=${COUCHDB_UUID:-56a30f87-1115-42a1-8317-098038871058}"
+      - "COUCHDB_LOG_LEVEL=${COUCHDB_LOG_LEVEL:-info}"
+    depends_on:
+      - couchdb-nouveau
+    volumes:
+      - couchdb:/opt/couchdb/data
+      - ./nouveau.ini:/opt/couchdb/etc/local.d/nouveau.ini`
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail -s http://couchdb:5984/_up"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    ports:
+      - 5984:5984
+
+  couchdb-nouveau:
+    build:
+      context: .
+      dockerfile: Dockerfile-nouveau
+    image: couchdb-nouveau:dev
+    ports:
+      - "5987:5987"
+      - "5988:5988"
+
+volumes:
+  couchdb:
