@@ -9,6 +9,7 @@ There may be more tags available, but these tags should always exist:
 - `2`: The very latest CouchDB 2.x single node release (capable of running in a cluster)
 
 As of this writing, the latest numbered tags available are:
+- `3.5.0`
 - `3.4.3`
 - `3.4.2`
 - `3.4.1`
