@@ -160,6 +160,19 @@ You can use the two environment variables `COUCHDB_USER` and `COUCHDB_PASSWORD` 
 $ docker run -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=password -d %%IMAGE%%
 ```
 
+You may also use `COUCHDB_USER_FILE` and `COUCHDB_PASSWORD_FILE`, each value holding a path to a file containing the value to use. You can see an example of how to do so with docker below. This typically would be used if you have a orchestrator with a secrets manager that projects secrets as files into the container.
+
+```console
+$ printf "admin" >  ./admin-username.secret
+$ printf "password" > ./admin-password.secret
+$ docker run \
+  -e COUCHDB_USER_FILE=/var/run/secrets/admin-username \
+  -e COUCHDB_PASSWORD_FILE=/var/run/secrets/admin-password \
+  -v ./admin-username.secret:/var/run/secrets/admin-username:ro \
+  -v ./admin-password.secret:/var/run/secrets/admin-password:ro \
+  -d %%IMAGE%%
+```
+
 Note that if you are setting up a clustered CouchDB, you will want to pre-hash this password and use the identical hashed text across all nodes to ensure sessions work correctly when a load balancer is placed in front of the cluster. Hashing can be accomplished by running the container with the `/opt/couchdb/etc/local.d` directory mounted as a volume, allowing CouchDB to hash the password you set, then copying out the hashed version and using this value in the future.
 
 ## Using a persistent CouchDB configuration file
