@@ -1,0 +1,58 @@
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+FROM debian:bookworm-slim
+
+LABEL maintainer="CouchDB Developers dev@couchdb.apache.org"
+
+# Add CouchDB user account to make sure the IDs are assigned consistently
+RUN groupadd -g 5984 -r nouveau && useradd -u 5984 -d /opt/nouveau -g nouveau nouveau
+
+# be sure GPG and apt-transport-https are available and functional
+# Nouveau wants a JRE/JDK
+RUN set -ex; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        apt-transport-https \
+        ca-certificates \
+        dirmngr \
+        gnupg \
+        openjdk-17-jre-headless \
+        curl \
+        unzip \
+        procps \
+        systemd \
+     ; \
+    rm -rf /var/lib/apt/lists/*;
+
+# this is a hack to avoid building nouveau in docker - instead, we'll grab it from last known
+# good CI build on CloudBees CI artifacts
+RUN set -eux; \
+    curl -o /tmp/couchdb-packages.zip  \
+      https://ci-couchdb.apache.org/job/jenkins-cm1/job/FullPlatformMatrix/job/main/lastSuccessfulBuild/artifact/pkgs/bookworm/*zip*/bookworm.zip; \
+    mkdir -p /tmp/couchdb-packages; \
+    unzip /tmp/couchdb-packages.zip -d /tmp/couchdb-packages; \
+    DEBIAN_FRONTEND=noninteractive COUCHDB_NOUVEAU_ENABLE=1 apt-get install -fy --allow-downgrades  \
+      --allow-remove-essential --allow-change-held-packages \
+      /tmp/couchdb-packages/bookworm/couchdb-nouveau_*bookworm_amd64.deb; \
+    chown -R nouveau:nouveau /opt/nouveau;
+
+COPY --chown=nouveau:nouveau nouveau.yaml /opt/nouveau/etc/nouveau.yaml
+
+VOLUME /opt/nouveau/data
+
+# 5987: Nouveau App
+# 5988: Nouveau Admin
+EXPOSE 5987 5988
+
+CMD ["/usr/bin/java", "-server", "-Djava.awt.headless=true", "-Xmx2g", "-jar", \
+    "/opt/nouveau/lib/nouveau-1.0-SNAPSHOT.jar", "server", "/opt/nouveau/etc/nouveau.yaml"]
