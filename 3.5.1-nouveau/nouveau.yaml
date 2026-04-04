@@ -8,12 +8,12 @@ logging:
 
 server:
   applicationConnectors:
-    - type: http
+    - type: h2c
       bindHost: 0.0.0.0
       port: 5987
       useDateHeader: false
   adminConnectors:
-    - type: http
+    - type: h2c
       bindHost: 0.0.0.0
       port: 5988
       useDateHeader: false
