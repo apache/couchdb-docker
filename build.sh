@@ -31,8 +31,9 @@
 
 set -e
 
-BUILDX_PLATFORMS="linux/amd64,linux/arm64/v8,linux/s390x"
+BUILDX_PLATFORMS="linux/amd64,linux/arm64/v8"
 # Temporarily disable ppc64le because https://github.com/apache/couchdb-pkg/commit/365d07ce43d9d6d9c3377dd08dc8fc5f656a11bf
+# Temporarily disable s390x because of nouveau build problems with JDK21
 
 clean() {
   echo $#
