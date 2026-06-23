@@ -70,8 +70,7 @@ RUN set -eux; \
     apt-get update; \
     \
     echo "couchdb-nouveau couchdb-nouveau/enable select false" | debconf-set-selections; \
-    DEBIAN_FRONTEND=noninteractive COUCHDB_NOUVEAU_ENABLE=1 apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages --no-install-recommends \
-            couchdb-nouveau=3.5.2.1~trixie; \
+    DEBIAN_FRONTEND=noninteractive COUCHDB_NOUVEAU_ENABLE=1 apt-get install -y --no-install-recommends couchdb-nouveau=3.5.2.1~trixie; \
     rm -rf /var/lib/apt/lists/*; \
     chown -R nouveau:nouveau /opt/nouveau
 
