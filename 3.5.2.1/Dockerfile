@@ -64,9 +64,7 @@ RUN set -eux; \
     \
     echo "couchdb couchdb/mode select none" | debconf-set-selections; \
 # we DO want recommends this time
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages \
-            couchdb="$COUCHDB_VERSION"~trixie \
-    ; \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y couchdb="$COUCHDB_VERSION"~trixie ; \
 # Undo symlinks to /var/log and /var/lib
     rmdir /var/lib/couchdb /var/log/couchdb; \
     rm /opt/couchdb/data /opt/couchdb/var/log; \
