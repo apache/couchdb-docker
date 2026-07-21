@@ -24,6 +24,41 @@ if [ "$1" = 'couchdb' ]; then
 	set -- /opt/couchdb/bin/couchdb "$@"
 fi
 
+# This function will populate the admin user in the docker.ini file using the first argument, the second argument is the password.
+function set_admin_credentials {
+  adminUser="$1"
+  adminPassword="$2"
+  # Create admin only if not already present
+  if ! grep -Pzoqr "\[admins\]\n$adminUser =" /opt/couchdb/etc/local.d/*.ini /opt/couchdb/etc/local.ini; then
+    printf "\n[admins]\n%s = %s\n" "$adminUser" "$adminPassword" >> /opt/couchdb/etc/local.d/docker.ini
+  fi
+}
+
+# This function populates the chttpd_auth secret in the docker.ini file using the first argument.
+function set_http_secret {
+  chttpSecret="$1"
+  if ! grep -Pzoqr "\[chttpd_auth\]\nsecret =" /opt/couchdb/etc/local.d/*.ini /opt/couchdb/etc/local.ini; then
+    printf "\n[chttpd_auth]\nsecret = %s\n" "$chttpSecret" >> /opt/couchdb/etc/local.d/docker.ini
+  fi
+}
+
+# This function populates the erlang cookie in the .erlang.cookie file using the first argument.
+function set_erlang_cookie {
+  erlangCookie="$1"
+  cookieFile='/opt/couchdb/.erlang.cookie'
+		if [ -e "$cookieFile" ]; then
+			if [ "$(cat "$cookieFile" 2>/dev/null)" != "$erlangCookie" ]; then
+				echo >&2
+				echo >&2 "warning: $cookieFile contents do not match COUCHDB_ERLANG_COOKIE"
+				echo >&2
+			fi
+		else
+			echo "$erlangCookie" > "$cookieFile"
+		fi
+		chown couchdb:couchdb "$cookieFile"
+		chmod 600 "$cookieFile"
+}
+
 if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 	# this is where runtime configuration changes will be written.
 	# we need to explicitly touch it here in case /opt/couchdb/etc has
@@ -64,32 +99,41 @@ if [ "$1" = '/opt/couchdb/bin/couchdb' ]; then
 	fi
 
 	if [ "$COUCHDB_USER" ] && [ "$COUCHDB_PASSWORD" ]; then
-		# Create admin only if not already present
-		if ! grep -Pzoqr "\[admins\]\n$COUCHDB_USER =" /opt/couchdb/etc/local.d/*.ini /opt/couchdb/etc/local.ini; then
-			printf "\n[admins]\n%s = %s\n" "$COUCHDB_USER" "$COUCHDB_PASSWORD" >> /opt/couchdb/etc/local.d/docker.ini
-		fi
+    set_admin_credentials "$COUCHDB_USER" "$COUCHDB_PASSWORD"
+  elif [ "$COUCHDB_USER_FILE" ] && [ "$COUCHDB_PASSWORD_FILE" ]; then
+    if [ -f "$COUCHDB_USER_FILE" ] && [ -f "$COUCHDB_PASSWORD_FILE" ]; then
+      adminUser=$(<"$COUCHDB_USER_FILE")
+      adminPassword=$(<"$COUCHDB_PASSWORD_FILE")
+      set_admin_credentials "$adminUser" "$adminPassword"
+    else
+      echo "ERROR: COUCHDB_USER_FILE or COUCHDB_PASSWORD_FILE does not exist." >&2
+      exit 1
+    fi
 	fi
 
 	if [ "$COUCHDB_SECRET" ]; then
 		# Set secret only if not already present
-		if ! grep -Pzoqr "\[chttpd_auth\]\nsecret =" /opt/couchdb/etc/local.d/*.ini /opt/couchdb/etc/local.ini; then
-			printf "\n[chttpd_auth]\nsecret = %s\n" "$COUCHDB_SECRET" >> /opt/couchdb/etc/local.d/docker.ini
-		fi
+		set_http_secret "$COUCHDB_SECRET"
+  elif [ "$COUCHDB_SECRET_FILE" ]; then
+    if [ -f "$COUCHDB_SECRET_FILE" ]; then
+      chttpSecret=$(<"$COUCHDB_SECRET_FILE")
+      set_http_secret "$chttpSecret"
+    else
+      echo "ERROR: COUCHDB_SECRET_FILE does not exist." >&2
+      exit 1
+    fi
 	fi
 
 	if [ "$COUCHDB_ERLANG_COOKIE" ]; then
-		cookieFile='/opt/couchdb/.erlang.cookie'
-		if [ -e "$cookieFile" ]; then
-			if [ "$(cat "$cookieFile" 2>/dev/null)" != "$COUCHDB_ERLANG_COOKIE" ]; then
-				echo >&2
-				echo >&2 "warning: $cookieFile contents do not match COUCHDB_ERLANG_COOKIE"
-				echo >&2
-			fi
-		else
-			echo "$COUCHDB_ERLANG_COOKIE" > "$cookieFile"
-		fi
-		chown couchdb:couchdb "$cookieFile"
-		chmod 600 "$cookieFile"
+    set_erlang_cookie "$COUCHDB_ERLANG_COOKIE"
+  elif [ "$COUCHDB_ERLANG_COOKIE_FILE" ]; then
+    if [ -f "$COUCHDB_ERLANG_COOKIE_FILE" ]; then
+      erlangCookie=$(<"$COUCHDB_ERLANG_COOKIE_FILE")
+      set_erlang_cookie "$erlangCookie"
+    else
+      echo "ERROR: COUCHDB_ERLANG_COOKIE_FILE does not exist." >&2
+      exit 1
+    fi
 	fi
 
 	if [ "$(id -u)" = '0' ]; then
